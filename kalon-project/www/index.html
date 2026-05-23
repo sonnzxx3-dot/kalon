@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#07080d">
+<title>Kalon</title>
+<script>
+/* Standalone storage shim: maps window.storage to localStorage so the
+   app persists data inside the Capacitor/APK build (outside Claude). */
+(function(){
+  if(!window.storage){
+    window.storage = {
+      async get(k){ const v=localStorage.getItem('kalon:'+k); return v===null?null:{key:k,value:v}; },
+      async set(k,v){ localStorage.setItem('kalon:'+k, v); return {key:k,value:v}; },
+      async delete(k){ localStorage.removeItem('kalon:'+k); return {key:k,deleted:true}; },
+      async list(prefix=''){ const keys=[]; for(let i=0;i<localStorage.length;i++){const kk=localStorage.key(i); if(kk.startsWith('kalon:')){const bare=kk.slice(6); if(bare.startsWith(prefix))keys.push(bare);}} return {keys}; }
+    };
+  }
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap');
+
+:root{
+  --bg:#07080d;
+  --bg-2:#0c0e17;
+  --panel:#11141f;
+  --panel-2:#161a28;
+  --line:#222840;
+  --line-soft:#1a1e30;
+  --ink:#f2f4ff;
+  --ink-soft:#9aa3c4;
+  --ink-faint:#5b6589;
+  --steel:#cfd6ff;
+  --blade:#5b8bff;       /* plasma blue */
+  --blade-2:#7c5cff;     /* violet */
+  --edge:#46e0ff;        /* cyan edge */
+  --hot:#ff5d73;         /* over-goal */
+  --gold:#ffc869;
+  --prot:#ff6b8a;
+  --fat:#ffc869;
+  --carb:#46e0ff;
+  --r:20px;
+  --glow:0 0 0 1px rgba(91,139,255,.18), 0 14px 40px -16px rgba(91,139,255,.45);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:'Sora',system-ui,sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(130% 90% at 88% -8%, rgba(124,92,255,.16), transparent 52%),
+    radial-gradient(120% 80% at 4% 104%, rgba(70,224,255,.10), transparent 48%),
+    var(--bg);
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+.app{max-width:520px;margin:0 auto;min-height:100vh;padding:0 16px 130px;position:relative}
+
+/* blade divider accent */
+.edge{height:1px;background:linear-gradient(90deg,transparent,var(--blade),transparent);opacity:.5}
+
+/* header */
+header{padding:max(26px,env(safe-area-inset-top)) 4px 12px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{width:46px;height:46px;flex:none;position:relative;display:grid;place-items:center}
+.mark svg{width:46px;height:46px;filter:drop-shadow(0 4px 14px rgba(91,139,255,.55))}
+.brand h1{font-family:'Syne',sans-serif;font-weight:800;font-size:25px;letter-spacing:.5px;line-height:1;
+  background:linear-gradient(120deg,#fff,var(--steel) 60%,var(--blade));-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand p{font-size:10.5px;color:var(--ink-faint);margin-top:3px;letter-spacing:2.5px;text-transform:uppercase}
+.date-pill{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:8px 12px;text-align:right}
+.date-pill span{font-size:10px;color:var(--ink-faint);letter-spacing:1px;text-transform:uppercase}
+.date-pill b{display:block;color:var(--ink);font-size:14px;font-weight:600;margin-top:2px}
+
+/* day nav */
+.day-nav{display:flex;align-items:center;justify-content:center;gap:14px;margin:8px 0 4px}
+.day-nav button{background:var(--panel);border:1px solid var(--line);color:var(--ink-soft);width:34px;height:34px;border-radius:11px;font-size:16px;cursor:pointer}
+.day-nav button:active{border-color:var(--blade)}
+.day-nav .dlabel{font-size:13px;font-weight:600;min-width:160px;text-align:center;letter-spacing:.3px}
+
+/* hero */
+.hero{position:relative;background:linear-gradient(165deg,var(--panel-2),var(--panel));border:1px solid var(--line);
+  border-radius:24px;padding:22px;margin-top:8px;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:
+  linear-gradient(115deg,transparent 40%,rgba(91,139,255,.07) 50%,transparent 60%);pointer-events:none}
+.hero::after{content:"";position:absolute;top:-40%;right:-20%;width:60%;height:140%;
+  background:radial-gradient(closest-side,rgba(124,92,255,.18),transparent);pointer-events:none}
+.ring-wrap{display:flex;align-items:center;gap:20px;position:relative;z-index:1}
+.ring{position:relative;width:142px;height:142px;flex:none}
+.ring svg{transform:rotate(-90deg)}
+.ring .center{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.ring .center .big{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;line-height:1;letter-spacing:-.5px}
+.ring .center .lab{font-size:9.5px;color:var(--ink-faint);margin-top:4px;letter-spacing:1.5px;text-transform:uppercase}
+.stats{flex:1;display:flex;flex-direction:column;gap:9px}
+.stat-row{display:flex;justify-content:space-between;align-items:baseline}
+.stat-row .k{font-size:12.5px;color:var(--ink-soft)}
+.stat-row .v{font-weight:700;font-size:15px;font-family:'Syne',sans-serif}
+.goal-line{margin-top:6px;font-size:12px;color:var(--ink-faint);line-height:1.4}
+.goal-line b{color:var(--edge)}
+
+.macros{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:18px;position:relative;z-index:1}
+.macro{background:rgba(255,255,255,.025);border:1px solid var(--line-soft);border-radius:14px;padding:11px}
+.macro .top{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-soft)}
+.dot{width:8px;height:8px;border-radius:2px;transform:rotate(45deg)}
+.macro .num{font-weight:700;font-size:16px;margin-top:6px;font-family:'Syne',sans-serif}
+.macro .num span{font-size:10px;color:var(--ink-faint);font-weight:400;font-family:'Sora'}
+.mbar{height:4px;border-radius:3px;background:rgba(255,255,255,.06);margin-top:8px;overflow:hidden}
+.mbar i{display:block;height:100%;border-radius:3px}
+
+/* section */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:24px 4px 12px}
+.section-head h2{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;letter-spacing:.2px}
+.section-head .hint{font-size:11.5px;color:var(--ink-faint)}
+
+/* meals */
+.meal{background:var(--panel);border:1px solid var(--line-soft);border-radius:16px;margin-bottom:11px;overflow:hidden}
+.meal-head{display:flex;align-items:center;gap:11px;padding:13px 15px}
+.meal-emoji{font-size:18px}
+.meal-head .mname{font-weight:600;font-size:14.5px;flex:1}
+.meal-head .mcal{font-size:12.5px;color:var(--ink-soft);font-weight:600;font-family:'Syne'}
+.meal-add{width:28px;height:28px;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:var(--blade);font-size:18px;display:grid;place-items:center;cursor:pointer;flex:none}
+.meal-add:active{background:var(--blade);color:#fff}
+.fitem{display:flex;align-items:center;gap:10px;padding:11px 15px;border-top:1px solid var(--line-soft)}
+.fitem .fi-main{flex:1;min-width:0}
+.fitem .fi-name{font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fitem .fi-sub{font-size:11px;color:var(--ink-faint);margin-top:2px}
+.fitem .fi-cal{font-weight:700;font-size:13.5px;color:var(--edge);font-family:'Syne'}
+.fitem .fi-del{color:var(--ink-faint);font-size:17px;cursor:pointer;padding:2px 4px}
+.empty-meal{padding:13px 15px;font-size:12px;color:var(--ink-faint);border-top:1px solid var(--line-soft)}
+
+/* cards */
+.card{background:var(--panel);border:1px solid var(--line-soft);border-radius:16px;padding:16px}
+.chart-tabs{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap}
+.chip{padding:7px 13px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.chip.on{background:linear-gradient(120deg,var(--blade),var(--blade-2));color:#fff;border-color:transparent}
+.chart-box{position:relative;height:210px}
+.weight-entry{display:flex;gap:9px;margin-top:14px}
+.weight-entry input{flex:1;background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:12px 13px;color:var(--ink);font-size:14px;font-family:inherit}
+.weight-entry input:focus{outline:none;border-color:var(--blade)}
+.weight-entry button{background:var(--panel-2);border:1px solid var(--line);color:var(--blade);border-radius:12px;padding:0 16px;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px}
+
+.streak{display:flex;gap:9px;margin-top:14px}
+.streak .sc{flex:1;background:var(--panel);border:1px solid var(--line-soft);border-radius:14px;padding:13px;text-align:center}
+.streak .sc .sn{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;background:linear-gradient(120deg,var(--edge),var(--blade));-webkit-background-clip:text;background-clip:text;color:transparent}
+.streak .sc .sl{font-size:10.5px;color:var(--ink-faint);margin-top:4px}
+
+/* nav */
+.nav{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;width:calc(100% - 32px);max-width:488px;
+  background:rgba(12,14,23,.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--line);border-radius:20px;padding:8px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;z-index:40}
+.nav button{background:none;border:none;color:var(--ink-faint);font-family:inherit;font-size:10px;font-weight:600;
+  display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0 6px;border-radius:13px;cursor:pointer;transition:.18s;letter-spacing:.3px}
+.nav button svg{width:22px;height:22px}
+.nav button.on{color:var(--edge);background:rgba(70,224,255,.08)}
+/* ad banner */
+.ad-banner{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;width:calc(100% - 32px);max-width:488px;
+  background:linear-gradient(135deg,var(--panel-2),var(--panel));border:1px solid var(--line);border-radius:16px;
+  padding:11px 13px;display:flex;align-items:center;gap:11px;z-index:39;box-shadow:0 10px 26px -12px rgba(0,0,0,.6)}
+.ad-banner.hidden{display:none}
+.ad-banner .ad-tag{position:absolute;top:6px;right:9px;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-faint)}
+.ad-banner .ad-ico{width:38px;height:38px;border-radius:11px;background:linear-gradient(140deg,var(--blade),var(--blade-2));display:grid;place-items:center;font-size:19px;flex:none}
+.ad-banner .ad-main{flex:1;min-width:0}
+.ad-banner .ad-title{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ad-banner .ad-sub{font-size:10.5px;color:var(--ink-faint);margin-top:1px}
+.ad-banner .ad-x{color:var(--ink-faint);font-size:15px;cursor:pointer;padding:2px 4px;flex:none}
+.ad-banner .ad-remove{font-size:10px;color:var(--blade);border:1px solid var(--line);border-radius:8px;padding:5px 8px;cursor:pointer;flex:none;font-weight:600;white-space:nowrap}
+body.has-ad .nav{bottom:14px}
+body.has-ad .fab{bottom:150px}
+
+.fab{position:fixed;right:50%;margin-right:-244px;bottom:86px;width:58px;height:58px;border-radius:18px;
+  background:linear-gradient(140deg,var(--blade),var(--blade-2));border:none;color:#fff;font-size:28px;
+  display:grid;place-items:center;cursor:pointer;box-shadow:0 12px 30px -8px rgba(124,92,255,.7);z-index:41}
+.fab:active{transform:scale(.94)}
+@media(max-width:520px){.fab{right:20px;margin-right:0}}
+
+.view{display:none;animation:fade .28s ease}
+.view.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* sheet */
+.sheet-bg{position:fixed;inset:0;background:rgba(3,5,10,.7);backdrop-filter:blur(4px);z-index:60;opacity:0;pointer-events:none;transition:.25s}
+.sheet-bg.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:61;background:var(--bg-2);border:1px solid var(--line);
+  border-radius:26px 26px 0 0;max-width:520px;margin:0 auto;transform:translateY(102%);transition:transform .32s cubic-bezier(.3,.85,.3,1);
+  max-height:93vh;display:flex;flex-direction:column}
+.sheet.on{transform:translateY(0)}
+.sheet-grip{width:40px;height:4px;border-radius:3px;background:var(--line);margin:11px auto 4px}
+.sheet-head{padding:8px 20px 12px;display:flex;align-items:center;justify-content:space-between}
+.sheet-head h3{font-family:'Syne',sans-serif;font-size:19px;font-weight:700}
+.sheet-close{background:var(--panel);border:1px solid var(--line);color:var(--ink-soft);width:32px;height:32px;border-radius:10px;font-size:16px;cursor:pointer}
+.sheet-body{padding:0 20px 30px;overflow-y:auto}
+
+.search-bar{display:flex;gap:8px;margin-bottom:12px}
+.search-bar input{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:13px 15px;color:var(--ink);font-size:15px;font-family:inherit}
+.search-bar input:focus{outline:none;border-color:var(--blade)}
+.icon-btn{background:var(--panel-2);border:1px solid var(--line);color:var(--blade);border-radius:13px;width:50px;display:grid;place-items:center;cursor:pointer;flex:none}
+.icon-btn svg{width:23px;height:23px}
+
+.seg{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.seg button{flex:1;min-width:fit-content;padding:9px 8px;border-radius:11px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap}
+.seg button.on{background:var(--panel-2);color:var(--edge);border-color:var(--blade)}
+
+.res{display:flex;align-items:center;gap:12px;padding:13px;background:var(--panel);border:1px solid var(--line-soft);border-radius:14px;margin-bottom:9px;cursor:pointer;transition:.15s}
+.res:active{transform:scale(.98);border-color:var(--blade)}
+.res .ri-main{flex:1;min-width:0}
+.res .ri-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.res .ri-sub{font-size:11px;color:var(--ink-faint);margin-top:2px}
+.res .ri-cal{text-align:right}
+.res .ri-cal b{font-size:15px;color:var(--edge);font-weight:700;font-family:'Syne'}
+.res .ri-cal span{display:block;font-size:10px;color:var(--ink-faint)}
+.res .ri-tag{font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--blade-2);border:1px solid var(--line);border-radius:6px;padding:2px 5px;margin-top:3px;display:inline-block}
+.loading{text-align:center;padding:28px 14px;color:var(--ink-faint);font-size:13px;line-height:1.6}
+.spinner{width:26px;height:26px;border:3px solid var(--line);border-top-color:var(--blade);border-radius:50%;margin:0 auto 12px;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* form (manual food / photo result) */
+.field{margin-bottom:13px}
+.field label{display:block;font-size:11.5px;color:var(--ink-soft);margin-bottom:6px;letter-spacing:.3px}
+.field input{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 14px;color:var(--ink);font-size:15px;font-family:inherit}
+.field input:focus{outline:none;border-color:var(--blade)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+
+.portion{text-align:center;padding:4px 0 2px}
+.portion .pname{font-size:17px;font-weight:600;margin-bottom:3px}
+.portion .pbrand{font-size:12px;color:var(--ink-faint);margin-bottom:16px}
+.amt-ring{display:flex;align-items:center;justify-content:center;gap:16px;margin:6px 0 18px}
+.amt-ring button{width:46px;height:46px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--blade);font-size:24px;cursor:pointer}
+.amt-ring .amt{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;min-width:120px}
+.amt-ring .amt span{font-size:15px;color:var(--ink-faint);font-weight:400;margin-left:3px;font-family:'Sora'}
+.macro-preview{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+.mp{background:var(--panel);border:1px solid var(--line-soft);border-radius:13px;padding:11px 6px;text-align:center}
+.mp .mv{font-size:17px;font-weight:700;font-family:'Syne'}
+.mp .ml{font-size:10px;color:var(--ink-faint);margin-top:3px}
+.meal-pick{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:16px}
+.meal-pick button{padding:11px 4px;border-radius:13px;border:1px solid var(--line);background:var(--panel);color:var(--ink-soft);font-family:inherit;font-size:11px;cursor:pointer;display:flex;flex-direction:column;gap:4px;align-items:center}
+.meal-pick button.on{border-color:var(--blade);background:var(--panel-2);color:var(--ink)}
+.meal-pick button .e{font-size:17px}
+.btn-primary{width:100%;background:linear-gradient(135deg,var(--blade),var(--blade-2));color:#fff;border:none;border-radius:15px;padding:15px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:.3px}
+.btn-primary:active{transform:scale(.99)}
+.btn-ghost{width:100%;background:transparent;border:1px solid var(--line);color:var(--ink-soft);border-radius:14px;padding:13px;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:10px}
+
+#reader{border-radius:16px;overflow:hidden;border:1px solid var(--line)}
+.scan-note{font-size:12px;color:var(--ink-faint);text-align:center;margin:14px 0;line-height:1.6}
+.manual-code{display:flex;gap:8px;margin-top:10px}
+.manual-code input{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--ink);font-family:inherit;font-size:14px}
+.manual-code button{background:var(--panel-2);border:1px solid var(--line);color:var(--blade);border-radius:12px;padding:0 18px;font-weight:700;font-family:inherit;cursor:pointer}
+
+/* photo dropzone */
+.photo-zone{border:1.5px dashed var(--line);border-radius:18px;padding:30px 18px;text-align:center;cursor:pointer;transition:.2s}
+.photo-zone:active{border-color:var(--blade);background:rgba(91,139,255,.04)}
+.photo-zone .pi{font-size:40px;margin-bottom:10px}
+.photo-zone .pt{font-size:14px;font-weight:600;margin-bottom:5px}
+.photo-zone .ps{font-size:11.5px;color:var(--ink-faint);line-height:1.5}
+.photo-preview{width:100%;border-radius:16px;border:1px solid var(--line);margin-bottom:14px;max-height:240px;object-fit:cover}
+.badge-soon{display:inline-block;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);border:1px solid rgba(255,200,105,.4);border-radius:6px;padding:2px 7px;margin-left:8px;vertical-align:middle}
+
+/* settings */
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line-soft)}
+.set-row:last-child{border-bottom:none}
+.set-row .sl{font-size:14px}
+.set-row .sl small{display:block;color:var(--ink-faint);font-size:11px;margin-top:2px}
+.set-row input,.set-row select{width:96px;background:var(--bg-2);border:1px solid var(--line);border-radius:11px;padding:9px 11px;color:var(--ink);text-align:right;font-family:inherit;font-size:14px}
+.set-row input:focus{outline:none;border-color:var(--blade)}
+
+.toast{position:fixed;bottom:158px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:linear-gradient(135deg,var(--blade),var(--blade-2));color:#fff;padding:12px 20px;border-radius:14px;font-weight:700;font-size:13px;z-index:90;opacity:0;transition:.3s;box-shadow:0 12px 28px -8px rgba(124,92,255,.7);pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="mark">
+        <svg viewBox="0 0 48 48" fill="none">
+          <defs>
+            <linearGradient id="blade" x1="24" y1="2" x2="24" y2="46" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#46e0ff"/><stop offset=".5" stop-color="#5b8bff"/><stop offset="1" stop-color="#7c5cff"/>
+            </linearGradient>
+          </defs>
+          <path d="M24 3 30 24 24 45 18 24Z" fill="url(#blade)"/>
+          <path d="M24 3 24 45" stroke="#0a0c14" stroke-width="1.2" opacity=".5"/>
+          <path d="M14 28h20l-3 5H17Z" fill="#2a3150"/>
+        </svg>
+      </div>
+      <div>
+        <h1>KALON</h1>
+        <p>Synax Sword AI</p>
+      </div>
+    </div>
+    <div class="date-pill">
+      <span>сегодня</span>
+      <b id="todayDate">—</b>
+    </div>
+  </header>
+  <div class="edge"></div>
+
+  <!-- DIARY -->
+  <section class="view on" id="view-diary">
+    <div class="day-nav">
+      <button id="dayPrev">‹</button>
+      <div class="dlabel" id="dayLabel">Сегодня</div>
+      <button id="dayNext">›</button>
+    </div>
+    <div class="hero">
+      <div class="ring-wrap">
+        <div class="ring">
+          <svg width="142" height="142" viewBox="0 0 142 142">
+            <circle cx="71" cy="71" r="62" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="13"/>
+            <circle id="ringFill" cx="71" cy="71" r="62" fill="none" stroke="url(#rg)" stroke-width="13" stroke-linecap="round" stroke-dasharray="389.6" stroke-dashoffset="389.6"/>
+            <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#46e0ff"/><stop offset="1" stop-color="#7c5cff"/></linearGradient></defs>
+          </svg>
+          <div class="center"><div class="big" id="ringEaten">0</div><div class="lab">ккал</div></div>
+        </div>
+        <div class="stats">
+          <div class="stat-row"><span class="k">Цель</span><span class="v" id="sGoal">2000</span></div>
+          <div class="stat-row"><span class="k">Съедено</span><span class="v" id="sEaten">0</span></div>
+          <div class="stat-row"><span class="k">Осталось</span><span class="v" id="sLeft" style="color:var(--edge)">2000</span></div>
+          <div class="goal-line" id="goalLine">Добавь первый приём пищи →</div>
+        </div>
+      </div>
+      <div class="macros">
+        <div class="macro"><div class="top"><span class="dot" style="background:var(--prot)"></span>Белки</div><div class="num" id="mProt">0<span>г</span></div><div class="mbar"><i id="barProt" style="background:var(--prot);width:0"></i></div></div>
+        <div class="macro"><div class="top"><span class="dot" style="background:var(--fat)"></span>Жиры</div><div class="num" id="mFat">0<span>г</span></div><div class="mbar"><i id="barFat" style="background:var(--fat);width:0"></i></div></div>
+        <div class="macro"><div class="top"><span class="dot" style="background:var(--carb)"></span>Углеводы</div><div class="num" id="mCarb">0<span>г</span></div><div class="mbar"><i id="barCarb" style="background:var(--carb);width:0"></i></div></div>
+      </div>
+    </div>
+    <div class="section-head"><h2>Приёмы пищи</h2><span class="hint">+ чтобы добавить</span></div>
+    <div id="meals"></div>
+  </section>
+
+  <!-- PROGRESS -->
+  <section class="view" id="view-progress">
+    <div class="section-head"><h2>Прогресс</h2></div>
+    <div class="card">
+      <div class="chart-tabs">
+        <button class="chip on" data-chart="cal">Калории</button>
+        <button class="chip" data-chart="macro">БЖУ</button>
+        <button class="chip" data-chart="weight">Вес</button>
+      </div>
+      <div class="chart-box"><canvas id="chart"></canvas></div>
+    </div>
+    <div class="streak">
+      <div class="sc"><div class="sn" id="stStreak">0</div><div class="sl">дней подряд</div></div>
+      <div class="sc"><div class="sn" id="stAvg">0</div><div class="sl">ср. ккал / 7 дн</div></div>
+      <div class="sc"><div class="sn" id="stDays">0</div><div class="sl">всего записей</div></div>
+    </div>
+    <div class="section-head"><h2>Вес тела</h2><span class="hint">кг</span></div>
+    <div class="card">
+      <div class="weight-entry"><input type="number" id="weightInput" placeholder="например 72.5" step="0.1" inputmode="decimal"><button id="weightSave">Записать</button></div>
+      <div id="weightLast" style="margin-top:12px;font-size:12px;color:var(--ink-faint)"></div>
+    </div>
+  </section>
+
+  <!-- MY FOODS -->
+  <section class="view" id="view-foods">
+    <div class="section-head"><h2>Моя база продуктов</h2><span class="hint" id="foodsCount">0</span></div>
+    <button class="btn-primary" id="newFoodBtn" style="margin-bottom:14px">+ Создать продукт</button>
+    <div id="myFoodsList"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="view" id="view-settings">
+    <div class="section-head"><h2>Цели</h2></div>
+    <div class="card">
+      <div class="set-row"><div class="sl">Калории<small>ккал/день</small></div><input type="number" id="setGoal" inputmode="numeric"></div>
+      <div class="set-row"><div class="sl">Белки<small>цель, г</small></div><input type="number" id="setProt" inputmode="numeric"></div>
+      <div class="set-row"><div class="sl">Жиры<small>цель, г</small></div><input type="number" id="setFat" inputmode="numeric"></div>
+      <div class="set-row"><div class="sl">Углеводы<small>цель, г</small></div><input type="number" id="setCarb" inputmode="numeric"></div>
+    </div>
+    <div class="section-head"><h2>Расчёт нормы</h2><span class="hint">Миффлин</span></div>
+    <div class="card">
+      <div class="set-row"><div class="sl">Пол</div><div class="seg" style="margin:0;width:140px"><button id="sexM" class="on">М</button><button id="sexF">Ж</button></div></div>
+      <div class="set-row"><div class="sl">Возраст</div><input type="number" id="calcAge" inputmode="numeric" placeholder="30"></div>
+      <div class="set-row"><div class="sl">Рост, см</div><input type="number" id="calcH" inputmode="numeric" placeholder="175"></div>
+      <div class="set-row"><div class="sl">Вес, кг</div><input type="number" id="calcW" inputmode="decimal" placeholder="72"></div>
+      <div class="set-row"><div class="sl">Активность</div><select id="calcAct"><option value="1.2">Низкая</option><option value="1.375" selected>Лёгкая</option><option value="1.55">Средняя</option><option value="1.725">Высокая</option></select></div>
+      <button class="btn-primary" id="calcBtn" style="margin-top:14px">Рассчитать и применить</button>
+    </div>
+    <div class="section-head"><h2>Kalon Premium</h2><span class="badge-soon">демо</span></div>
+    <div class="card">
+      <div class="set-row"><div class="sl">Убрать рекламу<small>разовая покупка или подписка</small></div>
+        <button id="premToggle" style="background:transparent;border:1px solid var(--blade);color:var(--blade);border-radius:11px;padding:8px 13px;font-family:inherit;font-weight:700;cursor:pointer;font-size:12px">Купить</button></div>
+      <div class="set-row"><div class="sl">Анализ еды по фото<small>в разработке · откроется в Premium</small></div>
+        <span style="font-size:11px;color:var(--ink-faint)">скоро</span></div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <div class="set-row"><div class="sl">Сбросить все данные<small>дневник, вес, продукты, настройки</small></div>
+        <button id="resetBtn" style="background:transparent;border:1px solid var(--hot);color:var(--hot);border-radius:11px;padding:8px 13px;font-family:inherit;font-weight:700;cursor:pointer;font-size:12px">Сброс</button></div>
+    </div>
+    <p style="text-align:center;font-size:11px;color:var(--ink-faint);margin-top:20px;line-height:1.6">
+      Kalon · Synax Sword AI<br>Данные продуктов — Open Food Facts.<br>Не является медицинской рекомендацией.
+    </p>
+  </section>
+</div>
+
+<button class="fab" id="fab">+</button>
+<div class="ad-banner" id="adBanner">
+  <span class="ad-tag">реклама</span>
+  <div class="ad-ico">⚔️</div>
+  <div class="ad-main">
+    <div class="ad-title">Kalon Premium — без рекламы</div>
+    <div class="ad-sub">Здесь показывается баннер AdMob</div>
+  </div>
+  <div class="ad-remove" id="adRemove">Убрать</div>
+  <div class="ad-x" id="adClose">✕</div>
+</div>
+<nav class="nav">
+  <button class="on" data-view="diary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16M4 12h16M4 19h10" stroke-linecap="round"/></svg>Дневник</button>
+  <button data-view="progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 19h16M8 16l3-4 3 2 4-6" stroke-linecap="round" stroke-linejoin="round"/></svg>Прогресс</button>
+  <button data-view="foods"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h14v16l-7-3-7 3V4Z" stroke-linejoin="round"/></svg>База</button>
+  <button data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" stroke-linecap="round"/></svg>Ещё</button>
+</nav>
+
+<div class="sheet-bg" id="sheetBg"></div>
+<div class="sheet" id="addSheet">
+  <div class="sheet-grip"></div>
+  <div class="sheet-head"><h3 id="sheetTitle">Добавить</h3><button class="sheet-close" id="sheetClose">✕</button></div>
+  <div class="sheet-body" id="sheetBody"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== STATE ===== */
+const todayISO=()=>new Date().toISOString().slice(0,10);
+let viewDate=todayISO(), pendingMeal='breakfast';
+const DEFAULTS={goal:2000,prot:120,fat:65,carb:250,sex:'M',age:30,height:175,weight:72,act:1.375,premium:false};
+let S={...DEFAULTS}, DIARY={}, WEIGHTS={}, MYFOODS=[];
+const MEALS=[{id:'breakfast',name:'Завтрак',emoji:'🌅'},{id:'lunch',name:'Обед',emoji:'☀️'},{id:'dinner',name:'Ужин',emoji:'🌙'},{id:'snack',name:'Перекус',emoji:'🍎'}];
+
+/* ===== STORAGE ===== */
+async function loadAll(){
+  for(const [key,setter] of [['settings',v=>S={...DEFAULTS,...v}],['diary',v=>DIARY=v],['weights',v=>WEIGHTS=v],['myfoods',v=>MYFOODS=v]]){
+    try{ const r=await window.storage.get(key); if(r&&r.value) setter(JSON.parse(r.value)); }catch(e){}
+  }
+}
+const saveSettings=()=>{try{window.storage.set('settings',JSON.stringify(S))}catch(e){}};
+const saveDiary=()=>{try{window.storage.set('diary',JSON.stringify(DIARY))}catch(e){}};
+const saveWeights=()=>{try{window.storage.set('weights',JSON.stringify(WEIGHTS))}catch(e){}};
+const saveMyFoods=()=>{try{window.storage.set('myfoods',JSON.stringify(MYFOODS))}catch(e){}};
+
+/* ===== HELPERS ===== */
+const $=s=>document.querySelector(s);
+const fmt=n=>Math.round(n).toLocaleString('ru-RU');
+function dayData(d){if(!DIARY[d])DIARY[d]={breakfast:[],lunch:[],dinner:[],snack:[]};return DIARY[d];}
+function dayTotals(d){const x=DIARY[d];let cal=0,p=0,f=0,c=0;if(x)MEALS.forEach(m=>(x[m.id]||[]).forEach(i=>{cal+=i.cal;p+=i.prot;f+=i.fat;c+=i.carb}));return{cal,p,f,c};}
+function prettyDate(iso){const t=todayISO(),y=new Date(Date.now()-864e5).toISOString().slice(0,10);if(iso===t)return'Сегодня';if(iso===y)return'Вчера';return new Date(iso+'T00:00').toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'long'});}
+let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),1900);}
+
+/* ===== DIARY RENDER ===== */
+function renderDiary(){
+  $('#todayDate').textContent=new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+  $('#dayLabel').textContent=prettyDate(viewDate);
+  const t=dayTotals(viewDate),goal=S.goal||2000,left=goal-t.cal;
+  $('#ringEaten').textContent=fmt(t.cal);$('#sGoal').textContent=fmt(goal);$('#sEaten').textContent=fmt(t.cal);
+  const le=$('#sLeft');
+  if(left<0){le.style.color='var(--hot)';le.textContent='+'+fmt(-left);$('#goalLine').innerHTML='Превышение на <b style="color:var(--hot)">'+fmt(-left)+'</b> ккал';}
+  else{le.style.color='var(--edge)';le.textContent=fmt(left);$('#goalLine').innerHTML='Ещё <b>'+fmt(left)+'</b> ккал до цели';}
+  const pct=Math.min(t.cal/goal,1);$('#ringFill').style.strokeDashoffset=389.6*(1-pct);
+  $('#ringFill').setAttribute('stroke',left<0?'var(--hot)':'url(#rg)');
+  const sm=(v,g,n,b)=>{$(n).innerHTML=fmt(v)+'<span>г</span>';$(b).style.width=Math.min(v/(g||1)*100,100)+'%';};
+  sm(t.p,S.prot,'#mProt','#barProt');sm(t.f,S.fat,'#mFat','#barFat');sm(t.c,S.carb,'#mCarb','#barCarb');
+  const wrap=$('#meals');wrap.innerHTML='';const d=dayData(viewDate);
+  MEALS.forEach(m=>{
+    const items=d[m.id]||[],mcal=items.reduce((s,i)=>s+i.cal,0);
+    const el=document.createElement('div');el.className='meal';
+    el.innerHTML=`<div class="meal-head"><span class="meal-emoji">${m.emoji}</span><span class="mname">${m.name}</span><span class="mcal">${fmt(mcal)} ккал</span><button class="meal-add" data-meal="${m.id}">+</button></div>`;
+    if(items.length){items.forEach((it,idx)=>{const row=document.createElement('div');row.className='fitem';
+      row.innerHTML=`<div class="fi-main"><div class="fi-name">${it.name}</div><div class="fi-sub">${fmt(it.amount)} г · Б${fmt(it.prot)} Ж${fmt(it.fat)} У${fmt(it.carb)}</div></div><div class="fi-cal">${fmt(it.cal)}</div><div class="fi-del" data-meal="${m.id}" data-idx="${idx}">✕</div>`;
+      el.appendChild(row);});}
+    else{const e=document.createElement('div');e.className='empty-meal';e.textContent='Пусто';el.appendChild(e);}
+    wrap.appendChild(el);
+  });
+}
+$('#meals').addEventListener('click',e=>{
+  const del=e.target.closest('.fi-del');
+  if(del){dayData(viewDate)[del.dataset.meal].splice(+del.dataset.idx,1);saveDiary();renderDiary();toast('Удалено');return;}
+  const add=e.target.closest('.meal-add');
+  if(add){pendingMeal=add.dataset.meal;openSearch();}
+});
+$('#dayPrev').onclick=()=>{viewDate=new Date(new Date(viewDate)-864e5).toISOString().slice(0,10);renderDiary();};
+$('#dayNext').onclick=()=>{const n=new Date(+new Date(viewDate)+864e5).toISOString().slice(0,10);if(n<=todayISO()){viewDate=n;renderDiary();}};
+
+/* ===== SHEET ===== */
+function openSheet(){$('#sheetBg').classList.add('on');$('#addSheet').classList.add('on');}
+function closeSheet(){$('#sheetBg').classList.remove('on');$('#addSheet').classList.remove('on');stopScanner();}
+$('#sheetClose').onclick=closeSheet;$('#sheetBg').onclick=closeSheet;
+
+/* ===== COMMON FOODS (offline) ===== */
+const COMMON=[
+  {name:'Куриная грудка (варёная)',cal:165,prot:31,fat:3.6,carb:0},{name:'Рис белый (варёный)',cal:130,prot:2.7,fat:0.3,carb:28},
+  {name:'Гречка (варёная)',cal:110,prot:4,fat:1.1,carb:21},{name:'Яйцо куриное',cal:155,prot:13,fat:11,carb:1.1},
+  {name:'Овсянка на воде',cal:88,prot:3,fat:1.7,carb:15},{name:'Банан',cal:96,prot:1.5,fat:0.2,carb:21},
+  {name:'Яблоко',cal:52,prot:0.3,fat:0.2,carb:14},{name:'Творог 5%',cal:121,prot:17,fat:5,carb:1.8},
+  {name:'Молоко 2.5%',cal:52,prot:2.8,fat:2.5,carb:4.7},{name:'Хлеб ржаной',cal:210,prot:6,fat:1.2,carb:42},
+  {name:'Картофель отварной',cal:82,prot:2,fat:0.4,carb:17},{name:'Лосось (запечённый)',cal:208,prot:20,fat:13,carb:0},
+  {name:'Грудка индейки',cal:135,prot:29,fat:1.5,carb:0},{name:'Сыр российский',cal:363,prot:23,fat:30,carb:0},
+  {name:'Огурец',cal:15,prot:0.8,fat:0.1,carb:3.6},{name:'Помидор',cal:20,prot:0.9,fat:0.2,carb:4.2},
+  {name:'Макароны (варёные)',cal:158,prot:5.8,fat:0.9,carb:31},{name:'Говядина (тушёная)',cal:232,prot:26,fat:14,carb:0},
+];
+
+/* ===== SEARCH ===== */
+let searchTimer,currentSrc='off';
+function openSearch(){
+  $('#sheetTitle').textContent='Добавить · '+(MEALS.find(m=>m.id===pendingMeal)?.name||'');
+  $('#sheetBody').innerHTML=`
+    <div class="search-bar">
+      <input id="q" placeholder="Найти продукт…" autocomplete="off">
+      <div class="icon-btn" id="qScan" title="Скан"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2M8 8v8M11 8v8M14 8v8M16.5 8v8" stroke-linecap="round"/></svg></div>
+      <div class="icon-btn" id="qPhoto" title="Фото"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L19 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8Z" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5"/></svg></div>
+    </div>
+    <div class="seg" id="srcSeg">
+      <button class="on" data-src="off">Open Food Facts</button>
+      <button data-src="mine">Моя база</button>
+      <button data-src="common">Базовые</button>
+    </div>
+    <div id="results"></div>`;
+  openSheet();setTimeout(()=>$('#q')?.focus(),300);
+  $('#q').addEventListener('input',e=>{clearTimeout(searchTimer);const v=e.target.value.trim();searchTimer=setTimeout(()=>doSearch(v),420);});
+  $('#qScan').onclick=openScanner;$('#qPhoto').onclick=openPhoto;
+  $('#srcSeg').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;
+    $('#srcSeg').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+    currentSrc=b.dataset.src;const v=$('#q').value.trim();
+    if(currentSrc==='common')showList(v?COMMON.filter(f=>f.name.toLowerCase().includes(v.toLowerCase())):COMMON);
+    else if(currentSrc==='mine')showList(v?MYFOODS.filter(f=>f.name.toLowerCase().includes(v.toLowerCase())):MYFOODS,'mine');
+    else if(v)doSearch(v);else $('#results').innerHTML='';
+  });
+}
+function resultRow(f,tag){
+  const el=document.createElement('div');el.className='res';
+  el.innerHTML=`<div class="ri-main"><div class="ri-name">${f.name}</div><div class="ri-sub">${f.brand?f.brand+' · ':''}на 100 г</div>${tag?`<span class="ri-tag">${tag}</span>`:''}</div><div class="ri-cal"><b>${fmt(f.cal)}</b><span>ккал</span></div>`;
+  el.onclick=()=>openPortion(f);return el;
+}
+function showList(arr,tag){const r=$('#results');r.innerHTML='';if(!arr.length){r.innerHTML='<div class="loading">Ничего не найдено.</div>';return;}arr.forEach(f=>r.appendChild(resultRow(f,tag==='mine'?'своё':'')));}
+async function doSearch(q){
+  const r=$('#results');
+  if(currentSrc==='common'){showList(q?COMMON.filter(f=>f.name.toLowerCase().includes(q.toLowerCase())):COMMON);return;}
+  if(currentSrc==='mine'){showList(q?MYFOODS.filter(f=>f.name.toLowerCase().includes(q.toLowerCase())):MYFOODS,'mine');return;}
+  if(!q){r.innerHTML='';return;}
+  r.innerHTML='<div class="loading"><div class="spinner"></div>Ищем в Open Food Facts…</div>';
+  try{
+    const url='https://world.openfoodfacts.org/cgi/search.pl?search_terms='+encodeURIComponent(q)+'&search_simple=1&action=process&json=1&page_size=20&fields=product_name,product_name_ru,brands,nutriments';
+    const data=await(await fetch(url)).json();
+    const items=(data.products||[]).map(parseOFF).filter(Boolean);
+    r.innerHTML='';if(!items.length){r.innerHTML='<div class="loading">Ничего не найдено.<br>Попробуй «Моя база» или создай продукт вручную.</div>';return;}
+    items.forEach(f=>r.appendChild(resultRow(f)));
+  }catch(e){r.innerHTML='<div class="loading">Нет соединения с базой.<br>Открой «Базовые» или «Моя база».</div>';}
+}
+function parseOFF(p){const n=p.nutriments||{};const cal=n['energy-kcal_100g']??(n['energy_100g']?n['energy_100g']/4.184:null);if(cal==null)return null;
+  const name=(p.product_name_ru||p.product_name||'').trim();if(!name)return null;
+  return{name:name.length>54?name.slice(0,54)+'…':name,brand:(p.brands||'').split(',')[0].trim(),cal:+cal||0,prot:+(n.proteins_100g||0),fat:+(n.fat_100g||0),carb:+(n.carbohydrates_100g||0)};}
+
+/* ===== PORTION ===== */
+let portionFood,portionAmt;
+function openPortion(f){
+  portionFood=f;portionAmt=100;pendingMeal=pendingMeal||'breakfast';
+  $('#sheetTitle').textContent='Порция';
+  $('#sheetBody').innerHTML=`
+    <div class="portion"><div class="pname">${f.name}</div><div class="pbrand">${f.brand?f.brand+' · ':''}${fmt(f.cal)} ккал на 100 г</div></div>
+    <div class="amt-ring"><button id="amtMinus">−</button><div class="amt"><span id="amtVal">100</span><span>г</span></div><button id="amtPlus">+</button></div>
+    <div class="macro-preview"><div class="mp"><div class="mv" id="pvCal">0</div><div class="ml">ккал</div></div><div class="mp"><div class="mv" id="pvP">0</div><div class="ml">белки</div></div><div class="mp"><div class="mv" id="pvF">0</div><div class="ml">жиры</div></div><div class="mp"><div class="mv" id="pvC">0</div><div class="ml">углев.</div></div></div>
+    <div class="meal-pick" id="mealPick">${MEALS.map(m=>`<button data-m="${m.id}" class="${m.id===pendingMeal?'on':''}"><span class="e">${m.emoji}</span>${m.name}</button>`).join('')}</div>
+    <button class="btn-primary" id="addFinal">Добавить в дневник</button>`;
+  openSheet();
+  const upd=()=>{const k=portionAmt/100;$('#amtVal').textContent=portionAmt;$('#pvCal').textContent=fmt(f.cal*k);$('#pvP').textContent=fmt(f.prot*k);$('#pvF').textContent=fmt(f.fat*k);$('#pvC').textContent=fmt(f.carb*k);};upd();
+  $('#amtMinus').onclick=()=>{portionAmt=Math.max(10,portionAmt-10);upd();};
+  $('#amtPlus').onclick=()=>{portionAmt+=10;upd();};
+  $('#mealPick').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;$('#mealPick').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');pendingMeal=b.dataset.m;});
+  $('#addFinal').onclick=()=>{const k=portionAmt/100;dayData(viewDate)[pendingMeal].push({name:f.name,amount:portionAmt,cal:f.cal*k,prot:f.prot*k,fat:f.fat*k,carb:f.carb*k});saveDiary();renderDiary();closeSheet();toast('Добавлено ✓');};
+}
+
+/* ===== MANUAL / CREATE FOOD ===== */
+function openCreateFood(prefill){
+  $('#sheetTitle').textContent='Новый продукт';
+  const p=prefill||{};
+  $('#sheetBody').innerHTML=`
+    <p style="font-size:12px;color:var(--ink-faint);margin-bottom:14px;line-height:1.6">Укажи значения <b style="color:var(--ink-soft)">на 100 г</b>. Продукт сохранится в твою базу и будет доступен для повторного добавления.</p>
+    <div class="field"><label>Название</label><input id="nfName" placeholder="Например: Мамин борщ" value="${p.name||''}"></div>
+    <div class="field"><label>Бренд / заметка (необязательно)</label><input id="nfBrand" placeholder="домашнее" value="${p.brand||''}"></div>
+    <div class="grid4">
+      <div class="field"><label>Ккал</label><input id="nfCal" type="number" inputmode="numeric" value="${p.cal??''}"></div>
+      <div class="field"><label>Белки</label><input id="nfP" type="number" inputmode="decimal" value="${p.prot??''}"></div>
+      <div class="field"><label>Жиры</label><input id="nfF" type="number" inputmode="decimal" value="${p.fat??''}"></div>
+      <div class="field"><label>Углев.</label><input id="nfC" type="number" inputmode="decimal" value="${p.carb??''}"></div>
+    </div>
+    <button class="btn-primary" id="nfSave" style="margin-top:6px">Сохранить в базу</button>
+    <button class="btn-ghost" id="nfQuick">Сохранить и сразу добавить в дневник</button>`;
+  openSheet();
+  const collect=()=>{const f={name:$('#nfName').value.trim(),brand:$('#nfBrand').value.trim(),cal:+$('#nfCal').value||0,prot:+$('#nfP').value||0,fat:+$('#nfF').value||0,carb:+$('#nfC').value||0};
+    if(!f.name){toast('Введи название');return null;}if(!f.cal){toast('Введи калорийность');return null;}return f;};
+  $('#nfSave').onclick=()=>{const f=collect();if(!f)return;MYFOODS.unshift(f);saveMyFoods();renderMyFoods();closeSheet();toast('Продукт сохранён ✓');};
+  $('#nfQuick').onclick=()=>{const f=collect();if(!f)return;MYFOODS.unshift(f);saveMyFoods();renderMyFoods();openPortion(f);};
+}
+function renderMyFoods(){
+  $('#foodsCount').textContent=MYFOODS.length+' шт';
+  const wrap=$('#myFoodsList');wrap.innerHTML='';
+  if(!MYFOODS.length){wrap.innerHTML='<div class="card" style="text-align:center;color:var(--ink-faint);font-size:13px;line-height:1.7">Здесь будут твои продукты.<br>Создавай блюда с собственными калориями —<br>домашнюю еду, рецепты, что угодно.</div>';return;}
+  MYFOODS.forEach((f,i)=>{const el=document.createElement('div');el.className='res';
+    el.innerHTML=`<div class="ri-main"><div class="ri-name">${f.name}</div><div class="ri-sub">${f.brand?f.brand+' · ':''}Б${fmt(f.prot)} Ж${fmt(f.fat)} У${fmt(f.carb)} на 100г</div></div><div class="ri-cal"><b>${fmt(f.cal)}</b><span>ккал</span></div><div class="fi-del" data-i="${i}" style="margin-left:6px">✕</div>`;
+    el.querySelector('.ri-main').onclick=()=>{pendingMeal='breakfast';openPortion(f);};
+    el.querySelector('.fi-del').onclick=(ev)=>{ev.stopPropagation();MYFOODS.splice(i,1);saveMyFoods();renderMyFoods();toast('Удалено из базы');};
+    wrap.appendChild(el);});
+}
+$('#newFoodBtn').onclick=()=>openCreateFood();
+
+/* ===== SCANNER ===== */
+let scanner=null;
+function openScanner(){
+  $('#sheetTitle').textContent='Сканировать штрих-код';
+  $('#sheetBody').innerHTML=`<div id="reader"></div><div class="scan-note">Наведи камеру на штрих-код.<br>Если камера недоступна — введи код вручную.</div>
+    <div class="manual-code"><input id="manualCode" placeholder="4607004890017" inputmode="numeric"><button id="manualGo">Найти</button></div>`;
+  openSheet();$('#manualGo').onclick=()=>{const c=$('#manualCode').value.trim();if(c)lookupBarcode(c);};startScanner();
+}
+function startScanner(){
+  if(typeof Html5Qrcode==='undefined')return;
+  scanner=new Html5Qrcode('reader');
+  scanner.start({facingMode:'environment'},{fps:10,qrbox:{width:250,height:160}},code=>{stopScanner();lookupBarcode(code);},()=>{})
+  .catch(()=>{const rd=$('#reader');if(rd)rd.innerHTML='<div class="loading" style="padding:34px 14px">📷 Камера недоступна в этом окне.<br><br>Открой Kalon в браузере телефона или собранном приложении, либо введи код вручную ниже.</div>';});
+}
+function stopScanner(){if(scanner){try{scanner.stop().then(()=>{scanner.clear();scanner=null;}).catch(()=>{scanner=null;});}catch(e){scanner=null;}}}
+async function lookupBarcode(code){
+  $('#sheetTitle').textContent='Поиск по коду';
+  $('#sheetBody').innerHTML='<div class="loading"><div class="spinner"></div>Ищем продукт '+code+'…</div>';
+  try{
+    const data=await(await fetch('https://world.openfoodfacts.org/api/v2/product/'+encodeURIComponent(code)+'.json?fields=product_name,product_name_ru,brands,nutriments')).json();
+    if(data.status===1&&data.product){const f=parseOFF(data.product);if(f){openPortion(f);return;}}
+    $('#sheetBody').innerHTML='<div class="loading">Код '+code+' не найден.<br><br>Можешь добавить продукт вручную.<br><br><button class="btn-primary" id="toCreate" style="max-width:240px;margin:14px auto 0">Создать продукт вручную</button></div>';
+    $('#toCreate').onclick=()=>openCreateFood();
+  }catch(e){$('#sheetBody').innerHTML='<div class="loading">Нет соединения.<br><br><button class="btn-primary" id="toCreate" style="max-width:240px;margin:14px auto 0">Создать вручную</button></div>';$('#toCreate').onclick=()=>openCreateFood();}
+}
+
+/* ===== PHOTO ANALYSIS (заготовка под AI vision API) ===== */
+function openPhoto(){
+  $('#sheetTitle').textContent='Анализ по фото';
+  $('#sheetBody').innerHTML=`
+    <input type="file" id="photoFile" accept="image/*" capture="environment" style="display:none">
+    <div class="photo-zone" id="photoZone">
+      <div class="pi">📸</div>
+      <div class="pt">Сфотографируй блюдо <span class="badge-soon">AI</span></div>
+      <div class="ps">Нажми, чтобы открыть камеру или выбрать фото.<br>Kalon оценит примерную калорийность.</div>
+    </div>
+    <div id="photoResult"></div>`;
+  openSheet();
+  $('#photoZone').onclick=()=>$('#photoFile').click();
+  $('#photoFile').onchange=e=>{const file=e.target.files[0];if(file)handlePhoto(file);};
+}
+async function handlePhoto(file){
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    const dataUrl=ev.target.result;
+    $('#sheetBody').innerHTML=`<img class="photo-preview" src="${dataUrl}"><div id="photoResult"></div>`;
+    const res=$('#photoResult');
+    // Фото-анализ — заготовка на будущее (демо для всех). Реальный AI подключается позже.
+    res.innerHTML=`<div class="card" style="text-align:center;line-height:1.7">
+        <div style="font-size:34px;margin-bottom:8px">✨</div>
+        <div style="font-weight:700;margin-bottom:6px">Анализ по фото <span class="badge-soon">скоро</span></div>
+        <div style="font-size:12.5px;color:var(--ink-faint);margin-bottom:14px">Это заготовка. В будущей версии фото отправляется в AI-модель и возвращает блюдо с примерными калориями и БЖУ.</div>
+        <button class="btn-primary" id="demoAnalyze">Показать демо-результат</button>
+        <button class="btn-ghost" id="manualInstead">Ввести вручную</button>
+      </div>`;
+    $('#manualInstead').onclick=()=>openCreateFood();
+    $('#demoAnalyze').onclick=()=>demoPhotoResult(dataUrl);
+    /* === МЕСТО ДЛЯ РЕАЛЬНОГО AI-ЗАПРОСА (на будущее) ===
+       Здесь пойдёт fetch на твой backend, который вызывает vision-модель
+       с base64-картинкой и возвращает JSON { name, cal, prot, fat, carb }.
+       Backend нужен, чтобы скрыть API-ключ. Детали — в руководстве. */
+  };
+  reader.readAsDataURL(file);
+}
+function demoPhotoResult(){
+  const guess={name:'Распознанное блюдо (демо)',brand:'оценка AI',cal:185,prot:9,fat:7,carb:22};
+  $('#photoResult').innerHTML=`<div class="card" style="line-height:1.6">
+    <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Демо-оценка</div>
+    <div style="font-weight:700;font-size:15px;margin-bottom:10px">${guess.name}</div>
+    <div class="macro-preview" style="margin-bottom:14px"><div class="mp"><div class="mv">${guess.cal}</div><div class="ml">ккал/100г</div></div><div class="mp"><div class="mv">${guess.prot}</div><div class="ml">белки</div></div><div class="mp"><div class="mv">${guess.fat}</div><div class="ml">жиры</div></div><div class="mp"><div class="mv">${guess.carb}</div><div class="ml">углев.</div></div></div>
+    <button class="btn-primary" id="usePhoto">Уточнить порцию и добавить</button>
+    <button class="btn-ghost" id="editPhoto">Поправить значения вручную</button>
+  </div>`;
+  $('#usePhoto').onclick=()=>openPortion(guess);
+  $('#editPhoto').onclick=()=>openCreateFood(guess);
+}
+
+/* ===== CHARTS ===== */
+let chart,chartType='cal';
+function last7(){const a=[];for(let i=6;i>=0;i--)a.push(new Date(Date.now()-i*864e5).toISOString().slice(0,10));return a;}
+function renderChart(){
+  const ctx=$('#chart');if(!ctx)return;const days=last7();
+  const labels=days.map(d=>new Date(d+'T00:00').toLocaleDateString('ru-RU',{weekday:'short'}));
+  if(chart)chart.destroy();
+  const grid='rgba(255,255,255,.05)',tick='#5b6589';
+  const base={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:chartType==='macro',labels:{color:'#9aa3c4',boxWidth:10,font:{size:11}}}},scales:{x:{grid:{color:grid},ticks:{color:tick,font:{size:11}}},y:{grid:{color:grid},ticks:{color:tick,font:{size:11}},beginAtZero:true}}};
+  if(chartType==='cal'){
+    const data=days.map(d=>Math.round(dayTotals(d).cal));
+    chart=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'ккал',data,backgroundColor:data.map(v=>v>S.goal?'rgba(255,93,115,.85)':'rgba(91,139,255,.85)'),borderRadius:8,maxBarThickness:34}]},options:{...base,scales:{...base.scales,y:{...base.scales.y,suggestedMax:S.goal*1.2}}}});
+  }else if(chartType==='macro'){
+    chart=new Chart(ctx,{type:'bar',data:{labels,datasets:[
+      {label:'Белки',data:days.map(d=>Math.round(dayTotals(d).p)),backgroundColor:'rgba(255,107,138,.85)',borderRadius:6,stack:'s'},
+      {label:'Жиры',data:days.map(d=>Math.round(dayTotals(d).f)),backgroundColor:'rgba(255,200,105,.85)',borderRadius:6,stack:'s'},
+      {label:'Углеводы',data:days.map(d=>Math.round(dayTotals(d).c)),backgroundColor:'rgba(70,224,255,.85)',borderRadius:6,stack:'s'}]},
+      options:{...base,scales:{...base.scales,x:{...base.scales.x,stacked:true},y:{...base.scales.y,stacked:true}}}});
+  }else{
+    const d30=[];for(let i=29;i>=0;i--)d30.push(new Date(Date.now()-i*864e5).toISOString().slice(0,10));
+    const pts=d30.map(d=>WEIGHTS[d]??null);
+    const lbl=d30.map((d,i)=>i%5===0?new Date(d+'T00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'short'}):'');
+    chart=new Chart(ctx,{type:'line',data:{labels:lbl,datasets:[{label:'кг',data:pts,borderColor:'#46e0ff',backgroundColor:'rgba(70,224,255,.12)',tension:.35,spanGaps:true,fill:true,pointRadius:3,pointBackgroundColor:'#46e0ff'}]},options:{...base,plugins:{legend:{display:false}},scales:{...base.scales,y:{...base.scales.y,beginAtZero:false}}}});
+  }
+}
+function renderStats(){
+  let streak=0,cur=todayISO();
+  if(dayTotals(cur).cal===0)cur=new Date(Date.now()-864e5).toISOString().slice(0,10);
+  while(dayTotals(cur).cal>0){streak++;cur=new Date(+new Date(cur)-864e5).toISOString().slice(0,10);}
+  const d7=last7().map(d=>dayTotals(d).cal).filter(v=>v>0);
+  const avg=d7.length?d7.reduce((a,b)=>a+b,0)/d7.length:0;
+  const total=Object.keys(DIARY).filter(d=>dayTotals(d).cal>0).length;
+  $('#stStreak').textContent=streak;$('#stAvg').textContent=fmt(avg);$('#stDays').textContent=total;
+}
+document.querySelectorAll('.chart-tabs .chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('.chart-tabs .chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');chartType=c.dataset.chart;renderChart();});
+$('#weightSave').onclick=()=>{const v=parseFloat($('#weightInput').value.replace(',','.'));if(!v||v<=0){toast('Введи корректный вес');return;}WEIGHTS[todayISO()]=v;saveWeights();$('#weightInput').value='';renderWeightLast();if(chartType==='weight')renderChart();renderStats();toast('Вес записан ✓');};
+function renderWeightLast(){const d=Object.keys(WEIGHTS).sort();if(!d.length){$('#weightLast').textContent='Пока нет записей веса.';return;}const last=d[d.length-1];let t='Последняя: '+WEIGHTS[last]+' кг · '+prettyDate(last);if(d.length>1){const diff=WEIGHTS[last]-WEIGHTS[d[0]];t+=' · '+(diff>=0?'+':'')+diff.toFixed(1)+' кг за период';}$('#weightLast').textContent=t;}
+
+/* ===== SETTINGS ===== */
+function fillSettings(){
+  $('#setGoal').value=S.goal;$('#setProt').value=S.prot;$('#setFat').value=S.fat;$('#setCarb').value=S.carb;
+  $('#calcAge').value=S.age;$('#calcH').value=S.height;$('#calcW').value=S.weight;$('#calcAct').value=S.act;
+  $('#sexM').classList.toggle('on',S.sex==='M');$('#sexF').classList.toggle('on',S.sex==='F');
+  $('#premToggle').textContent=S.premium?'Куплено ✓':'Купить';
+  applyAdState();
+}
+['setGoal','setProt','setFat','setCarb'].forEach(id=>$('#'+id).addEventListener('change',e=>{const k={setGoal:'goal',setProt:'prot',setFat:'fat',setCarb:'carb'}[id];S[k]=Math.max(0,parseInt(e.target.value)||0);saveSettings();renderDiary();toast('Сохранено');}));
+$('#sexM').onclick=()=>{S.sex='M';$('#sexM').classList.add('on');$('#sexF').classList.remove('on');};
+$('#sexF').onclick=()=>{S.sex='F';$('#sexF').classList.add('on');$('#sexM').classList.remove('on');};
+$('#calcBtn').onclick=()=>{const age=+$('#calcAge').value,h=+$('#calcH').value,w=parseFloat($('#calcW').value),act=+$('#calcAct').value;if(!age||!h||!w){toast('Заполни возраст, рост, вес');return;}
+  let bmr=10*w+6.25*h-5*age+(S.sex==='M'?5:-161);const tdee=Math.round(bmr*act);
+  S.goal=tdee;S.age=age;S.height=h;S.weight=w;S.act=act;S.prot=Math.round(tdee*.3/4);S.fat=Math.round(tdee*.3/9);S.carb=Math.round(tdee*.4/4);
+  saveSettings();fillSettings();renderDiary();toast('Норма: '+tdee+' ккал/день');};
+$('#premToggle').onclick=()=>{S.premium=!S.premium;saveSettings();fillSettings();toast(S.premium?'Реклама убрана ✓ (демо покупки)':'Реклама возвращена');};
+
+/* ===== AD BANNER (демо AdMob) ===== */
+function applyAdState(){
+  const show = !S.premium;
+  $('#adBanner').classList.toggle('hidden',!show);
+  document.body.classList.toggle('has-ad',show);
+}
+$('#adClose').onclick=()=>{$('#adBanner').classList.add('hidden');document.body.classList.remove('has-ad');toast('Реклама вернётся при перезапуске');};
+$('#adRemove').onclick=()=>{showView('settings');toast('Открой «Купить» в Premium');};
+$('#resetBtn').onclick=async()=>{if(!confirm('Удалить все данные? Необратимо.'))return;DIARY={};WEIGHTS={};MYFOODS=[];S={...DEFAULTS};saveDiary();saveWeights();saveMyFoods();saveSettings();fillSettings();renderDiary();renderWeightLast();renderStats();renderMyFoods();if(chart)renderChart();toast('Данные сброшены');};
+
+/* ===== NAV ===== */
+function showView(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));$('#view-'+v)?.classList.add('on');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.view===v));if(v==='progress'){renderChart();renderStats();renderWeightLast();}if(v==='foods')renderMyFoods();}
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>showView(b.dataset.view));
+$('#fab').onclick=()=>{pendingMeal=pendingMeal||'breakfast';openSearch();};
+
+/* ===== INIT ===== */
+(async function(){await loadAll();fillSettings();renderDiary();renderWeightLast();renderMyFoods();})();
+</script>
+</body>
+</html>
