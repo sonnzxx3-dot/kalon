@@ -2,7 +2,7 @@
   "name": "kalon",
   "version": "1.0.0",
   "private": true,
-  "description": "Kalon — дневник калорий. Synax Sword AI.",
+  "description": "Kalon",
   "dependencies": {
     "@capacitor/android": "^6.1.2",
     "@capacitor/core": "^6.1.2"
