@@ -5,6 +5,10 @@ on:
     branches: [ main ]
   workflow_dispatch: {}
 
+defaults:
+  run:
+    working-directory: kalon-project
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -45,4 +49,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: kalon-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: kalon-project/android/app/build/outputs/apk/debug/app-debug.apk
