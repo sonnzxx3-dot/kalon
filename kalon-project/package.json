@@ -2,18 +2,10 @@
   "name": "kalon",
   "version": "1.0.0",
   "private": true,
-  "description": "Kalon — дневник калорий. Synax Sword AI.",
-  "scripts": {
-    "init:android": "cap add android",
-    "sync": "cap sync",
-    "open:android": "cap open android"
-  },
+  "description": "Kalon",
   "dependencies": {
     "@capacitor/android": "^6.1.2",
-    "@capacitor/camera": "^6.1.0",
-    "@capacitor/core": "^6.1.2",
-    "@capacitor-community/admob": "^6.1.0",
-    "@capgo/capacitor-purchases": "^6.0.0"
+    "@capacitor/core": "^6.1.2"
   },
   "devDependencies": {
     "@capacitor/cli": "^6.1.2"
