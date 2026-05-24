@@ -5,19 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#07080d">
 <title>Kalon</title>
-<script>
-/* Standalone storage shim: maps window.storage to localStorage */
-(function(){
-  if(!window.storage){
-    window.storage = {
-      async get(k){ const v=localStorage.getItem('kalon:'+k); return v===null?null:{key:k,value:v}; },
-      async set(k,v){ localStorage.setItem('kalon:'+k, v); return {key:k,value:v}; },
-      async delete(k){ localStorage.removeItem('kalon:'+k); return {key:k,deleted:true}; },
-      async list(prefix=''){ const keys=[]; for(let i=0;i<localStorage.length;i++){const kk=localStorage.key(i); if(kk.startsWith('kalon:')){const bare=kk.slice(6); if(bare.startsWith(prefix))keys.push(bare);}} return {keys}; }
-    };
-  }
-})();
-</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
