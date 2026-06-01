@@ -1,0 +1,11 @@
+{
+  "appId": "ai.synaxsword.kalon",
+  "appName": "Kalon",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}
