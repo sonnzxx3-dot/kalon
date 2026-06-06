@@ -549,7 +549,7 @@ function closeSheet(){$('#sheetBg').classList.remove('on');$('#addSheet').classL
 $('#sheetClose').onclick=closeSheet;$('#sheetBg').onclick=closeSheet;
 
 /* ===== COMMON FOODS (offline) ===== */
-const CAT_ORDER=["Мясо и птица", "Рыба и морепродукты", "Яйца и молочное", "Крупы, бобовые, каши", "Хлеб и выпечка", "Овощи и зелень", "Фрукты и ягоды", "Орехи и сухофрукты", "Сладкое и десерты", "Напитки", "Готовые блюда", "Фастфуд и снеки", "Соусы и масла"];
+const CAT_ORDER=["Мясо и птица", "Рыба и морепродукты", "Яйца и молочное", "Крупы, бобовые, каши", "Хлеб и выпечка", "Овощи и зелень", "Фрукты и ягоды", "Орехи и сухофрукты", "Сладкое и десерты", "Напитки", "Готовые блюда", "Фастфуд и снеки", "Соусы и масла", "Завтраки и хлопья","Спортивное питание","Консервы","Замороженные продукты","Детское питание","Приправы и специи","Грибы"];
 const CAT_ICONS={
 "Мясо и птица":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5c2.2 0 3.5 1.8 3.5 3.8 0 2-1.3 2.8-1.3 5.2 0 1.8.8 2.8.8 4H6c0-1.2.8-2.2.8-4 0-2.4-1.3-3.2-1.3-5.2C5.5 6.8 6.8 5 9 5c1 0 1.8.5 3 .5S14 5 15 5Z"/></svg>',
 "Рыба и морепродукты":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12c3-4.5 9-5.5 12-2.5 2 1.5 4.5 2.5 4.5 2.5s-2.5 1-4.5 2.5C13 17.5 7 16.5 4 12Z"/><path d="M19 9.5l1.5-2M19 14.5l1.5 2M15 11.5h.01"/></svg>',
@@ -563,7 +563,14 @@ const CAT_ICONS={
 "Напитки":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h9v6a4 4 0 0 1-4 4h-1a4 4 0 0 1-4-4V8Z"/><path d="M15 10h1.5a2 2 0 0 1 0 4H15M9 4v1.5M12 4v1.5"/></svg>',
 "Готовые блюда":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13a8 8 0 0 1 16 0Z"/><path d="M3 13h18M12 5V3"/></svg>',
 "Фастфуд и снеки":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11h14a0 0 0 0 1 0 0 2 2 0 0 1-2 2H7a2 2 0 0 1-2-2Z"/><path d="M6 13c0 3 2.5 5 6 5s6-2 6-5M7 8c0-1.2 1-1.8 1-3M11 8c0-1.2 1-1.8 1-3M15 8c0-1.2 1-1.8 1-3"/></svg>',
-"Соусы и масла":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3.5 4 5.5 7 5.5 10a5.5 5.5 0 0 1-11 0c0-3 2-6 5.5-10Z"/></svg>'
+"Соусы и масла":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3.5 4 5.5 7 5.5 10a5.5 5.5 0 0 1-11 0c0-3 2-6 5.5-10Z"/></svg>',
+"Завтраки и хлопья":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11h14a0 0 0 0 1 0 0c0 4-3 8-7 8s-7-4-7-8Z"/><path d="M8 11c0-1.5 1-2 1-3.5M12 11c0-1.5 1-2 1-3.5M16 11c0-1.5 1-2 1-3.5"/></svg>',
+"Спортивное питание":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11M4 9l2-2M9 4 7 6M15 20l2-2M20 15l-2 2"/><rect x="4" y="9" width="4" height="6" rx="1" transform="rotate(-45 6 12)"/></svg>',
+"Консервы":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="16" rx="2"/><path d="M6 8h12M9 4v2M15 4v2"/></svg>',
+"Замороженные продукты":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 7l14 10M19 7 5 17M12 6l-2.5-2M12 6l2.5-2M12 18l-2.5 2M12 18l2.5 2"/></svg>',
+"Детское питание":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6l-1 4h-4L9 4Z"/><path d="M8 8h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z"/><path d="M10 13h4"/></svg>',
+"Приправы и специи":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 8h8l-1 12a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1L8 8Z"/><path d="M9 8V5h6v3M11 12v5M13 12v5"/></svg>',
+"Грибы":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a8 8 0 0 1 16 0Z"/><path d="M10 11v7a2 2 0 0 0 4 0v-7"/></svg>'
 };
 const COMMON=[
   // Мясо и птица
@@ -818,10 +825,85 @@ const COMMON=[
   {name:'Ткемали',cal:47,prot:1,fat:0.2,carb:11,cat:'Соусы и масла'},{name:'Бальзамический уксус',cal:88,prot:0.5,fat:0,carb:17,cat:'Соусы и масла'},
   {name:'Тартар',cal:290,prot:1,fat:30,carb:4,cat:'Соусы и масла'},{name:'Цезарь (соус)',cal:540,prot:2,fat:57,carb:4,cat:'Соусы и масла'},
   {name:'Хумус',cal:166,prot:8,fat:10,carb:14,cat:'Соусы и масла'},{name:'Гуакамоле',cal:150,prot:2,fat:14,carb:8,cat:'Соусы и масла'},
+  // + Мясо и птица
+  {name:'Куриные сердечки',cal:159,prot:16,fat:11,carb:1,cat:'Мясо и птица'},{name:'Куриные желудки',cal:114,prot:18,fat:4,carb:0.6,cat:'Мясо и птица'},
+  {name:'Индейка копчёная',cal:111,prot:19,fat:4,carb:0,cat:'Мясо и птица'},{name:'Ростбиф',cal:170,prot:25,fat:7,carb:0,cat:'Мясо и птица'},
+  {name:'Стейк рибай',cal:291,prot:24,fat:22,carb:0,cat:'Мясо и птица'},{name:'Гуляш говяжий',cal:148,prot:14,fat:8,carb:4,cat:'Мясо и птица'},
+  {name:'Корейка свиная на кости',cal:270,prot:18,fat:22,carb:0,cat:'Мясо и птица'},{name:'Окорок свиной',cal:261,prot:18,fat:21,carb:0,cat:'Мясо и птица'},
+  {name:'Котлета по-киевски',cal:380,prot:17,fat:28,carb:14,cat:'Мясо и птица'},{name:'Куриный рулет',cal:184,prot:16,fat:12,carb:2,cat:'Мясо и птица'},
+  // + Овощи и зелень
+  {name:'Цветная капуста жареная',cal:120,prot:3,fat:9,carb:6,cat:'Овощи и зелень'},{name:'Морковь по-корейски',cal:112,prot:1.3,fat:8,carb:9,cat:'Овощи и зелень'},
+  {name:'Помидоры черри',cal:18,prot:0.9,fat:0.2,carb:4,cat:'Овощи и зелень'},{name:'Перец запечённый',cal:30,prot:1,fat:0.4,carb:5,cat:'Овощи и зелень'},
+  {name:'Баклажаны жареные',cal:120,prot:1,fat:9,carb:6,cat:'Овощи и зелень'},{name:'Кабачковая икра',cal:97,prot:1.2,fat:7,carb:8,cat:'Овощи и зелень'},
+  {name:'Тыква запечённая',cal:46,prot:1.2,fat:0.3,carb:9,cat:'Овощи и зелень'},{name:'Свёкла отварная тёртая',cal:49,prot:1.7,fat:0.1,carb:11,cat:'Овощи и зелень'},
+  {name:'Кукуруза варёная (початок)',cal:96,prot:3.4,fat:1.5,carb:21,cat:'Овощи и зелень'},{name:'Артишок',cal:47,prot:3.3,fat:0.2,carb:6,cat:'Овощи и зелень'},
+  // + Фрукты и ягоды
+  {name:'Личи',cal:66,prot:0.8,fat:0.4,carb:17,cat:'Фрукты и ягоды'},{name:'Драконий фрукт',cal:60,prot:1.2,fat:0,carb:13,cat:'Фрукты и ягоды'},
+  {name:'Мангостин',cal:73,prot:0.4,fat:0.6,carb:18,cat:'Фрукты и ягоды'},{name:'Карамбола',cal:31,prot:1,fat:0.3,carb:7,cat:'Фрукты и ягоды'},
+  {name:'Гуава',cal:68,prot:2.6,fat:1,carb:14,cat:'Фрукты и ягоды'},{name:'Помело розовый',cal:38,prot:0.8,fat:0,carb:10,cat:'Фрукты и ягоды'},
+  {name:'Черноплодная рябина',cal:55,prot:1.5,fat:0.2,carb:11,cat:'Фрукты и ягоды'},{name:'Жимолость',cal:30,prot:0,fat:0,carb:8,cat:'Фрукты и ягоды'},
+  {name:'Кизил',cal:44,prot:1,fat:0,carb:9,cat:'Фрукты и ягоды'},{name:'Шелковица',cal:43,prot:0.7,fat:0.4,carb:9,cat:'Фрукты и ягоды'},
+  // + Напитки
+  {name:'Матча латте',cal:80,prot:3,fat:3,carb:10,cat:'Напитки'},{name:'Флэт уайт',cal:90,prot:5,fat:5,carb:7,cat:'Напитки'},
+  {name:'Горячий шоколад',cal:120,prot:4,fat:5,carb:16,cat:'Напитки'},{name:'Глинтвейн',cal:130,prot:0.2,fat:0,carb:18,cat:'Напитки'},
+  {name:'Тоник',cal:34,prot:0,fat:0,carb:8,cat:'Напитки'},{name:'Имбирный чай',cal:25,prot:0,fat:0,carb:6,cat:'Напитки'},
+  {name:'Кокосовая вода',cal:19,prot:0.7,fat:0.2,carb:4,cat:'Напитки'},{name:'Лимонад домашний',cal:35,prot:0,fat:0,carb:9,cat:'Напитки'},
+  {name:'Смузи зелёный',cal:55,prot:1.5,fat:0.4,carb:12,cat:'Напитки'},{name:'Протеиновый смузи',cal:110,prot:15,fat:2,carb:8,cat:'Напитки'},
+  // Завтраки и хлопья
+  {name:'Хлопья кукурузные',cal:357,prot:7,fat:2.5,carb:84,cat:'Завтраки и хлопья'},{name:'Хлопья с мёдом',cal:380,prot:7,fat:4,carb:80,cat:'Завтраки и хлопья'},
+  {name:'Подушечки шоколадные',cal:389,prot:8,fat:9,carb:70,cat:'Завтраки и хлопья'},{name:'Шарики шоколадные',cal:384,prot:6,fat:4,carb:82,cat:'Завтраки и хлопья'},
+  {name:'Мюсли с фруктами',cal:352,prot:10,fat:8,carb:60,cat:'Завтраки и хлопья'},{name:'Гранола с орехами',cal:471,prot:10,fat:20,carb:64,cat:'Завтраки и хлопья'},
+  {name:'Овсяная каша быстрая',cal:350,prot:11,fat:7,carb:62,cat:'Завтраки и хлопья'},{name:'Каша мультизлаковая',cal:345,prot:10,fat:5,carb:65,cat:'Завтраки и хлопья'},
+  {name:'Сырники замороженные',cal:215,prot:15,fat:9,carb:20,cat:'Завтраки и хлопья'},{name:'Сухой завтрак мёд-орех',cal:402,prot:8,fat:9,carb:72,cat:'Завтраки и хлопья'},
+  {name:'Каша рисовая на молоке',cal:97,prot:2.5,fat:3,carb:16,cat:'Завтраки и хлопья'},{name:'Каша манная на воде',cal:80,prot:2,fat:0.2,carb:17,cat:'Завтраки и хлопья'},
+  // Спортивное питание
+  {name:'Протеин сывороточный (порция)',cal:120,prot:24,fat:1.5,carb:3,cat:'Спортивное питание'},{name:'Протеин казеиновый',cal:110,prot:23,fat:1,carb:3,cat:'Спортивное питание'},
+  {name:'Гейнер (порция)',cal:380,prot:20,fat:5,carb:60,cat:'Спортивное питание'},{name:'Батончик протеиновый',cal:350,prot:30,fat:10,carb:30,cat:'Спортивное питание'},
+  {name:'BCAA (порция)',cal:20,prot:5,fat:0,carb:0,cat:'Спортивное питание'},{name:'Креатин (порция)',cal:5,prot:0,fat:0,carb:1,cat:'Спортивное питание'},
+  {name:'Аминокислоты',cal:15,prot:4,fat:0,carb:0,cat:'Спортивное питание'},{name:'Изотоник',cal:26,prot:0,fat:0,carb:6,cat:'Спортивное питание'},
+  {name:'Арахисовая паста спорт.',cal:600,prot:28,fat:48,carb:12,cat:'Спортивное питание'},{name:'Протеиновое печенье',cal:380,prot:20,fat:12,carb:45,cat:'Спортивное питание'},
+  {name:'Энергетический гель',cal:90,prot:0,fat:0,carb:22,cat:'Спортивное питание'},{name:'Протеиновый пудинг',cal:120,prot:12,fat:4,carb:10,cat:'Спортивное питание'},
+  // Консервы
+  {name:'Тушёнка говяжья',cal:220,prot:15,fat:17,carb:0,cat:'Консервы'},{name:'Тушёнка свиная',cal:350,prot:13,fat:33,carb:0,cat:'Консервы'},
+  {name:'Паштет мясной',cal:275,prot:11,fat:25,carb:3,cat:'Консервы'},{name:'Фасоль консервированная',cal:99,prot:6,fat:0.5,carb:17,cat:'Консервы'},
+  {name:'Горошек консервированный',cal:55,prot:3.5,fat:0.2,carb:9,cat:'Консервы'},{name:'Кукуруза консервированная',cal:58,prot:2.2,fat:0.4,carb:11,cat:'Консервы'},
+  {name:'Тунец консервированный',cal:116,prot:26,fat:1,carb:0,cat:'Консервы'},{name:'Сайра консервированная',cal:283,prot:19,fat:23,carb:0,cat:'Консервы'},
+  {name:'Сардины в масле',cal:221,prot:24,fat:13,carb:0,cat:'Консервы'},{name:'Печень трески',cal:613,prot:4,fat:66,carb:1,cat:'Консервы'},
+  {name:'Оливки консервированные',cal:115,prot:0.8,fat:11,carb:6,cat:'Консервы'},{name:'Ананас консервированный',cal:60,prot:0.3,fat:0.1,carb:14,cat:'Консервы'},
+  {name:'Персики консервированные',cal:68,prot:0.5,fat:0.1,carb:17,cat:'Консервы'},{name:'Грибы маринованные',cal:24,prot:2,fat:0.4,carb:3,cat:'Консервы'},
+  {name:'Икра кабачковая',cal:97,prot:1.2,fat:7,carb:8,cat:'Консервы'},{name:'Лечо',cal:40,prot:1,fat:0.2,carb:8,cat:'Консервы'},
+  // Замороженные продукты
+  {name:'Пельмени замороженные',cal:248,prot:12,fat:11,carb:29,cat:'Замороженные продукты'},{name:'Вареники замороженные',cal:230,prot:6,fat:5,carb:38,cat:'Замороженные продукты'},
+  {name:'Блинчики с мясом',cal:210,prot:11,fat:9,carb:22,cat:'Замороженные продукты'},{name:'Котлеты замороженные',cal:250,prot:13,fat:18,carb:9,cat:'Замороженные продукты'},
+  {name:'Наггетсы замороженные',cal:260,prot:14,fat:16,carb:16,cat:'Замороженные продукты'},{name:'Овощная смесь',cal:42,prot:2,fat:0.3,carb:8,cat:'Замороженные продукты'},
+  {name:'Брокколи замороженная',cal:28,prot:3,fat:0.4,carb:5,cat:'Замороженные продукты'},{name:'Ягодная смесь',cal:44,prot:0.8,fat:0.4,carb:9,cat:'Замороженные продукты'},
+  {name:'Картофель фри (заморозка)',cal:150,prot:2.5,fat:5,carb:24,cat:'Замороженные продукты'},{name:'Пицца замороженная',cal:260,prot:10,fat:11,carb:30,cat:'Замороженные продукты'},
+  {name:'Хинкали замороженные',cal:235,prot:11,fat:11,carb:22,cat:'Замороженные продукты'},{name:'Голубцы замороженные',cal:125,prot:6,fat:7,carb:8,cat:'Замороженные продукты'},
+  {name:'Рыбное филе (заморозка)',cal:90,prot:18,fat:2,carb:0,cat:'Замороженные продукты'},{name:'Мороженое ванильное',cal:207,prot:3.5,fat:11,carb:24,cat:'Замороженные продукты'},
+  // Детское питание
+  {name:'Пюре яблочное (детское)',cal:47,prot:0.3,fat:0.2,carb:11,cat:'Детское питание'},{name:'Пюре грушевое',cal:52,prot:0.3,fat:0.2,carb:12,cat:'Детское питание'},
+  {name:'Пюре мясное (детское)',cal:90,prot:10,fat:5,carb:2,cat:'Детское питание'},{name:'Пюре овощное',cal:40,prot:1.2,fat:0.3,carb:7,cat:'Детское питание'},
+  {name:'Каша молочная (детская)',cal:100,prot:3.5,fat:3.5,carb:14,cat:'Детское питание'},{name:'Творожок детский',cal:90,prot:7,fat:3.5,carb:9,cat:'Детское питание'},
+  {name:'Йогурт детский',cal:85,prot:3,fat:3,carb:11,cat:'Детское питание'},{name:'Сок детский',cal:47,prot:0.5,fat:0.1,carb:11,cat:'Детское питание'},
+  {name:'Печенье детское',cal:400,prot:8,fat:10,carb:70,cat:'Детское питание'},{name:'Смесь молочная (готовая)',cal:67,prot:1.4,fat:3.5,carb:7,cat:'Детское питание'},
+  // Приправы и специи
+  {name:'Соль',cal:0,prot:0,fat:0,carb:0,cat:'Приправы и специи'},{name:'Перец чёрный молотый',cal:251,prot:10,fat:3,carb:64,cat:'Приправы и специи'},
+  {name:'Паприка',cal:282,prot:14,fat:13,carb:54,cat:'Приправы и специи'},{name:'Куркума',cal:354,prot:8,fat:10,carb:65,cat:'Приправы и специи'},
+  {name:'Корица',cal:247,prot:4,fat:1.2,carb:81,cat:'Приправы и специи'},{name:'Чеснок сушёный',cal:331,prot:17,fat:0.7,carb:73,cat:'Приправы и специи'},
+  {name:'Сахар ванильный',cal:398,prot:0,fat:0,carb:99,cat:'Приправы и специи'},{name:'Разрыхлитель',cal:79,prot:0,fat:0,carb:28,cat:'Приправы и специи'},
+  {name:'Дрожжи сухие',cal:325,prot:40,fat:6,carb:30,cat:'Приправы и специи'},{name:'Желатин',cal:355,prot:87,fat:0.4,carb:0.7,cat:'Приправы и специи'},
+  {name:'Лимонная кислота',cal:0,prot:0,fat:0,carb:0,cat:'Приправы и специи'},{name:'Сода пищевая',cal:0,prot:0,fat:0,carb:0,cat:'Приправы и специи'},
+  // Грибы
+  {name:'Шампиньоны свежие',cal:27,prot:4.3,fat:1,carb:0.1,cat:'Грибы'},{name:'Шампиньоны жареные',cal:50,prot:3.7,fat:3.5,carb:0.5,cat:'Грибы'},
+  {name:'Вёшенки',cal:38,prot:3.3,fat:0.4,carb:6,cat:'Грибы'},{name:'Белые грибы',cal:34,prot:3.7,fat:1.7,carb:1,cat:'Грибы'},
+  {name:'Белые сушёные',cal:286,prot:30,fat:14,carb:9,cat:'Грибы'},{name:'Лисички',cal:19,prot:1.5,fat:1,carb:1,cat:'Грибы'},
+  {name:'Опята',cal:22,prot:2.2,fat:1.2,carb:0.5,cat:'Грибы'},{name:'Грузди',cal:16,prot:1.8,fat:0.8,carb:1,cat:'Грибы'},
+  {name:'Маслята',cal:19,prot:2.4,fat:0.7,carb:1.7,cat:'Грибы'},{name:'Подберёзовики',cal:20,prot:2.3,fat:0.9,carb:3.7,cat:'Грибы'},
+  {name:'Грибы маринованные',cal:24,prot:2,fat:0.4,carb:3,cat:'Грибы'},{name:'Икра грибная',cal:105,prot:3,fat:8,carb:5,cat:'Грибы'},
 ];
 
 /* ===== SEARCH ===== */
-let searchTimer,currentSrc='off';
+let searchTimer,currentSrc='common';
 function openSearch(){
   $('#sheetTitle').textContent='Добавить · '+(MEALS.find(m=>m.id===pendingMeal)?.name||'');
   $('#sheetBody').innerHTML=`
@@ -831,7 +913,6 @@ function openSearch(){
     <div class="seg" id="srcSeg">
       <button class="on" data-src="common">Базовые</button>
       <button data-src="mine">Моя база</button>
-      <button data-src="off">Поиск онлайн</button>
     </div>
     <div id="catChips" class="cat-chips"></div>
     <div id="results"></div>`;
@@ -846,7 +927,6 @@ function openSearch(){
     $('#catChips').style.display = currentSrc==='common' ? 'flex' : 'none';
     if(currentSrc==='common'){activeCat='all';renderCatChips();showList(v?COMMON.filter(f=>matchq(f,v)):COMMON,null,!v);}
     else if(currentSrc==='mine')showList(v?MYFOODS.filter(f=>matchq(f,v)):MYFOODS,'mine');
-    else if(v)doSearch(v);else $('#results').innerHTML='<div class="loading">Введи название продукта для поиска в большой онлайн-базе.</div>';
   });
 }
 function matchq(f,v){return f.name.toLowerCase().includes(v.toLowerCase());}
@@ -896,15 +976,6 @@ async function doSearch(q){
     showList(arr,null,activeCat==='all'&&!q);return;
   }
   if(currentSrc==='mine'){showList(q?MYFOODS.filter(f=>matchq(f,q)):MYFOODS,'mine');return;}
-  if(!q){r.innerHTML='<div class="loading">Введи название продукта для поиска в большой онлайн-базе.</div>';return;}
-  r.innerHTML='<div class="loading"><div class="spinner"></div>Ищем в Open Food Facts…</div>';
-  try{
-    const url='https://world.openfoodfacts.org/cgi/search.pl?search_terms='+encodeURIComponent(q)+'&search_simple=1&action=process&json=1&page_size=20&fields=product_name,product_name_ru,brands,nutriments';
-    const data=await(await fetch(url)).json();
-    const items=(data.products||[]).map(parseOFF).filter(Boolean);
-    r.innerHTML='';if(!items.length){r.innerHTML='<div class="loading">Ничего не найдено.<br>Попробуй «Моя база» или создай продукт вручную.</div>';return;}
-    items.forEach(f=>r.appendChild(resultRow(f)));
-  }catch(e){r.innerHTML='<div class="loading">Нет соединения с базой.<br>Открой «Базовые» или «Моя база».</div>';}
 }
 function parseOFF(p){const n=p.nutriments||{};const cal=n['energy-kcal_100g']??(n['energy_100g']?n['energy_100g']/4.184:null);if(cal==null)return null;
   const name=(p.product_name_ru||p.product_name||'').trim();if(!name)return null;
