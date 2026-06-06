@@ -43,7 +43,7 @@
   --r:20px;
   --glow:0 0 0 1px rgba(91,139,255,.18), 0 14px 40px -16px rgba(91,139,255,.45);
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;font-variant-numeric:inherit;font-feature-settings:inherit}
 html,body{height:100%}
 body{
   font-family:'Sora',system-ui,sans-serif;
@@ -56,6 +56,9 @@ body{
   -webkit-font-smoothing:antialiased;overflow-x:hidden;
   overflow-wrap:break-word;word-break:break-word;
   text-size-adjust:100%;-webkit-text-size-adjust:100%;
+  font-variant-numeric:tabular-nums lining-nums;
+  -webkit-font-feature-settings:"tnum" 1,"lnum" 1;
+  font-feature-settings:"tnum" 1,"lnum" 1;
 }
 .app{max-width:520px;margin:0 auto;min-height:100vh;min-height:100dvh;padding:0 16px calc(130px + env(safe-area-inset-bottom)) 16px;position:relative}
 
