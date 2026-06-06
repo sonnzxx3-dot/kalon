@@ -6,7 +6,6 @@
 <meta name="theme-color" content="#07080d">
 <title>Kalon</title>
 <script>
-/* Standalone storage shim: maps window.storage to localStorage */
 (function(){
   if(!window.storage){
     window.storage = {
@@ -18,7 +17,6 @@
   }
 })();
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap');
@@ -54,9 +52,12 @@ body{
     radial-gradient(130% 90% at 88% -8%, rgba(124,92,255,.16), transparent 52%),
     radial-gradient(120% 80% at 4% 104%, rgba(70,224,255,.10), transparent 48%),
     var(--bg);
+  background-attachment:fixed;
   -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  overflow-wrap:break-word;word-break:break-word;
+  text-size-adjust:100%;-webkit-text-size-adjust:100%;
 }
-.app{max-width:520px;margin:0 auto;min-height:100vh;padding:0 16px 130px;position:relative}
+.app{max-width:520px;margin:0 auto;min-height:100vh;min-height:100dvh;padding:0 16px calc(130px + env(safe-area-inset-bottom)) 16px;position:relative}
 
 /* blade divider accent */
 .edge{height:1px;background:linear-gradient(90deg,transparent,var(--blade),transparent);opacity:.5}
@@ -116,7 +117,8 @@ header{padding:max(26px,env(safe-area-inset-top)) 4px 12px;display:flex;align-it
 /* meals */
 .meal{background:var(--panel);border:1px solid var(--line-soft);border-radius:16px;margin-bottom:11px;overflow:hidden}
 .meal-head{display:flex;align-items:center;gap:11px;padding:13px 15px}
-.meal-emoji{font-size:18px}
+.meal-ico{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none}
+.meal-ico svg{width:19px;height:19px;color:#fff}
 .meal-head .mname{font-weight:600;font-size:14.5px;flex:1}
 .meal-head .mcal{font-size:12.5px;color:var(--ink-soft);font-weight:600;font-family:'Syne'}
 .meal-add{width:28px;height:28px;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:var(--blade);font-size:18px;display:grid;place-items:center;cursor:pointer;flex:none}
@@ -146,7 +148,7 @@ header{padding:max(26px,env(safe-area-inset-top)) 4px 12px;display:flex;align-it
 .streak .sc .sl{font-size:10.5px;color:var(--ink-faint);margin-top:4px}
 
 /* nav */
-.nav{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;width:calc(100% - 32px);max-width:488px;
+.nav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom));width:calc(100% - 32px);max-width:488px;
   background:rgba(12,14,23,.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
   border:1px solid var(--line);border-radius:20px;padding:8px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;z-index:40}
 .nav button{background:none;border:none;color:var(--ink-faint);font-family:inherit;font-size:10px;font-weight:600;
@@ -154,7 +156,7 @@ header{padding:max(26px,env(safe-area-inset-top)) 4px 12px;display:flex;align-it
 .nav button svg{width:22px;height:22px}
 .nav button.on{color:var(--edge);background:rgba(70,224,255,.08)}
 /* ad banner */
-.ad-banner{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;width:calc(100% - 32px);max-width:488px;
+.ad-banner{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100% - 32px);max-width:488px;
   background:linear-gradient(135deg,var(--panel-2),var(--panel));border:1px solid var(--line);border-radius:16px;
   padding:11px 13px;display:flex;align-items:center;gap:11px;z-index:39;box-shadow:0 10px 26px -12px rgba(0,0,0,.6)}
 .ad-banner.hidden{display:none}
@@ -163,12 +165,11 @@ header{padding:max(26px,env(safe-area-inset-top)) 4px 12px;display:flex;align-it
 .ad-banner .ad-main{flex:1;min-width:0}
 .ad-banner .ad-title{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ad-banner .ad-sub{font-size:10.5px;color:var(--ink-faint);margin-top:1px}
-.ad-banner .ad-x{color:var(--ink-faint);font-size:15px;cursor:pointer;padding:2px 4px;flex:none}
 .ad-banner .ad-remove{font-size:10px;color:var(--blade);border:1px solid var(--line);border-radius:8px;padding:5px 8px;cursor:pointer;flex:none;font-weight:600;white-space:nowrap}
-body.has-ad .nav{bottom:14px}
-body.has-ad .fab{bottom:150px}
+body.has-ad .nav{bottom:calc(14px + env(safe-area-inset-bottom))}
+body.has-ad .fab{bottom:calc(150px + env(safe-area-inset-bottom))}
 
-.fab{position:fixed;right:50%;margin-right:-244px;bottom:86px;width:58px;height:58px;border-radius:18px;
+.fab{position:fixed;right:50%;margin-right:-244px;bottom:calc(86px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:18px;
   background:linear-gradient(140deg,var(--blade),var(--blade-2));border:none;color:#fff;font-size:28px;
   display:grid;place-items:center;cursor:pointer;box-shadow:0 12px 30px -8px rgba(124,92,255,.7);z-index:41}
 .fab:active{transform:scale(.94)}
@@ -183,7 +184,7 @@ body.has-ad .fab{bottom:150px}
 .sheet-bg.on{opacity:1;pointer-events:auto}
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:61;background:var(--bg-2);border:1px solid var(--line);
   border-radius:26px 26px 0 0;max-width:520px;margin:0 auto;transform:translateY(102%);transition:transform .32s cubic-bezier(.3,.85,.3,1);
-  max-height:93vh;display:flex;flex-direction:column}
+  max-height:93vh;max-height:93dvh;display:flex;flex-direction:column}
 .sheet.on{transform:translateY(0)}
 .sheet-grip{width:40px;height:4px;border-radius:3px;background:var(--line);margin:11px auto 4px}
 .sheet-head{padding:8px 20px 12px;display:flex;align-items:center;justify-content:space-between}
@@ -210,8 +211,19 @@ body.has-ad .fab{bottom:150px}
 .res .ri-cal b{font-size:15px;color:var(--edge);font-weight:700;font-family:'Syne'}
 .res .ri-cal span{display:block;font-size:10px;color:var(--ink-faint)}
 .res .ri-tag{font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--blade-2);border:1px solid var(--line);border-radius:6px;padding:2px 5px;margin-top:3px;display:inline-block}
-.cat-head{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-faint);margin:14px 2px 8px;font-weight:600}
+.cat-head{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-faint);margin:14px 2px 8px;font-weight:600;display:flex;align-items:center;gap:7px}
+.cat-head .ch-ic{display:inline-flex;width:16px;height:16px;color:var(--blade-2)}
+.cat-head .ch-ic svg{width:100%;height:100%}
+.cat-chip .chip-ic{display:inline-flex;width:15px;height:15px;margin-right:5px;vertical-align:-2px}
+.cat-chip .chip-ic svg{width:100%;height:100%}
+.cat-chip{display:inline-flex;align-items:center}
 .cat-head:first-child{margin-top:2px}
+
+/* category chips (horizontal scroll) */
+.cat-chips{display:flex;gap:7px;overflow-x:auto;padding:2px 0 10px;margin-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.cat-chips::-webkit-scrollbar{display:none}
+.cat-chip{flex:none;padding:7px 13px;border-radius:11px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.cat-chip.on{background:linear-gradient(120deg,var(--blade),var(--blade-2));color:#fff;border-color:transparent}
 
 /* paywall */
 .pw-hero{text-align:center;padding:8px 0 18px}
@@ -432,13 +444,12 @@ body.has-ad .fab{bottom:150px}
     <div class="ad-sub">Здесь показывается баннер AdMob</div>
   </div>
   <div class="ad-remove" id="adRemove">Убрать</div>
-  <div class="ad-x" id="adClose">✕</div>
 </div>
 <nav class="nav">
-  <button class="on" data-view="diary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16M4 12h16M4 19h10" stroke-linecap="round"/></svg>Дневник</button>
-  <button data-view="progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 19h16M8 16l3-4 3 2 4-6" stroke-linecap="round" stroke-linejoin="round"/></svg>Прогресс</button>
-  <button data-view="foods"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h14v16l-7-3-7 3V4Z" stroke-linejoin="round"/></svg>База</button>
-  <button data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" stroke-linecap="round"/></svg>Ещё</button>
+  <button class="on" data-view="diary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="5"/><path d="M8 9h8M8 13h5"/></svg>Дневник</button>
+  <button data-view="progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19V5M5 19h14M9 14l3-3 2.5 2L19 8"/></svg>Прогресс</button>
+  <button data-view="foods"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10a1 1 0 0 1 1 1v14l-6-3-6 3V5a1 1 0 0 1 1-1Z"/></svg>База</button>
+  <button data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><path d="M12 5v1.5M12 17.5V19M5 12h1.5M17.5 12H19M7 7l1 1M16 16l1 1M17 7l-1 1M8 16l-1 1"/></svg>Ещё</button>
 </nav>
 
 <div class="sheet-bg" id="sheetBg"></div>
@@ -451,11 +462,33 @@ body.has-ad .fab{bottom:150px}
 
 <script>
 /* ===== STATE ===== */
+/* Полноценный релиз: монетизация включена.
+   Реклама (AdMob) и подписка (Google Play Billing) работают через
+   нативные плагины Capacitor — они активны ТОЛЬКО в собранном AAB
+   внутри Google Play. В обычном вебе/превью используется безопасный
+   fallback (без падений). */
+const FREE_VERSION=false;
+
+/* ==== AdMob ==== */
+const ADMOB_APP_ID='ca-app-pub-1788139495634661~9737142410'; // App ID (прописан также в AndroidManifest)
+const ADMOB_BANNER_UNIT_ID='';  // TODO: вставь Ad Unit ID баннера (вид ca-app-pub-.../...). Пока пусто — баннер не показывается.
+
+/* ==== Google Play Billing (подписка) ==== */
+const SUB_PRODUCT_MONTHLY='kalon_premium_monthly';
+const SUB_PRODUCT_YEARLY='kalon_premium_yearly';
+
 const todayISO=()=>new Date().toISOString().slice(0,10);
 let viewDate=todayISO(), pendingMeal='breakfast';
 const DEFAULTS={goal:2000,prot:120,fat:65,carb:250,sex:'M',age:30,height:175,weight:72,act:1.375,premium:false};
 let S={...DEFAULTS}, DIARY={}, WEIGHTS={}, MYFOODS=[];
-const MEALS=[{id:'breakfast',name:'Завтрак',emoji:'🌅'},{id:'lunch',name:'Обед',emoji:'☀️'},{id:'dinner',name:'Ужин',emoji:'🌙'},{id:'snack',name:'Перекус',emoji:'🍎'}];
+const MEAL_ICONS={
+  breakfast:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18h16M6 18a6 6 0 0 1 12 0M12 6v2"/></svg>',
+  lunch:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 4v1.5M12 18.5V20M4 12h1.5M18.5 12H20M6.5 6.5l1 1M16.5 16.5l1 1M17.5 6.5l-1 1M7.5 16.5l-1 1"/></svg>',
+  dinner:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13a8 8 0 1 1-9-9 6.5 6.5 0 0 0 9 9Z"/></svg>',
+  snack:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7c.3-2 1.7-3.3 3.8-3.3M11 21c-3 0-5.3-3-5.3-6.3 0-2.6 1.8-4.4 4-4.4.7 0 1.3.2 1.3.2s.6-.2 1.3-.2c2.2 0 4 1.8 4 4.4C16.3 18 14 21 11 21Z"/></svg>'
+};
+const MEAL_GRAD={breakfast:'linear-gradient(140deg,#ff9a56,#ff6b8a)',lunch:'linear-gradient(140deg,#ffc869,#ff9a56)',dinner:'linear-gradient(140deg,#5b8bff,#7c5cff)',snack:'linear-gradient(140deg,#46e0ff,#5b8bff)'};
+const MEALS=[{id:'breakfast',name:'Завтрак'},{id:'lunch',name:'Обед'},{id:'dinner',name:'Ужин'},{id:'snack',name:'Перекус'}];
 
 /* ===== STORAGE ===== */
 async function loadAll(){
@@ -493,7 +526,7 @@ function renderDiary(){
   MEALS.forEach(m=>{
     const items=d[m.id]||[],mcal=items.reduce((s,i)=>s+i.cal,0);
     const el=document.createElement('div');el.className='meal';
-    el.innerHTML=`<div class="meal-head"><span class="meal-emoji">${m.emoji}</span><span class="mname">${m.name}</span><span class="mcal">${fmt(mcal)} ккал</span><button class="meal-add" data-meal="${m.id}">+</button></div>`;
+    el.innerHTML=`<div class="meal-head"><span class="meal-ico" style="background:${MEAL_GRAD[m.id]}">${MEAL_ICONS[m.id]}</span><span class="mname">${m.name}</span><span class="mcal">${fmt(mcal)} ккал</span><button class="meal-add" data-meal="${m.id}">+</button></div>`;
     if(items.length){items.forEach((it,idx)=>{const row=document.createElement('div');row.className='fitem';
       row.innerHTML=`<div class="fi-main"><div class="fi-name">${it.name}</div><div class="fi-sub">${fmt(it.amount)} г · Б${fmt(it.prot)} Ж${fmt(it.fat)} У${fmt(it.carb)}</div></div><div class="fi-cal">${fmt(it.cal)}</div><div class="fi-del" data-meal="${m.id}" data-idx="${idx}">✕</div>`;
       el.appendChild(row);});}
@@ -516,124 +549,275 @@ function closeSheet(){$('#sheetBg').classList.remove('on');$('#addSheet').classL
 $('#sheetClose').onclick=closeSheet;$('#sheetBg').onclick=closeSheet;
 
 /* ===== COMMON FOODS (offline) ===== */
+const CAT_ORDER=["Мясо и птица", "Рыба и морепродукты", "Яйца и молочное", "Крупы, бобовые, каши", "Хлеб и выпечка", "Овощи и зелень", "Фрукты и ягоды", "Орехи и сухофрукты", "Сладкое и десерты", "Напитки", "Готовые блюда", "Фастфуд и снеки", "Соусы и масла"];
+const CAT_ICONS={
+"Мясо и птица":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5c2.2 0 3.5 1.8 3.5 3.8 0 2-1.3 2.8-1.3 5.2 0 1.8.8 2.8.8 4H6c0-1.2.8-2.2.8-4 0-2.4-1.3-3.2-1.3-5.2C5.5 6.8 6.8 5 9 5c1 0 1.8.5 3 .5S14 5 15 5Z"/></svg>',
+"Рыба и морепродукты":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12c3-4.5 9-5.5 12-2.5 2 1.5 4.5 2.5 4.5 2.5s-2.5 1-4.5 2.5C13 17.5 7 16.5 4 12Z"/><path d="M19 9.5l1.5-2M19 14.5l1.5 2M15 11.5h.01"/></svg>',
+"Яйца и молочное":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3 3.5 4.5 6.5 4.5 9.5A4.5 4.5 0 0 1 12 17a4.5 4.5 0 0 1-4.5-4.5C7.5 9.5 9 6.5 12 3Z"/></svg>',
+"Крупы, бобовые, каши":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5c0-1.2 6-4.5 12 0M7 9.5c0 3.5 1 8 5 8s5-4.5 5-8"/></svg>',
+"Хлеб и выпечка":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11a4 4 0 0 1 0-2c.5-2.5 3.5-4 7-4s6.5 1.5 7 4a4 4 0 0 1 0 2c0 1.5-1.2 2-3 2v4a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-4c-1.8 0-3-.5-3-2Z"/></svg>',
+"Овощи и зелень":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11a5 5 0 0 1 10 0c0 4-2.2 8-5 8s-5-4-5-8Z"/><path d="M12 6V3.5M12 3.5c0-.8 1-1.3 2.2-1"/></svg>',
+"Фрукты и ягоды":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8c.3-2.5 2-4 4.5-4 .2 2.5-1.5 4.3-4 4.3M7 10.5c2.8 0 5.3 2.3 5.3 6S9.5 21 7 21s-3-2.8-3-4.8 0-5.7 3-5.7Zm10 0c-2.8 0-5.3 2.3-5.3 6"/></svg>',
+"Орехи и сухофрукты":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M8.5 12c1-1.2 2.2.8 3.5-.2s2.5.6 3.5-.5"/></svg>',
+"Сладкое и десерты":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11h12l-1 8a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1l-1-8Z"/><path d="M9 11V8a3 3 0 0 1 6 0v3"/></svg>',
+"Напитки":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h9v6a4 4 0 0 1-4 4h-1a4 4 0 0 1-4-4V8Z"/><path d="M15 10h1.5a2 2 0 0 1 0 4H15M9 4v1.5M12 4v1.5"/></svg>',
+"Готовые блюда":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13a8 8 0 0 1 16 0Z"/><path d="M3 13h18M12 5V3"/></svg>',
+"Фастфуд и снеки":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11h14a0 0 0 0 1 0 0 2 2 0 0 1-2 2H7a2 2 0 0 1-2-2Z"/><path d="M6 13c0 3 2.5 5 6 5s6-2 6-5M7 8c0-1.2 1-1.8 1-3M11 8c0-1.2 1-1.8 1-3M15 8c0-1.2 1-1.8 1-3"/></svg>',
+"Соусы и масла":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3.5 4 5.5 7 5.5 10a5.5 5.5 0 0 1-11 0c0-3 2-6 5.5-10Z"/></svg>'
+};
 const COMMON=[
   // Мясо и птица
   {name:'Куриная грудка (варёная)',cal:165,prot:31,fat:3.6,carb:0,cat:'Мясо и птица'},{name:'Куриная грудка (жареная)',cal:195,prot:30,fat:8,carb:0,cat:'Мясо и птица'},
-  {name:'Куриное бедро (без кожи)',cal:185,prot:21,fat:11,carb:0,cat:'Мясо и птица'},{name:'Курица (целиком, запечённая)',cal:239,prot:27,fat:14,carb:0,cat:'Мясо и птица'},
+  {name:'Куриная грудка (гриль)',cal:170,prot:30,fat:5,carb:0,cat:'Мясо и птица'},{name:'Куриное бедро (без кожи)',cal:185,prot:21,fat:11,carb:0,cat:'Мясо и птица'},
+  {name:'Куриное бедро (с кожей)',cal:211,prot:18,fat:15,carb:0,cat:'Мясо и птица'},{name:'Куриные крылья',cal:203,prot:18,fat:14,carb:0,cat:'Мясо и птица'},
+  {name:'Куриная голень',cal:175,prot:20,fat:10,carb:0,cat:'Мясо и птица'},{name:'Курица (целиком, запечённая)',cal:239,prot:27,fat:14,carb:0,cat:'Мясо и птица'},
+  {name:'Куриный фарш',cal:143,prot:17,fat:8,carb:0,cat:'Мясо и птица'},{name:'Куриная печень',cal:137,prot:17,fat:6,carb:2,cat:'Мясо и птица'},
   {name:'Грудка индейки',cal:135,prot:29,fat:1.5,carb:0,cat:'Мясо и птица'},{name:'Индейка (бедро)',cal:170,prot:20,fat:10,carb:0,cat:'Мясо и птица'},
+  {name:'Индейка (фарш)',cal:150,prot:19,fat:8,carb:0,cat:'Мясо и птица'},{name:'Утка (запечённая)',cal:337,prot:19,fat:28,carb:0,cat:'Мясо и птица'},
+  {name:'Утиная грудка',cal:201,prot:23,fat:12,carb:0,cat:'Мясо и птица'},{name:'Гусь',cal:305,prot:16,fat:27,carb:0,cat:'Мясо и птица'},
   {name:'Говядина (отварная)',cal:220,prot:26,fat:12,carb:0,cat:'Мясо и птица'},{name:'Говядина (тушёная)',cal:232,prot:26,fat:14,carb:0,cat:'Мясо и птица'},
-  {name:'Говяжий фарш (жареный)',cal:250,prot:26,fat:16,carb:0,cat:'Мясо и птица'},{name:'Свинина (отварная)',cal:290,prot:23,fat:22,carb:0,cat:'Мясо и птица'},
-  {name:'Свинина (жареная)',cal:330,prot:22,fat:27,carb:0,cat:'Мясо и птица'},{name:'Свиной фарш',cal:263,prot:17,fat:21,carb:0,cat:'Мясо и птица'},
-  {name:'Баранина (тушёная)',cal:294,prot:22,fat:23,carb:0,cat:'Мясо и птица'},{name:'Котлета мясная',cal:260,prot:16,fat:20,carb:9,cat:'Мясо и птица'},
+  {name:'Говядина (жареная)',cal:250,prot:27,fat:15,carb:0,cat:'Мясо и птица'},{name:'Говяжий фарш',cal:254,prot:17,fat:20,carb:0,cat:'Мясо и птица'},
+  {name:'Говяжий стейк',cal:271,prot:25,fat:19,carb:0,cat:'Мясо и птица'},{name:'Говяжья печень',cal:135,prot:20,fat:3.6,carb:4,cat:'Мясо и птица'},
+  {name:'Телятина',cal:172,prot:21,fat:9,carb:0,cat:'Мясо и птица'},{name:'Свинина (отварная)',cal:290,prot:23,fat:22,carb:0,cat:'Мясо и птица'},
+  {name:'Свинина (жареная)',cal:330,prot:22,fat:27,carb:0,cat:'Мясо и птица'},{name:'Свиная корейка',cal:242,prot:21,fat:17,carb:0,cat:'Мясо и птица'},
+  {name:'Свиной фарш',cal:263,prot:17,fat:21,carb:0,cat:'Мясо и птица'},{name:'Свиные рёбрышки',cal:321,prot:18,fat:27,carb:0,cat:'Мясо и птица'},
+  {name:'Баранина (тушёная)',cal:294,prot:22,fat:23,carb:0,cat:'Мясо и птица'},{name:'Баранина (жареная)',cal:294,prot:25,fat:21,carb:0,cat:'Мясо и птица'},
+  {name:'Крольчатина',cal:173,prot:21,fat:10,carb:0,cat:'Мясо и птица'},{name:'Конина',cal:167,prot:21,fat:9,carb:0,cat:'Мясо и птица'},
   {name:'Бекон (жареный)',cal:500,prot:37,fat:42,carb:1,cat:'Мясо и птица'},{name:'Ветчина',cal:270,prot:16,fat:23,carb:0,cat:'Мясо и птица'},
-  {name:'Колбаса варёная',cal:250,prot:12,fat:22,carb:1.5,cat:'Мясо и птица'},{name:'Колбаса копчёная',cal:420,prot:17,fat:40,carb:0,cat:'Мясо и птица'},
-  {name:'Сосиски',cal:290,prot:11,fat:26,carb:2,cat:'Мясо и птица'},{name:'Печень говяжья (тушёная)',cal:165,prot:18,fat:9,carb:5,cat:'Мясо и птица'},
-  {name:'Сало',cal:797,prot:2,fat:89,carb:0,cat:'Мясо и птица'},{name:'Утка (запечённая)',cal:340,prot:19,fat:28,carb:0,cat:'Мясо и птица'},
+  {name:'Колбаса варёная (Докторская)',cal:257,prot:12,fat:22,carb:1.5,cat:'Мясо и птица'},{name:'Колбаса копчёная',cal:420,prot:17,fat:40,carb:0,cat:'Мясо и птица'},
+  {name:'Колбаса сырокопчёная',cal:473,prot:21,fat:42,carb:1,cat:'Мясо и птица'},{name:'Сосиски молочные',cal:266,prot:11,fat:24,carb:2,cat:'Мясо и птица'},
+  {name:'Сардельки',cal:215,prot:10,fat:19,carb:2,cat:'Мясо и птица'},{name:'Шашлык свиной',cal:280,prot:19,fat:22,carb:0,cat:'Мясо и птица'},
+  {name:'Шашлык куриный',cal:165,prot:22,fat:8,carb:1,cat:'Мясо и птица'},{name:'Печень куриная жареная',cal:185,prot:21,fat:10,carb:2,cat:'Мясо и птица'},
+  {name:'Сало солёное',cal:797,prot:2,fat:89,carb:0,cat:'Мясо и птица'},{name:'Карбонад',cal:135,prot:16,fat:8,carb:0,cat:'Мясо и птица'},
+  {name:'Буженина',cal:233,prot:15,fat:19,carb:0,cat:'Мясо и птица'},{name:'Паштет печёночный',cal:301,prot:11,fat:28,carb:3,cat:'Мясо и птица'},
   // Рыба и морепродукты
   {name:'Лосось (запечённый)',cal:208,prot:20,fat:13,carb:0,cat:'Рыба и морепродукты'},{name:'Лосось (слабосолёный)',cal:202,prot:21,fat:14,carb:0,cat:'Рыба и морепродукты'},
-  {name:'Тунец (консерв. в собств. соку)',cal:116,prot:26,fat:1,carb:0,cat:'Рыба и морепродукты'},{name:'Тунец (стейк)',cal:144,prot:23,fat:5,carb:0,cat:'Рыба и морепродукты'},
-  {name:'Треска (отварная)',cal:78,prot:18,fat:0.7,carb:0,cat:'Рыба и морепродукты'},{name:'Минтай (отварной)',cal:79,prot:18,fat:1,carb:0,cat:'Рыба и морепродукты'},
-  {name:'Хек (отварной)',cal:95,prot:18,fat:2,carb:0,cat:'Рыба и морепродукты'},{name:'Скумбрия (запечённая)',cal:262,prot:18,fat:21,carb:0,cat:'Рыба и морепродукты'},
-  {name:'Сельдь солёная',cal:217,prot:17,fat:16,carb:0,cat:'Рыба и морепродукты'},{name:'Форель (запечённая)',cal:168,prot:21,fat:9,carb:0,cat:'Рыба и морепродукты'},
-  {name:'Креветки (варёные)',cal:95,prot:20,fat:1.5,carb:0,cat:'Рыба и морепродукты'},{name:'Кальмар (отварной)',cal:100,prot:18,fat:2.2,carb:0,cat:'Рыба и морепродукты'},
-  {name:'Мидии (варёные)',cal:86,prot:12,fat:2,carb:3.7,cat:'Рыба и морепродукты'},{name:'Икра красная',cal:250,prot:24,fat:18,carb:0,cat:'Рыба и морепродукты'},
-  {name:'Краб (мясо)',cal:87,prot:18,fat:1.3,carb:0,cat:'Рыба и морепродукты'},{name:'Рыбные палочки (жареные)',cal:250,prot:12,fat:14,carb:18,cat:'Рыба и морепродукты'},
+  {name:'Сёмга',cal:201,prot:20,fat:13,carb:0,cat:'Рыба и морепродукты'},{name:'Форель (запечённая)',cal:168,prot:21,fat:9,carb:0,cat:'Рыба и морепродукты'},
+  {name:'Тунец (свежий)',cal:144,prot:23,fat:5,carb:0,cat:'Рыба и морепродукты'},{name:'Тунец консервированный в масле',cal:198,prot:24,fat:11,carb:0,cat:'Рыба и морепродукты'},
+  {name:'Тунец консервированный в соку',cal:116,prot:26,fat:1,carb:0,cat:'Рыба и морепродукты'},{name:'Треска (отварная)',cal:78,prot:18,fat:0.7,carb:0,cat:'Рыба и морепродукты'},
+  {name:'Треска (жареная)',cal:111,prot:23,fat:1,carb:0,cat:'Рыба и морепродукты'},{name:'Минтай (отварной)',cal:79,prot:18,fat:1,carb:0,cat:'Рыба и морепродукты'},
+  {name:'Хек (отварной)',cal:95,prot:18,fat:2,carb:0,cat:'Рыба и морепродукты'},{name:'Пикша',cal:71,prot:17,fat:0.5,carb:0,cat:'Рыба и морепродукты'},
+  {name:'Скумбрия (запечённая)',cal:262,prot:18,fat:21,carb:0,cat:'Рыба и морепродукты'},{name:'Скумбрия копчёная',cal:317,prot:21,fat:26,carb:0,cat:'Рыба и морепродукты'},
+  {name:'Сельдь солёная',cal:217,prot:17,fat:16,carb:0,cat:'Рыба и морепродукты'},{name:'Сельдь свежая',cal:158,prot:18,fat:9,carb:0,cat:'Рыба и морепродукты'},
+  {name:'Камбала',cal:90,prot:16,fat:3,carb:0,cat:'Рыба и морепродукты'},{name:'Карп',cal:112,prot:16,fat:5,carb:0,cat:'Рыба и морепродукты'},
+  {name:'Окунь морской',cal:103,prot:19,fat:3,carb:0,cat:'Рыба и морепродукты'},{name:'Судак',cal:84,prot:19,fat:1,carb:0,cat:'Рыба и морепродукты'},
+  {name:'Щука',cal:84,prot:18,fat:1,carb:0,cat:'Рыба и морепродукты'},{name:'Сазан',cal:97,prot:18,fat:3,carb:0,cat:'Рыба и морепродукты'},
+  {name:'Палтус',cal:142,prot:19,fat:7,carb:0,cat:'Рыба и морепродукты'},{name:'Сом',cal:115,prot:17,fat:5,carb:0,cat:'Рыба и морепродукты'},
+  {name:'Креветки (варёные)',cal:95,prot:20,fat:1.5,carb:0,cat:'Рыба и морепродукты'},{name:'Креветки тигровые',cal:99,prot:24,fat:0.3,carb:0,cat:'Рыба и морепродукты'},
+  {name:'Кальмар (отварной)',cal:100,prot:18,fat:2.2,carb:0,cat:'Рыба и морепродукты'},{name:'Мидии (варёные)',cal:86,prot:12,fat:2,carb:3.7,cat:'Рыба и морепродукты'},
+  {name:'Осьминог',cal:82,prot:15,fat:1,carb:2,cat:'Рыба и морепродукты'},{name:'Краб (мясо)',cal:87,prot:18,fat:1.3,carb:0,cat:'Рыба и морепродукты'},
+  {name:'Крабовые палочки',cal:88,prot:6,fat:1,carb:10,cat:'Рыба и морепродукты'},{name:'Икра красная',cal:250,prot:24,fat:18,carb:0,cat:'Рыба и морепродукты'},
+  {name:'Икра чёрная',cal:235,prot:24,fat:15,carb:0,cat:'Рыба и морепродукты'},{name:'Икра минтая',cal:131,prot:28,fat:2,carb:0,cat:'Рыба и морепродукты'},
+  {name:'Морская капуста',cal:25,prot:0.8,fat:5,carb:0,cat:'Рыба и морепродукты'},{name:'Устрицы',cal:95,prot:9,fat:2,carb:5,cat:'Рыба и морепродукты'},
+  {name:'Рыбные палочки (жареные)',cal:250,prot:12,fat:14,carb:18,cat:'Рыба и морепродукты'},{name:'Шпроты в масле',cal:363,prot:17,fat:32,carb:0,cat:'Рыба и морепродукты'},
+  {name:'Сардины в масле',cal:221,prot:24,fat:13,carb:0,cat:'Рыба и морепродукты'},{name:'Килька в томате',cal:137,prot:13,fat:7,carb:4,cat:'Рыба и морепродукты'},
   // Яйца и молочное
   {name:'Яйцо куриное',cal:155,prot:13,fat:11,carb:1.1,cat:'Яйца и молочное'},{name:'Яичный белок',cal:52,prot:11,fat:0.2,carb:0.7,cat:'Яйца и молочное'},
-  {name:'Яичница (2 яйца)',cal:196,prot:14,fat:15,carb:1,cat:'Яйца и молочное'},{name:'Омлет',cal:184,prot:11,fat:15,carb:2,cat:'Яйца и молочное'},
-  {name:'Творог обезжиренный',cal:71,prot:18,fat:0.6,carb:1.5,cat:'Яйца и молочное'},{name:'Творог 5%',cal:121,prot:17,fat:5,carb:1.8,cat:'Яйца и молочное'},
-  {name:'Творог 9%',cal:159,prot:17,fat:9,carb:2,cat:'Яйца и молочное'},{name:'Сметана 15%',cal:160,prot:2.6,fat:15,carb:3.6,cat:'Яйца и молочное'},
-  {name:'Сметана 20%',cal:206,prot:2.8,fat:20,carb:3.2,cat:'Яйца и молочное'},{name:'Молоко 1.5%',cal:44,prot:3,fat:1.5,carb:4.8,cat:'Яйца и молочное'},
-  {name:'Молоко 2.5%',cal:52,prot:2.8,fat:2.5,carb:4.7,cat:'Яйца и молочное'},{name:'Молоко 3.2%',cal:59,prot:2.9,fat:3.2,carb:4.7,cat:'Яйца и молочное'},
+  {name:'Яичный желток',cal:322,prot:16,fat:27,carb:3.6,cat:'Яйца и молочное'},{name:'Яичница (2 яйца)',cal:196,prot:14,fat:15,carb:1,cat:'Яйца и молочное'},
+  {name:'Омлет',cal:184,prot:11,fat:15,carb:2,cat:'Яйца и молочное'},{name:'Яйцо перепелиное',cal:168,prot:12,fat:13,carb:0.6,cat:'Яйца и молочное'},
+  {name:'Творог обезжиренный',cal:71,prot:18,fat:0.6,carb:1.5,cat:'Яйца и молочное'},{name:'Творог 2%',cal:103,prot:18,fat:2,carb:3,cat:'Яйца и молочное'},
+  {name:'Творог 5%',cal:121,prot:17,fat:5,carb:1.8,cat:'Яйца и молочное'},{name:'Творог 9%',cal:159,prot:17,fat:9,carb:2,cat:'Яйца и молочное'},
+  {name:'Творог 18%',cal:236,prot:14,fat:18,carb:2.8,cat:'Яйца и молочное'},{name:'Творожная масса',cal:340,prot:7,fat:23,carb:27,cat:'Яйца и молочное'},
+  {name:'Сметана 10%',cal:115,prot:3,fat:10,carb:4,cat:'Яйца и молочное'},{name:'Сметана 15%',cal:160,prot:2.6,fat:15,carb:3.6,cat:'Яйца и молочное'},
+  {name:'Сметана 20%',cal:206,prot:2.8,fat:20,carb:3.2,cat:'Яйца и молочное'},{name:'Сметана 25%',cal:248,prot:2.6,fat:25,carb:2.7,cat:'Яйца и молочное'},
+  {name:'Молоко 1.5%',cal:44,prot:3,fat:1.5,carb:4.8,cat:'Яйца и молочное'},{name:'Молоко 2.5%',cal:52,prot:2.8,fat:2.5,carb:4.7,cat:'Яйца и молочное'},
+  {name:'Молoко 3.2%',cal:59,prot:2.9,fat:3.2,carb:4.7,cat:'Яйца и молочное'},{name:'Молоко топлёное',cal:67,prot:3,fat:4,carb:4.7,cat:'Яйца и молочное'},
+  {name:'Молоко козье',cal:68,prot:3,fat:4.2,carb:4.5,cat:'Яйца и молочное'},{name:'Молоко сгущённое',cal:320,prot:7,fat:8,carb:56,cat:'Яйца и молочное'},
   {name:'Кефир 1%',cal:40,prot:3,fat:1,carb:4,cat:'Яйца и молочное'},{name:'Кефир 2.5%',cal:53,prot:2.9,fat:2.5,carb:4,cat:'Яйца и молочное'},
+  {name:'Кефир 3.2%',cal:59,prot:3,fat:3.2,carb:4,cat:'Яйца и молочное'},{name:'Ряженка 4%',cal:67,prot:2.9,fat:4,carb:4.2,cat:'Яйца и молочное'},
   {name:'Йогурт натуральный',cal:60,prot:5,fat:3.2,carb:3.5,cat:'Яйца и молочное'},{name:'Йогурт греческий',cal:97,prot:9,fat:5,carb:4,cat:'Яйца и молочное'},
-  {name:'Ряженка 4%',cal:67,prot:2.9,fat:4,carb:4.2,cat:'Яйца и молочное'},{name:'Сыр российский',cal:363,prot:23,fat:30,carb:0,cat:'Яйца и молочное'},
-  {name:'Сыр гауда',cal:356,prot:25,fat:27,carb:2,cat:'Яйца и молочное'},{name:'Сыр моцарелла',cal:280,prot:28,fat:17,carb:3,cat:'Яйца и молочное'},
-  {name:'Сыр пармезан',cal:392,prot:38,fat:29,carb:3,cat:'Яйца и молочное'},{name:'Сыр плавленый',cal:290,prot:11,fat:25,carb:4,cat:'Яйца и молочное'},
-  {name:'Сыр фета',cal:264,prot:14,fat:21,carb:4,cat:'Яйца и молочное'},{name:'Масло сливочное',cal:748,prot:0.5,fat:82,carb:1,cat:'Яйца и молочное'},
-  {name:'Брынза',cal:260,prot:17,fat:20,carb:0,cat:'Яйца и молочное'},
-  // Крупы и каши
-  {name:'Рис белый (варёный)',cal:130,prot:2.7,fat:0.3,carb:28,cat:'Крупы и каши'},{name:'Рис бурый (варёный)',cal:111,prot:2.6,fat:0.9,carb:23,cat:'Крупы и каши'},
-  {name:'Гречка (варёная)',cal:110,prot:4,fat:1.1,carb:21,cat:'Крупы и каши'},{name:'Овсянка на воде',cal:88,prot:3,fat:1.7,carb:15,cat:'Крупы и каши'},
-  {name:'Овсянка на молоке',cal:120,prot:4.5,fat:4,carb:16,cat:'Крупы и каши'},{name:'Перловка (варёная)',cal:109,prot:3,fat:0.4,carb:23,cat:'Крупы и каши'},
-  {name:'Пшено (варёное)',cal:90,prot:3,fat:0.7,carb:17,cat:'Крупы и каши'},{name:'Манная каша на молоке',cal:98,prot:3,fat:3,carb:15,cat:'Крупы и каши'},
-  {name:'Булгур (варёный)',cal:83,prot:3,fat:0.2,carb:19,cat:'Крупы и каши'},{name:'Кускус (варёный)',cal:112,prot:3.8,fat:0.2,carb:23,cat:'Крупы и каши'},
-  {name:'Киноа (варёная)',cal:120,prot:4.4,fat:1.9,carb:21,cat:'Крупы и каши'},{name:'Макароны (варёные)',cal:158,prot:5.8,fat:0.9,carb:31,cat:'Крупы и каши'},
-  {name:'Макароны из тв. сортов',cal:160,prot:5.5,fat:1.1,carb:32,cat:'Крупы и каши'},{name:'Спагетти (варёные)',cal:158,prot:5.8,fat:0.9,carb:31,cat:'Крупы и каши'},
-  {name:'Чечевица (варёная)',cal:116,prot:9,fat:0.4,carb:20,cat:'Крупы и каши'},{name:'Фасоль (варёная)',cal:123,prot:9,fat:0.5,carb:21,cat:'Крупы и каши'},
-  {name:'Нут (варёный)',cal:164,prot:9,fat:2.6,carb:27,cat:'Крупы и каши'},{name:'Горох (варёный)',cal:80,prot:5,fat:0.4,carb:14,cat:'Крупы и каши'},
+  {name:'Йогурт питьевой',cal:70,prot:2.8,fat:1.5,carb:12,cat:'Яйца и молочное'},{name:'Простокваша',cal:58,prot:2.9,fat:3.2,carb:4.1,cat:'Яйца и молочное'},
+  {name:'Сливки 10%',cal:118,prot:3,fat:10,carb:4,cat:'Яйца и молочное'},{name:'Сливки 20%',cal:205,prot:2.8,fat:20,carb:3.7,cat:'Яйца и молочное'},
+  {name:'Сливки 33%',cal:322,prot:2.2,fat:33,carb:3,cat:'Яйца и молочное'},{name:'Сыр российский',cal:363,prot:23,fat:30,carb:0,cat:'Яйца и молочное'},
+  {name:'Сыр голландский',cal:352,prot:26,fat:27,carb:0,cat:'Яйца и молочное'},{name:'Сыр гауда',cal:356,prot:25,fat:27,carb:2,cat:'Яйца и молочное'},
+  {name:'Сыр маасдам',cal:350,prot:24,fat:26,carb:0,cat:'Яйца и молочное'},{name:'Сыр чеддер',cal:402,prot:25,fat:33,carb:1,cat:'Яйца и молочное'},
+  {name:'Сыр пармезан',cal:392,prot:38,fat:29,carb:3,cat:'Яйца и молочное'},{name:'Сыр моцарелла',cal:280,prot:28,fat:17,carb:3,cat:'Яйца и молочное'},
+  {name:'Сыр фета',cal:264,prot:14,fat:21,carb:4,cat:'Яйца и молочное'},{name:'Сыр брынза',cal:260,prot:17,fat:20,carb:0,cat:'Яйца и молочное'},
+  {name:'Сыр плавленый',cal:290,prot:11,fat:25,carb:4,cat:'Яйца и молочное'},{name:'Сыр сулугуни',cal:286,prot:20,fat:24,carb:0,cat:'Яйца и молочное'},
+  {name:'Сыр косичка',cal:320,prot:20,fat:26,carb:0,cat:'Яйца и молочное'},{name:'Сыр адыгейский',cal:240,prot:18,fat:18,carb:1.5,cat:'Яйца и молочное'},
+  {name:'Сыр маскарпоне',cal:412,prot:5,fat:42,carb:4,cat:'Яйца и молочное'},{name:'Сыр рикотта',cal:174,prot:11,fat:13,carb:3,cat:'Яйца и молочное'},
+  {name:'Масло сливочное',cal:748,prot:0.5,fat:82,carb:1,cat:'Яйца и молочное'},{name:'Масло топлёное',cal:892,prot:0,fat:99,carb:0,cat:'Яйца и молочное'},
+  {name:'Мороженое пломбир',cal:227,prot:3.7,fat:15,carb:21,cat:'Яйца и молочное'},{name:'Мороженое эскимо',cal:270,prot:4,fat:20,carb:20,cat:'Яйца и молочное'},
+  // Крупы, бобовые, каши
+  {name:'Рис белый (варёный)',cal:130,prot:2.7,fat:0.3,carb:28,cat:'Крупы, бобовые, каши'},{name:'Рис бурый (варёный)',cal:111,prot:2.6,fat:0.9,carb:23,cat:'Крупы, бобовые, каши'},
+  {name:'Рис басмати (варёный)',cal:121,prot:3,fat:0.4,carb:25,cat:'Крупы, бобовые, каши'},{name:'Рис дикий (варёный)',cal:101,prot:4,fat:0.3,carb:21,cat:'Крупы, бобовые, каши'},
+  {name:'Гречка (варёная)',cal:110,prot:4,fat:1.1,carb:21,cat:'Крупы, бобовые, каши'},{name:'Гречка зелёная',cal:110,prot:4.5,fat:1.5,carb:20,cat:'Крупы, бобовые, каши'},
+  {name:'Овсянка на воде',cal:88,prot:3,fat:1.7,carb:15,cat:'Крупы, бобовые, каши'},{name:'Овсянка на молоке',cal:120,prot:4.5,fat:4,carb:16,cat:'Крупы, бобовые, каши'},
+  {name:'Овсяные хлопья (сухие)',cal:352,prot:12,fat:6,carb:62,cat:'Крупы, бобовые, каши'},{name:'Перловка (варёная)',cal:109,prot:3,fat:0.4,carb:23,cat:'Крупы, бобовые, каши'},
+  {name:'Пшено (варёное)',cal:90,prot:3,fat:0.7,carb:17,cat:'Крупы, бобовые, каши'},{name:'Пшеничная каша',cal:90,prot:3,fat:0.8,carb:17,cat:'Крупы, бобовые, каши'},
+  {name:'Манная каша на молоке',cal:98,prot:3,fat:3,carb:15,cat:'Крупы, бобовые, каши'},{name:'Кукурузная каша',cal:86,prot:2,fat:0.6,carb:18,cat:'Крупы, бобовые, каши'},
+  {name:'Ячневая каша',cal:96,prot:2.3,fat:0.3,carb:20,cat:'Крупы, бобовые, каши'},{name:'Булгур (варёный)',cal:83,prot:3,fat:0.2,carb:19,cat:'Крупы, бобовые, каши'},
+  {name:'Кускус (варёный)',cal:112,prot:3.8,fat:0.2,carb:23,cat:'Крупы, бобовые, каши'},{name:'Киноа (варёная)',cal:120,prot:4.4,fat:1.9,carb:21,cat:'Крупы, бобовые, каши'},
+  {name:'Чечевица (варёная)',cal:116,prot:9,fat:0.4,carb:20,cat:'Крупы, бобовые, каши'},{name:'Чечевица красная (варёная)',cal:100,prot:7.6,fat:0.4,carb:17,cat:'Крупы, бобовые, каши'},
+  {name:'Фасоль белая (варёная)',cal:123,prot:9,fat:0.5,carb:21,cat:'Крупы, бобовые, каши'},{name:'Фасоль красная (варёная)',cal:127,prot:8.7,fat:0.5,carb:22,cat:'Крупы, бобовые, каши'},
+  {name:'Нут (варёный)',cal:164,prot:9,fat:2.6,carb:27,cat:'Крупы, бобовые, каши'},{name:'Горох (варёный)',cal:80,prot:5,fat:0.4,carb:14,cat:'Крупы, бобовые, каши'},
+  {name:'Маш (варёный)',cal:105,prot:7,fat:0.4,carb:19,cat:'Крупы, бобовые, каши'},{name:'Соя (варёная)',cal:173,prot:17,fat:9,carb:10,cat:'Крупы, бобовые, каши'},
+  {name:'Макароны (варёные)',cal:158,prot:5.8,fat:0.9,carb:31,cat:'Крупы, бобовые, каши'},{name:'Макароны из тв. сортов',cal:160,prot:5.5,fat:1.1,carb:32,cat:'Крупы, бобовые, каши'},
+  {name:'Спагетти (варёные)',cal:158,prot:5.8,fat:0.9,carb:31,cat:'Крупы, бобовые, каши'},{name:'Вермишель',cal:160,prot:5.5,fat:1.1,carb:32,cat:'Крупы, бобовые, каши'},
+  {name:'Лапша гречневая',cal:163,prot:5,fat:0.8,carb:33,cat:'Крупы, бобовые, каши'},{name:'Лапша рисовая',cal:109,prot:1,fat:0.2,carb:25,cat:'Крупы, бобовые, каши'},
+  {name:'Отруби овсяные',cal:246,prot:17,fat:7,carb:50,cat:'Крупы, бобовые, каши'},{name:'Отруби пшеничные',cal:216,prot:16,fat:4,carb:16,cat:'Крупы, бобовые, каши'},
+  {name:'Мюсли',cal:352,prot:10,fat:8,carb:60,cat:'Крупы, бобовые, каши'},{name:'Гранола',cal:471,prot:10,fat:20,carb:64,cat:'Крупы, бобовые, каши'},
   // Хлеб и выпечка
   {name:'Хлеб белый',cal:265,prot:8,fat:3.2,carb:49,cat:'Хлеб и выпечка'},{name:'Хлеб ржаной',cal:210,prot:6,fat:1.2,carb:42,cat:'Хлеб и выпечка'},
-  {name:'Хлеб бородинский',cal:208,prot:6.8,fat:1.3,carb:40,cat:'Хлеб и выпечка'},{name:'Батон нарезной',cal:264,prot:7.5,fat:2.9,carb:51,cat:'Хлеб и выпечка'},
-  {name:'Хлебцы цельнозерновые',cal:295,prot:11,fat:3,carb:57,cat:'Хлеб и выпечка'},{name:'Лаваш тонкий',cal:277,prot:8,fat:1,carb:56,cat:'Хлеб и выпечка'},
-  {name:'Булочка сдобная',cal:339,prot:8,fat:9,carb:56,cat:'Хлеб и выпечка'},{name:'Круассан',cal:406,prot:8,fat:21,carb:46,cat:'Хлеб и выпечка'},
-  {name:'Сухари',cal:331,prot:11,fat:2,carb:72,cat:'Хлеб и выпечка'},{name:'Печенье овсяное',cal:437,prot:6,fat:16,carb:68,cat:'Хлеб и выпечка'},
-  {name:'Печенье песочное',cal:460,prot:6,fat:22,carb:60,cat:'Хлеб и выпечка'},{name:'Пряник',cal:350,prot:5,fat:3,carb:75,cat:'Хлеб и выпечка'},
+  {name:'Хлеб бородинский',cal:208,prot:6.8,fat:1.3,carb:40,cat:'Хлеб и выпечка'},{name:'Хлеб цельнозерновой',cal:230,prot:9,fat:3,carb:43,cat:'Хлеб и выпечка'},
+  {name:'Хлеб отрубной',cal:227,prot:8,fat:4,carb:40,cat:'Хлеб и выпечка'},{name:'Батон нарезной',cal:264,prot:7.5,fat:2.9,carb:51,cat:'Хлеб и выпечка'},
+  {name:'Багет',cal:262,prot:8,fat:2,carb:52,cat:'Хлеб и выпечка'},{name:'Лаваш тонкий',cal:277,prot:8,fat:1,carb:56,cat:'Хлеб и выпечка'},
+  {name:'Питта',cal:275,prot:9,fat:1.2,carb:55,cat:'Хлеб и выпечка'},{name:'Хлебцы цельнозерновые',cal:295,prot:11,fat:3,carb:57,cat:'Хлеб и выпечка'},
+  {name:'Хлебцы рисовые',cal:387,prot:8,fat:3,carb:80,cat:'Хлеб и выпечка'},{name:'Сухари белые',cal:331,prot:11,fat:2,carb:72,cat:'Хлеб и выпечка'},
+  {name:'Сухари ржаные',cal:336,prot:11,fat:1,carb:70,cat:'Хлеб и выпечка'},{name:'Булочка сдобная',cal:339,prot:8,fat:9,carb:56,cat:'Хлеб и выпечка'},
+  {name:'Круассан',cal:406,prot:8,fat:21,carb:46,cat:'Хлеб и выпечка'},{name:'Пончик',cal:452,prot:6,fat:25,carb:51,cat:'Хлеб и выпечка'},
+  {name:'Печенье овсяное',cal:437,prot:6,fat:16,carb:68,cat:'Хлеб и выпечка'},{name:'Печенье песочное',cal:460,prot:6,fat:22,carb:60,cat:'Хлеб и выпечка'},
+  {name:'Печенье крекер',cal:352,prot:11,fat:12,carb:55,cat:'Хлеб и выпечка'},{name:'Печенье галетное',cal:294,prot:10,fat:2,carb:66,cat:'Хлеб и выпечка'},
+  {name:'Пряник',cal:350,prot:5,fat:3,carb:75,cat:'Хлеб и выпечка'},{name:'Вафли',cal:425,prot:8,fat:18,carb:60,cat:'Хлеб и выпечка'},
   {name:'Блины',cal:233,prot:6,fat:12,carb:26,cat:'Хлеб и выпечка'},{name:'Оладьи',cal:294,prot:7,fat:11,carb:42,cat:'Хлеб и выпечка'},
-  {name:'Вафли',cal:425,prot:8,fat:18,carb:60,cat:'Хлеб и выпечка'},
-  // Овощи
-  {name:'Огурец',cal:15,prot:0.8,fat:0.1,carb:3.6,cat:'Овощи'},{name:'Помидор',cal:20,prot:0.9,fat:0.2,carb:4.2,cat:'Овощи'},
-  {name:'Перец болгарский',cal:27,prot:1,fat:0.3,carb:5.3,cat:'Овощи'},{name:'Морковь',cal:35,prot:1.3,fat:0.1,carb:7,cat:'Овощи'},
-  {name:'Капуста белокочанная',cal:28,prot:1.8,fat:0.1,carb:5,cat:'Овощи'},{name:'Капуста брокколи',cal:34,prot:2.8,fat:0.4,carb:7,cat:'Овощи'},
-  {name:'Капуста цветная',cal:30,prot:2.5,fat:0.3,carb:5,cat:'Овощи'},{name:'Картофель отварной',cal:82,prot:2,fat:0.4,carb:17,cat:'Овощи'},
-  {name:'Картофель жареный',cal:192,prot:2.8,fat:9.5,carb:23,cat:'Овощи'},{name:'Картофель фри',cal:312,prot:3.4,fat:15,carb:41,cat:'Овощи'},
-  {name:'Пюре картофельное',cal:106,prot:2.2,fat:4.2,carb:15,cat:'Овощи'},{name:'Лук репчатый',cal:41,prot:1.4,fat:0,carb:8,cat:'Овощи'},
-  {name:'Свёкла (варёная)',cal:49,prot:1.7,fat:0.1,carb:11,cat:'Овощи'},{name:'Кабачок',cal:24,prot:0.6,fat:0.3,carb:4.6,cat:'Овощи'},
-  {name:'Баклажан',cal:24,prot:1.2,fat:0.1,carb:4.5,cat:'Овощи'},{name:'Тыква',cal:26,prot:1,fat:0.1,carb:4.4,cat:'Овощи'},
-  {name:'Грибы шампиньоны',cal:27,prot:4.3,fat:1,carb:0.1,cat:'Овощи'},{name:'Кукуруза (варёная)',cal:96,prot:3.4,fat:1.5,carb:21,cat:'Овощи'},
-  {name:'Зелёный горошек',cal:73,prot:5,fat:0.2,carb:13,cat:'Овощи'},{name:'Авокадо',cal:160,prot:2,fat:15,carb:9,cat:'Овощи'},
-  {name:'Шпинат',cal:23,prot:2.9,fat:0.4,carb:3.6,cat:'Овощи'},{name:'Салат листовой',cal:15,prot:1.4,fat:0.2,carb:2.9,cat:'Овощи'},
+  {name:'Сырники',cal:220,prot:17,fat:11,carb:18,cat:'Хлеб и выпечка'},{name:'Кекс',cal:380,prot:6,fat:15,carb:55,cat:'Хлеб и выпечка'},
+  {name:'Маффин',cal:377,prot:5,fat:18,carb:49,cat:'Хлеб и выпечка'},{name:'Бисквит',cal:350,prot:5,fat:8,carb:62,cat:'Хлеб и выпечка'},
+  {name:'Слойка с сыром',cal:368,prot:8,fat:22,carb:33,cat:'Хлеб и выпечка'},{name:'Пирожок с картошкой',cal:250,prot:5,fat:9,carb:37,cat:'Хлеб и выпечка'},
+  // Овощи и зелень
+  {name:'Огурец',cal:15,prot:0.8,fat:0.1,carb:3.6,cat:'Овощи и зелень'},{name:'Помидор',cal:20,prot:0.9,fat:0.2,carb:4.2,cat:'Овощи и зелень'},
+  {name:'Помидор черри',cal:18,prot:0.9,fat:0.2,carb:4,cat:'Овощи и зелень'},{name:'Перец болгарский',cal:27,prot:1,fat:0.3,carb:5.3,cat:'Овощи и зелень'},
+  {name:'Перец чили',cal:40,prot:2,fat:0.2,carb:9,cat:'Овощи и зелень'},{name:'Морковь',cal:35,prot:1.3,fat:0.1,carb:7,cat:'Овощи и зелень'},
+  {name:'Капуста белокочанная',cal:28,prot:1.8,fat:0.1,carb:5,cat:'Овощи и зелень'},{name:'Капуста краснокочанная',cal:26,prot:1.4,fat:0.2,carb:5,cat:'Овощи и зелень'},
+  {name:'Капуста брокколи',cal:34,prot:2.8,fat:0.4,carb:7,cat:'Овощи и зелень'},{name:'Капуста цветная',cal:30,prot:2.5,fat:0.3,carb:5,cat:'Овощи и зелень'},
+  {name:'Капуста брюссельская',cal:43,prot:3.4,fat:0.3,carb:9,cat:'Овощи и зелень'},{name:'Капуста пекинская',cal:16,prot:1.2,fat:0.2,carb:3,cat:'Овощи и зелень'},
+  {name:'Капуста квашеная',cal:19,prot:1.8,fat:0.1,carb:4,cat:'Овощи и зелень'},{name:'Картофель отварной',cal:82,prot:2,fat:0.4,carb:17,cat:'Овощи и зелень'},
+  {name:'Картофель жареный',cal:192,prot:2.8,fat:9.5,carb:23,cat:'Овощи и зелень'},{name:'Картофель фри',cal:312,prot:3.4,fat:15,carb:41,cat:'Овощи и зелень'},
+  {name:'Картофель печёный',cal:94,prot:2.5,fat:0.1,carb:21,cat:'Овощи и зелень'},{name:'Пюре картофельное',cal:106,prot:2.2,fat:4.2,carb:15,cat:'Овощи и зелень'},
+  {name:'Лук репчатый',cal:41,prot:1.4,fat:0,carb:8,cat:'Овощи и зелень'},{name:'Лук зелёный',cal:19,prot:1.3,fat:0.1,carb:3.2,cat:'Овощи и зелень'},
+  {name:'Лук порей',cal:36,prot:2,fat:0.2,carb:7,cat:'Овощи и зелень'},{name:'Чеснок',cal:143,prot:6.5,fat:0.5,carb:30,cat:'Овощи и зелень'},
+  {name:'Свёкла (варёная)',cal:49,prot:1.7,fat:0.1,carb:11,cat:'Овощи и зелень'},{name:'Свёкла сырая',cal:43,prot:1.6,fat:0.1,carb:9,cat:'Овощи и зелень'},
+  {name:'Кабачок',cal:24,prot:0.6,fat:0.3,carb:4.6,cat:'Овощи и зелень'},{name:'Цукини',cal:17,prot:1.2,fat:0.3,carb:3,cat:'Овощи и зелень'},
+  {name:'Баклажан',cal:24,prot:1.2,fat:0.1,carb:4.5,cat:'Овощи и зелень'},{name:'Тыква',cal:26,prot:1,fat:0.1,carb:4.4,cat:'Овощи и зелень'},
+  {name:'Редис',cal:20,prot:1.2,fat:0.1,carb:3.4,cat:'Овощи и зелень'},{name:'Редька',cal:36,prot:1.9,fat:0.2,carb:7,cat:'Овощи и зелень'},
+  {name:'Репа',cal:32,prot:1.5,fat:0.1,carb:6,cat:'Овощи и зелень'},{name:'Сельдерей (корень)',cal:34,prot:1.3,fat:0.3,carb:6,cat:'Овощи и зелень'},
+  {name:'Сельдерей (стебель)',cal:13,prot:0.9,fat:0.1,carb:2,cat:'Овощи и зелень'},{name:'Спаржа',cal:20,prot:2.2,fat:0.1,carb:3.9,cat:'Овощи и зелень'},
+  {name:'Шпинат',cal:23,prot:2.9,fat:0.4,carb:3.6,cat:'Овощи и зелень'},{name:'Салат листовой',cal:15,prot:1.4,fat:0.2,carb:2.9,cat:'Овощи и зелень'},
+  {name:'Руккола',cal:25,prot:2.6,fat:0.7,carb:2,cat:'Овощи и зелень'},{name:'Укроп',cal:40,prot:2.5,fat:0.5,carb:6,cat:'Овощи и зелень'},
+  {name:'Петрушка',cal:47,prot:3.7,fat:0.4,carb:8,cat:'Овощи и зелень'},{name:'Базилик',cal:27,prot:3.2,fat:0.6,carb:2.7,cat:'Овощи и зелень'},
+  {name:'Грибы шампиньоны',cal:27,prot:4.3,fat:1,carb:0.1,cat:'Овощи и зелень'},{name:'Грибы вёшенки',cal:38,prot:3.3,fat:0.4,carb:6,cat:'Овощи и зелень'},
+  {name:'Грибы белые',cal:34,prot:3.7,fat:1.7,carb:1,cat:'Овощи и зелень'},{name:'Грибы лисички',cal:19,prot:1.5,fat:1,carb:1,cat:'Овощи и зелень'},
+  {name:'Кукуруза (варёная)',cal:96,prot:3.4,fat:1.5,carb:21,cat:'Овощи и зелень'},{name:'Зелёный горошек',cal:73,prot:5,fat:0.2,carb:13,cat:'Овощи и зелень'},
+  {name:'Стручковая фасоль',cal:24,prot:2,fat:0.2,carb:4,cat:'Овощи и зелень'},{name:'Авокадо',cal:160,prot:2,fat:15,carb:9,cat:'Овощи и зелень'},
+  {name:'Помидоры вяленые',cal:258,prot:14,fat:3,carb:43,cat:'Овощи и зелень'},{name:'Оливки',cal:115,prot:0.8,fat:11,carb:6,cat:'Овощи и зелень'},
+  {name:'Маслины',cal:115,prot:1,fat:10,carb:6,cat:'Овощи и зелень'},{name:'Имбирь',cal:80,prot:1.8,fat:0.8,carb:18,cat:'Овощи и зелень'},
   // Фрукты и ягоды
   {name:'Банан',cal:96,prot:1.5,fat:0.2,carb:21,cat:'Фрукты и ягоды'},{name:'Яблоко',cal:52,prot:0.3,fat:0.2,carb:14,cat:'Фрукты и ягоды'},
-  {name:'Груша',cal:57,prot:0.4,fat:0.1,carb:15,cat:'Фрукты и ягоды'},{name:'Апельсин',cal:47,prot:0.9,fat:0.1,carb:12,cat:'Фрукты и ягоды'},
-  {name:'Мандарин',cal:53,prot:0.8,fat:0.2,carb:13,cat:'Фрукты и ягоды'},{name:'Грейпфрут',cal:42,prot:0.8,fat:0.1,carb:11,cat:'Фрукты и ягоды'},
-  {name:'Виноград',cal:69,prot:0.6,fat:0.2,carb:18,cat:'Фрукты и ягоды'},{name:'Клубника',cal:33,prot:0.7,fat:0.3,carb:8,cat:'Фрукты и ягоды'},
-  {name:'Малина',cal:52,prot:1.2,fat:0.7,carb:12,cat:'Фрукты и ягоды'},{name:'Черника',cal:57,prot:0.7,fat:0.3,carb:14,cat:'Фрукты и ягоды'},
-  {name:'Арбуз',cal:30,prot:0.6,fat:0.2,carb:8,cat:'Фрукты и ягоды'},{name:'Дыня',cal:34,prot:0.8,fat:0.2,carb:8,cat:'Фрукты и ягоды'},
-  {name:'Персик',cal:39,prot:0.9,fat:0.1,carb:10,cat:'Фрукты и ягоды'},{name:'Абрикос',cal:44,prot:0.9,fat:0.1,carb:11,cat:'Фрукты и ягоды'},
-  {name:'Слива',cal:46,prot:0.7,fat:0.3,carb:11,cat:'Фрукты и ягоды'},{name:'Киви',cal:61,prot:1.1,fat:0.5,carb:15,cat:'Фрукты и ягоды'},
-  {name:'Ананас',cal:50,prot:0.5,fat:0.1,carb:13,cat:'Фрукты и ягоды'},{name:'Манго',cal:60,prot:0.8,fat:0.4,carb:15,cat:'Фрукты и ягоды'},
-  {name:'Гранат',cal:83,prot:1.7,fat:1.2,carb:19,cat:'Фрукты и ягоды'},{name:'Вишня',cal:52,prot:1,fat:0.2,carb:11,cat:'Фрукты и ягоды'},
-  {name:'Хурма',cal:67,prot:0.5,fat:0.4,carb:17,cat:'Фрукты и ягоды'},{name:'Виноград кишмиш',cal:72,prot:0.6,fat:0.2,carb:19,cat:'Фрукты и ягоды'},
+  {name:'Яблоко зелёное',cal:47,prot:0.4,fat:0.4,carb:9.8,cat:'Фрукты и ягоды'},{name:'Груша',cal:57,prot:0.4,fat:0.1,carb:15,cat:'Фрукты и ягоды'},
+  {name:'Апельсин',cal:47,prot:0.9,fat:0.1,carb:12,cat:'Фрукты и ягоды'},{name:'Мандарин',cal:53,prot:0.8,fat:0.2,carb:13,cat:'Фрукты и ягоды'},
+  {name:'Грейпфрут',cal:42,prot:0.8,fat:0.1,carb:11,cat:'Фрукты и ягоды'},{name:'Лимон',cal:29,prot:1.1,fat:0.3,carb:9,cat:'Фрукты и ягоды'},
+  {name:'Лайм',cal:30,prot:0.7,fat:0.2,carb:11,cat:'Фрукты и ягоды'},{name:'Помело',cal:38,prot:0.8,fat:0,carb:10,cat:'Фрукты и ягоды'},
+  {name:'Виноград',cal:69,prot:0.6,fat:0.2,carb:18,cat:'Фрукты и ягоды'},{name:'Виноград кишмиш',cal:72,prot:0.6,fat:0.2,carb:19,cat:'Фрукты и ягоды'},
+  {name:'Клубника',cal:33,prot:0.7,fat:0.3,carb:8,cat:'Фрукты и ягоды'},{name:'Земляника',cal:41,prot:0.8,fat:0.4,carb:8,cat:'Фрукты и ягоды'},
+  {name:'Малина',cal:52,prot:1.2,fat:0.7,carb:12,cat:'Фрукты и ягоды'},{name:'Ежевика',cal:43,prot:1.4,fat:0.5,carb:10,cat:'Фрукты и ягоды'},
+  {name:'Черника',cal:57,prot:0.7,fat:0.3,carb:14,cat:'Фрукты и ягоды'},{name:'Голубика',cal:39,prot:1,fat:0.5,carb:8,cat:'Фрукты и ягоды'},
+  {name:'Смородина чёрная',cal:44,prot:1,fat:0.4,carb:8,cat:'Фрукты и ягоды'},{name:'Смородина красная',cal:43,prot:1.4,fat:0.2,carb:8,cat:'Фрукты и ягоды'},
+  {name:'Крыжовник',cal:45,prot:0.7,fat:0.2,carb:10,cat:'Фрукты и ягоды'},{name:'Клюква',cal:46,prot:0.4,fat:0.1,carb:12,cat:'Фрукты и ягоды'},
+  {name:'Брусника',cal:46,prot:0.7,fat:0.5,carb:8,cat:'Фрукты и ягоды'},{name:'Арбуз',cal:30,prot:0.6,fat:0.2,carb:8,cat:'Фрукты и ягоды'},
+  {name:'Дыня',cal:34,prot:0.8,fat:0.2,carb:8,cat:'Фрукты и ягоды'},{name:'Персик',cal:39,prot:0.9,fat:0.1,carb:10,cat:'Фрукты и ягоды'},
+  {name:'Нектарин',cal:44,prot:1.1,fat:0.3,carb:11,cat:'Фрукты и ягоды'},{name:'Абрикос',cal:44,prot:0.9,fat:0.1,carb:11,cat:'Фрукты и ягоды'},
+  {name:'Слива',cal:46,prot:0.7,fat:0.3,carb:11,cat:'Фрукты и ягоды'},{name:'Алыча',cal:34,prot:0.2,fat:0.1,carb:8,cat:'Фрукты и ягоды'},
+  {name:'Вишня',cal:52,prot:1,fat:0.2,carb:11,cat:'Фрукты и ягоды'},{name:'Черешня',cal:63,prot:1.1,fat:0.4,carb:13,cat:'Фрукты и ягоды'},
+  {name:'Киви',cal:61,prot:1.1,fat:0.5,carb:15,cat:'Фрукты и ягоды'},{name:'Ананас',cal:50,prot:0.5,fat:0.1,carb:13,cat:'Фрукты и ягоды'},
+  {name:'Манго',cal:60,prot:0.8,fat:0.4,carb:15,cat:'Фрукты и ягоды'},{name:'Папайя',cal:43,prot:0.5,fat:0.3,carb:11,cat:'Фрукты и ягоды'},
+  {name:'Гранат',cal:83,prot:1.7,fat:1.2,carb:19,cat:'Фрукты и ягоды'},{name:'Хурма',cal:67,prot:0.5,fat:0.4,carb:17,cat:'Фрукты и ягоды'},
+  {name:'Инжир свежий',cal:74,prot:0.8,fat:0.3,carb:19,cat:'Фрукты и ягоды'},{name:'Фейхоа',cal:55,prot:1,fat:0.8,carb:13,cat:'Фрукты и ягоды'},
+  {name:'Маракуйя',cal:97,prot:2.2,fat:0.7,carb:23,cat:'Фрукты и ягоды'},{name:'Кокос',cal:354,prot:3.3,fat:33,carb:15,cat:'Фрукты и ягоды'},
+  {name:'Облепиха',cal:82,prot:1.2,fat:5.4,carb:5.7,cat:'Фрукты и ягоды'},{name:'Рябина',cal:50,prot:1.4,fat:0.2,carb:12,cat:'Фрукты и ягоды'},
   // Орехи и сухофрукты
   {name:'Грецкий орех',cal:654,prot:15,fat:65,carb:14,cat:'Орехи и сухофрукты'},{name:'Миндаль',cal:609,prot:19,fat:54,carb:13,cat:'Орехи и сухофрукты'},
   {name:'Кешью',cal:600,prot:18,fat:44,carb:30,cat:'Орехи и сухофрукты'},{name:'Фундук',cal:628,prot:15,fat:61,carb:17,cat:'Орехи и сухофрукты'},
   {name:'Арахис',cal:567,prot:26,fat:49,carb:16,cat:'Орехи и сухофрукты'},{name:'Фисташки',cal:560,prot:20,fat:45,carb:28,cat:'Орехи и сухофрукты'},
+  {name:'Кедровый орех',cal:673,prot:14,fat:68,carb:13,cat:'Орехи и сухофрукты'},{name:'Макадамия',cal:718,prot:8,fat:76,carb:14,cat:'Орехи и сухофрукты'},
+  {name:'Бразильский орех',cal:656,prot:14,fat:66,carb:12,cat:'Орехи и сухофрукты'},{name:'Пекан',cal:691,prot:9,fat:72,carb:14,cat:'Орехи и сухофрукты'},
   {name:'Семена подсолнечника',cal:578,prot:21,fat:53,carb:11,cat:'Орехи и сухофрукты'},{name:'Семена тыквы',cal:559,prot:30,fat:49,carb:11,cat:'Орехи и сухофрукты'},
-  {name:'Кунжут',cal:565,prot:19,fat:49,carb:12,cat:'Орехи и сухофрукты'},{name:'Изюм',cal:264,prot:2.9,fat:0.6,carb:66,cat:'Орехи и сухофрукты'},
+  {name:'Семена льна',cal:534,prot:18,fat:42,carb:29,cat:'Орехи и сухофрукты'},{name:'Кунжут',cal:565,prot:19,fat:49,carb:12,cat:'Орехи и сухофрукты'},
+  {name:'Семена чиа',cal:486,prot:17,fat:31,carb:42,cat:'Орехи и сухофрукты'},{name:'Изюм',cal:264,prot:2.9,fat:0.6,carb:66,cat:'Орехи и сухофрукты'},
   {name:'Курага',cal:215,prot:5,fat:0.3,carb:51,cat:'Орехи и сухофрукты'},{name:'Чернослив',cal:231,prot:2.3,fat:0.7,carb:57,cat:'Орехи и сухофрукты'},
-  {name:'Финики',cal:274,prot:2.5,fat:0.5,carb:69,cat:'Орехи и сухофрукты'},{name:'Арахисовая паста',cal:588,prot:25,fat:50,carb:20,cat:'Орехи и сухофрукты'},
+  {name:'Финики',cal:274,prot:2.5,fat:0.5,carb:69,cat:'Орехи и сухофрукты'},{name:'Инжир сушёный',cal:257,prot:3.3,fat:0.9,carb:58,cat:'Орехи и сухофрукты'},
+  {name:'Урюк',cal:213,prot:5,fat:0.4,carb:51,cat:'Орехи и сухофрукты'},{name:'Вяленая клюква',cal:308,prot:0.1,fat:1.4,carb:76,cat:'Орехи и сухофрукты'},
+  {name:'Арахисовая паста',cal:588,prot:25,fat:50,carb:20,cat:'Орехи и сухофрукты'},{name:'Паста миндальная',cal:614,prot:21,fat:56,carb:19,cat:'Орехи и сухофрукты'},
+  {name:'Кокосовая стружка',cal:592,prot:6,fat:65,carb:24,cat:'Орехи и сухофрукты'},{name:'Финиковая паста',cal:290,prot:2,fat:0.5,carb:70,cat:'Орехи и сухофрукты'},
   // Сладкое и десерты
-  {name:'Сахар',cal:398,prot:0,fat:0,carb:100,cat:'Сладкое и десерты'},{name:'Мёд',cal:329,prot:0.8,fat:0,carb:81,cat:'Сладкое и десерты'},
+  {name:'Сахар',cal:398,prot:0,fat:0,carb:100,cat:'Сладкое и десерты'},{name:'Сахар коричневый',cal:380,prot:0,fat:0,carb:98,cat:'Сладкое и десерты'},
+  {name:'Мёд',cal:329,prot:0.8,fat:0,carb:81,cat:'Сладкое и десерты'},{name:'Сироп кленовый',cal:260,prot:0,fat:0,carb:67,cat:'Сладкое и десерты'},
   {name:'Шоколад молочный',cal:550,prot:8,fat:33,carb:55,cat:'Сладкое и десерты'},{name:'Шоколад горький',cal:539,prot:6,fat:35,carb:48,cat:'Сладкое и десерты'},
-  {name:'Конфеты шоколадные',cal:480,prot:4,fat:22,carb:67,cat:'Сладкое и десерты'},{name:'Мармелад',cal:321,prot:0,fat:0,carb:77,cat:'Сладкое и десерты'},
+  {name:'Шоколад белый',cal:541,prot:6,fat:31,carb:59,cat:'Сладкое и десерты'},{name:'Конфеты шоколадные',cal:480,prot:4,fat:22,carb:67,cat:'Сладкое и десерты'},
+  {name:'Конфеты карамель',cal:382,prot:0,fat:0,carb:96,cat:'Сладкое и десерты'},{name:'Мармелад',cal:321,prot:0,fat:0,carb:77,cat:'Сладкое и десерты'},
   {name:'Зефир',cal:326,prot:0.8,fat:0,carb:80,cat:'Сладкое и десерты'},{name:'Пастила',cal:310,prot:0.5,fat:0,carb:80,cat:'Сладкое и десерты'},
-  {name:'Халва',cal:523,prot:12,fat:30,carb:54,cat:'Сладкое и десерты'},{name:'Варенье',cal:250,prot:0.3,fat:0,carb:63,cat:'Сладкое и десерты'},
-  {name:'Сгущённое молоко',cal:320,prot:7,fat:8,carb:56,cat:'Сладкое и десерты'},{name:'Мороженое пломбир',cal:227,prot:3.7,fat:15,carb:21,cat:'Сладкое и десерты'},
-  {name:'Торт бисквитный',cal:350,prot:5,fat:15,carb:50,cat:'Сладкое и десерты'},{name:'Чизкейк',cal:321,prot:6,fat:23,carb:26,cat:'Сладкое и десерты'},
-  {name:'Джем',cal:265,prot:0.5,fat:0,carb:65,cat:'Сладкое и десерты'},{name:'Нутелла',cal:539,prot:7,fat:31,carb:57,cat:'Сладкое и десерты'},
+  {name:'Халва подсолнечная',cal:523,prot:12,fat:30,carb:54,cat:'Сладкое и десерты'},{name:'Халва тахинная',cal:510,prot:12,fat:30,carb:51,cat:'Сладкое и десерты'},
+  {name:'Варенье',cal:250,prot:0.3,fat:0,carb:63,cat:'Сладкое и десерты'},{name:'Джем',cal:265,prot:0.5,fat:0,carb:65,cat:'Сладкое и десерты'},
+  {name:'Повидло',cal:233,prot:0.4,fat:0,carb:58,cat:'Сладкое и десерты'},{name:'Сгущёнка варёная',cal:328,prot:8,fat:9,carb:55,cat:'Сладкое и десерты'},
+  {name:'Торт бисквитный',cal:350,prot:5,fat:15,carb:50,cat:'Сладкое и десерты'},{name:'Торт Наполеон',cal:400,prot:5,fat:25,carb:40,cat:'Сладкое и десерты'},
+  {name:'Торт медовик',cal:478,prot:5,fat:28,carb:52,cat:'Сладкое и десерты'},{name:'Чизкейк',cal:321,prot:6,fat:23,carb:26,cat:'Сладкое и десерты'},
+  {name:'Тирамису',cal:283,prot:5,fat:16,carb:30,cat:'Сладкое и десерты'},{name:'Эклер',cal:230,prot:6,fat:14,carb:20,cat:'Сладкое и десерты'},
+  {name:'Нутелла',cal:539,prot:7,fat:31,carb:57,cat:'Сладкое и десерты'},{name:'Печенье Орео',cal:480,prot:5,fat:20,carb:69,cat:'Сладкое и десерты'},
+  {name:'Рахат-лукум',cal:316,prot:0.8,fat:0.5,carb:78,cat:'Сладкое и десерты'},{name:'Козинаки',cal:576,prot:12,fat:35,carb:52,cat:'Сладкое и десерты'},
+  {name:'Пахлава',cal:456,prot:7,fat:24,carb:55,cat:'Сладкое и десерты'},{name:'Щербет',cal:417,prot:8,fat:15,carb:63,cat:'Сладкое и десерты'},
   // Напитки
-  {name:'Кофе чёрный (без сахара)',cal:2,prot:0.2,fat:0,carb:0,cat:'Напитки'},{name:'Кофе с молоком',cal:36,prot:1.8,fat:1.5,carb:4,cat:'Напитки'},
+  {name:'Вода',cal:0,prot:0,fat:0,carb:0,cat:'Напитки'},{name:'Вода газированная',cal:0,prot:0,fat:0,carb:0,cat:'Напитки'},
+  {name:'Кофе чёрный без сахара',cal:2,prot:0.2,fat:0,carb:0,cat:'Напитки'},{name:'Кофе с молоком',cal:36,prot:1.8,fat:1.5,carb:4,cat:'Напитки'},
   {name:'Капучино',cal:55,prot:3,fat:2.5,carb:5,cat:'Напитки'},{name:'Латте',cal:65,prot:3.5,fat:3.5,carb:6,cat:'Напитки'},
-  {name:'Чай чёрный (без сахара)',cal:1,prot:0,fat:0,carb:0,cat:'Напитки'},{name:'Сок апельсиновый',cal:45,prot:0.7,fat:0.1,carb:10,cat:'Напитки'},
-  {name:'Сок яблочный',cal:46,prot:0.1,fat:0.1,carb:11,cat:'Напитки'},{name:'Кола',cal:42,prot:0,fat:0,carb:11,cat:'Напитки'},
-  {name:'Энергетик',cal:45,prot:0,fat:0,carb:11,cat:'Напитки'},{name:'Пиво светлое',cal:43,prot:0.5,fat:0,carb:3.6,cat:'Напитки'},
+  {name:'Американо',cal:2,prot:0.1,fat:0,carb:0,cat:'Напитки'},{name:'Раф кофе',cal:120,prot:3,fat:7,carb:12,cat:'Напитки'},
+  {name:'Чай чёрный без сахара',cal:1,prot:0,fat:0,carb:0,cat:'Напитки'},{name:'Чай зелёный',cal:1,prot:0,fat:0,carb:0,cat:'Напитки'},
+  {name:'Чай с сахаром',cal:28,prot:0,fat:0,carb:7,cat:'Напитки'},{name:'Какао на молоке',cal:80,prot:3.5,fat:3.8,carb:8,cat:'Напитки'},
+  {name:'Сок апельсиновый',cal:45,prot:0.7,fat:0.1,carb:10,cat:'Напитки'},{name:'Сок яблочный',cal:46,prot:0.1,fat:0.1,carb:11,cat:'Напитки'},
+  {name:'Сок томатный',cal:18,prot:1,fat:0.1,carb:3.5,cat:'Напитки'},{name:'Сок виноградный',cal:54,prot:0.3,fat:0,carb:14,cat:'Напитки'},
+  {name:'Сок мультифрукт',cal:47,prot:0.5,fat:0.1,carb:11,cat:'Напитки'},{name:'Морс клюквенный',cal:41,prot:0,fat:0,carb:10,cat:'Напитки'},
+  {name:'Компот из сухофруктов',cal:60,prot:0.1,fat:0,carb:15,cat:'Напитки'},{name:'Кисель',cal:53,prot:0,fat:0,carb:13,cat:'Напитки'},
+  {name:'Кола',cal:42,prot:0,fat:0,carb:11,cat:'Напитки'},{name:'Лимонад',cal:40,prot:0,fat:0,carb:10,cat:'Напитки'},
+  {name:'Энергетик',cal:45,prot:0,fat:0,carb:11,cat:'Напитки'},{name:'Квас',cal:27,prot:0.2,fat:0,carb:5,cat:'Напитки'},
+  {name:'Смузи фруктовый',cal:70,prot:1,fat:0.3,carb:16,cat:'Напитки'},{name:'Молочный коктейль',cal:112,prot:3.5,fat:3,carb:18,cat:'Напитки'},
+  {name:'Пиво светлое',cal:43,prot:0.5,fat:0,carb:3.6,cat:'Напитки'},{name:'Пиво тёмное',cal:48,prot:0.6,fat:0,carb:5.7,cat:'Напитки'},
   {name:'Вино красное сухое',cal:68,prot:0.2,fat:0,carb:0.3,cat:'Напитки'},{name:'Вино белое сухое',cal:66,prot:0.1,fat:0,carb:0.6,cat:'Напитки'},
-  {name:'Водка',cal:235,prot:0,fat:0,carb:0,cat:'Напитки'},{name:'Квас',cal:27,prot:0.2,fat:0,carb:5,cat:'Напитки'},
-  {name:'Компот',cal:60,prot:0.1,fat:0,carb:15,cat:'Напитки'},{name:'Молочный коктейль',cal:112,prot:3.5,fat:3,carb:18,cat:'Напитки'},
-  // Готовые блюда и фастфуд
-  {name:'Борщ',cal:49,prot:1.1,fat:2.2,carb:6,cat:'Готовые блюда и фастфуд'},{name:'Суп куриный',cal:36,prot:2.5,fat:1.4,carb:3.5,cat:'Готовые блюда и фастфуд'},
-  {name:'Щи',cal:37,prot:1,fat:1.5,carb:5,cat:'Готовые блюда и фастфуд'},{name:'Плов с курицей',cal:187,prot:8,fat:7,carb:22,cat:'Готовые блюда и фастфуд'},
-  {name:'Гречка с курицей',cal:140,prot:9,fat:4,carb:17,cat:'Готовые блюда и фастфуд'},{name:'Паста болоньезе',cal:160,prot:8,fat:6,carb:18,cat:'Готовые блюда и фастфуд'},
-  {name:'Пельмени (варёные)',cal:275,prot:12,fat:12,carb:29,cat:'Готовые блюда и фастфуд'},{name:'Вареники с картошкой',cal:221,prot:5,fat:7,carb:35,cat:'Готовые блюда и фастфуд'},
-  {name:'Пицца Маргарита',cal:240,prot:9,fat:9,carb:30,cat:'Готовые блюда и фастфуд'},{name:'Пицца пепперони',cal:290,prot:12,fat:13,carb:32,cat:'Готовые блюда и фастфуд'},
-  {name:'Гамбургер',cal:250,prot:12,fat:11,carb:28,cat:'Готовые блюда и фастфуд'},{name:'Чизбургер',cal:300,prot:15,fat:15,carb:30,cat:'Готовые блюда и фастфуд'},
-  {name:'Бигмак (1 шт)',cal:257,prot:12,fat:15,carb:19,cat:'Готовые блюда и фастфуд'},{name:'Картофель фри (порция)',cal:312,prot:3.4,fat:15,carb:41,cat:'Готовые блюда и фастфуд'},
-  {name:'Шаурма',cal:215,prot:12,fat:11,carb:18,cat:'Готовые блюда и фастфуд'},{name:'Хот-дог',cal:247,prot:10,fat:15,carb:18,cat:'Готовые блюда и фастфуд'},
-  {name:'Суши (ролл, 1 шт)',cal:150,prot:4,fat:4,carb:25,cat:'Готовые блюда и фастфуд'},{name:'Наггетсы куриные',cal:296,prot:15,fat:18,carb:16,cat:'Готовые блюда и фастфуд'},
-  {name:'Салат Цезарь',cal:190,prot:9,fat:14,carb:6,cat:'Готовые блюда и фастфуд'},{name:'Салат Оливье',cal:198,prot:4,fat:16,carb:9,cat:'Готовые блюда и фастфуд'},
-  {name:'Винегрет',cal:130,prot:1.5,fat:10,carb:8,cat:'Готовые блюда и фастфуд'},{name:'Греческий салат',cal:90,prot:3,fat:7,carb:5,cat:'Готовые блюда и фастфуд'},
-  {name:'Сэндвич с ветчиной',cal:250,prot:11,fat:11,carb:26,cat:'Готовые блюда и фастфуд'},{name:'Яичница с беконом',cal:260,prot:16,fat:21,carb:2,cat:'Готовые блюда и фастфуд'},
+  {name:'Вино полусладкое',cal:88,prot:0.2,fat:0,carb:5,cat:'Напитки'},{name:'Шампанское',cal:88,prot:0.2,fat:0,carb:5,cat:'Напитки'},
+  {name:'Водка',cal:235,prot:0,fat:0,carb:0,cat:'Напитки'},{name:'Виски',cal:250,prot:0,fat:0,carb:0,cat:'Напитки'},
+  {name:'Коньяк',cal:240,prot:0,fat:0,carb:1.5,cat:'Напитки'},{name:'Протеиновый коктейль',cal:100,prot:20,fat:1.5,carb:3,cat:'Напитки'},
+  // Готовые блюда
+  {name:'Борщ',cal:49,prot:1.1,fat:2.2,carb:6,cat:'Готовые блюда'},{name:'Щи',cal:37,prot:1,fat:1.5,carb:5,cat:'Готовые блюда'},
+  {name:'Суп куриный',cal:36,prot:2.5,fat:1.4,carb:3.5,cat:'Готовые блюда'},{name:'Суп гороховый',cal:66,prot:4,fat:2,carb:9,cat:'Готовые блюда'},
+  {name:'Солянка',cal:54,prot:3,fat:3.5,carb:3,cat:'Готовые блюда'},{name:'Уха',cal:46,prot:4,fat:2,carb:1,cat:'Готовые блюда'},
+  {name:'Окрошка',cal:60,prot:2,fat:3.5,carb:5,cat:'Готовые блюда'},{name:'Грибной суп',cal:38,prot:1.5,fat:2,carb:4,cat:'Готовые блюда'},
+  {name:'Суп-пюре тыквенный',cal:45,prot:1.5,fat:2.5,carb:5,cat:'Готовые блюда'},{name:'Рассольник',cal:42,prot:2,fat:2,carb:4,cat:'Готовые блюда'},
+  {name:'Плов с курицей',cal:187,prot:8,fat:7,carb:22,cat:'Готовые блюда'},{name:'Плов с бараниной',cal:225,prot:9,fat:11,carb:23,cat:'Готовые блюда'},
+  {name:'Гречка с курицей',cal:140,prot:9,fat:4,carb:17,cat:'Готовые блюда'},{name:'Рис с овощами',cal:120,prot:3,fat:3,carb:21,cat:'Готовые блюда'},
+  {name:'Паста болоньезе',cal:160,prot:8,fat:6,carb:18,cat:'Готовые блюда'},{name:'Паста карбонара',cal:250,prot:9,fat:15,carb:20,cat:'Готовые блюда'},
+  {name:'Лазанья',cal:170,prot:9,fat:9,carb:13,cat:'Готовые блюда'},{name:'Пельмени (варёные)',cal:275,prot:12,fat:12,carb:29,cat:'Готовые блюда'},
+  {name:'Вареники с картошкой',cal:221,prot:5,fat:7,carb:35,cat:'Готовые блюда'},{name:'Вареники с творогом',cal:235,prot:11,fat:6,carb:33,cat:'Готовые блюда'},
+  {name:'Манты',cal:215,prot:11,fat:9,carb:23,cat:'Готовые блюда'},{name:'Хинкали',cal:235,prot:11,fat:11,carb:22,cat:'Готовые блюда'},
+  {name:'Голубцы',cal:125,prot:6,fat:7,carb:8,cat:'Готовые блюда'},{name:'Фаршированный перец',cal:142,prot:7,fat:8,carb:10,cat:'Готовые блюда'},
+  {name:'Котлета куриная',cal:220,prot:15,fat:14,carb:8,cat:'Готовые блюда'},{name:'Котлета свиная',cal:280,prot:14,fat:22,carb:8,cat:'Готовые блюда'},
+  {name:'Тефтели',cal:172,prot:10,fat:11,carb:7,cat:'Готовые блюда'},{name:'Бефстроганов',cal:193,prot:16,fat:13,carb:4,cat:'Готовые блюда'},
+  {name:'Гуляш',cal:148,prot:14,fat:8,carb:4,cat:'Готовые блюда'},{name:'Жаркое',cal:134,prot:8,fat:7,carb:9,cat:'Готовые блюда'},
+  {name:'Рагу овощное',cal:99,prot:2,fat:6,carb:9,cat:'Готовые блюда'},{name:'Пюре с котлетой',cal:180,prot:8,fat:10,carb:15,cat:'Готовые блюда'},
+  {name:'Каша гречневая с грибами',cal:92,prot:3,fat:3,carb:14,cat:'Готовые блюда'},{name:'Запеканка творожная',cal:168,prot:17,fat:5,carb:14,cat:'Готовые блюда'},
+  {name:'Сырники со сметаной',cal:260,prot:15,fat:14,carb:20,cat:'Готовые блюда'},{name:'Омлет с сыром',cal:210,prot:14,fat:16,carb:3,cat:'Готовые блюда'},
+  // Фастфуд и снеки
+  {name:'Пицца Маргарита',cal:240,prot:9,fat:9,carb:30,cat:'Фастфуд и снеки'},{name:'Пицца пепперони',cal:290,prot:12,fat:13,carb:32,cat:'Фастфуд и снеки'},
+  {name:'Пицца четыре сыра',cal:310,prot:14,fat:16,carb:29,cat:'Фастфуд и снеки'},{name:'Гамбургер',cal:250,prot:12,fat:11,carb:28,cat:'Фастфуд и снеки'},
+  {name:'Чизбургер',cal:300,prot:15,fat:15,carb:30,cat:'Фастфуд и снеки'},{name:'Биг бургер',cal:260,prot:12,fat:15,carb:19,cat:'Фастфуд и снеки'},
+  {name:'Двойной чизбургер',cal:400,prot:23,fat:23,carb:28,cat:'Фастфуд и снеки'},{name:'Картофель фри (порция)',cal:312,prot:3.4,fat:15,carb:41,cat:'Фастфуд и снеки'},
+  {name:'Наггетсы куриные',cal:296,prot:15,fat:18,carb:16,cat:'Фастфуд и снеки'},{name:'Шаурма',cal:215,prot:12,fat:11,carb:18,cat:'Фастфуд и снеки'},
+  {name:'Шаурма с курицей',cal:184,prot:12,fat:8,carb:15,cat:'Фастфуд и снеки'},{name:'Хот-дог',cal:247,prot:10,fat:15,carb:18,cat:'Фастфуд и снеки'},
+  {name:'Сэндвич с ветчиной',cal:250,prot:11,fat:11,carb:26,cat:'Фастфуд и снеки'},{name:'Клаб-сэндвич',cal:233,prot:12,fat:11,carb:21,cat:'Фастфуд и снеки'},
+  {name:'Бургер с рыбой',cal:290,prot:13,fat:14,carb:29,cat:'Фастфуд и снеки'},{name:'Бурито',cal:206,prot:9,fat:8,carb:25,cat:'Фастфуд и снеки'},
+  {name:'Тако',cal:217,prot:9,fat:11,carb:21,cat:'Фастфуд и снеки'},{name:'Кесадилья',cal:290,prot:13,fat:16,carb:24,cat:'Фастфуд и снеки'},
+  {name:'Роллы Филадельфия',cal:142,prot:6,fat:7,carb:15,cat:'Фастфуд и снеки'},{name:'Роллы Калифорния',cal:176,prot:4,fat:7,carb:24,cat:'Фастфуд и снеки'},
+  {name:'Суши с лососем',cal:150,prot:5,fat:4,carb:25,cat:'Фастфуд и снеки'},{name:'Суши с угрём',cal:170,prot:6,fat:6,carb:23,cat:'Фастфуд и снеки'},
+  {name:'Чипсы картофельные',cal:536,prot:6,fat:35,carb:53,cat:'Фастфуд и снеки'},{name:'Сухарики',cal:380,prot:10,fat:12,carb:60,cat:'Фастфуд и снеки'},
+  {name:'Попкорн солёный',cal:407,prot:12,fat:14,carb:57,cat:'Фастфуд и снеки'},{name:'Попкорн карамельный',cal:430,prot:5,fat:12,carb:78,cat:'Фастфуд и снеки'},
+  {name:'Кукурузные палочки',cal:518,prot:6,fat:28,carb:62,cat:'Фастфуд и снеки'},{name:'Начос',cal:497,prot:7,fat:26,carb:60,cat:'Фастфуд и снеки'},
+  {name:'Луковые кольца',cal:411,prot:5,fat:26,carb:40,cat:'Фастфуд и снеки'},{name:'Крылышки баффало',cal:290,prot:17,fat:22,carb:5,cat:'Фастфуд и снеки'},
+  // Соусы и масла
+  {name:'Масло подсолнечное',cal:899,prot:0,fat:99.9,carb:0,cat:'Соусы и масла'},{name:'Масло оливковое',cal:898,prot:0,fat:99.8,carb:0,cat:'Соусы и масла'},
+  {name:'Масло льняное',cal:898,prot:0,fat:99.8,carb:0,cat:'Соусы и масла'},{name:'Масло кокосовое',cal:899,prot:0,fat:99.9,carb:0,cat:'Соусы и масла'},
+  {name:'Майонез',cal:680,prot:0.6,fat:75,carb:2.6,cat:'Соусы и масла'},{name:'Майонез лёгкий',cal:350,prot:0.5,fat:35,carb:5,cat:'Соусы и масла'},
+  {name:'Кетчуп',cal:112,prot:1.8,fat:0.2,carb:26,cat:'Соусы и масла'},{name:'Горчица',cal:143,prot:9.9,fat:8,carb:5,cat:'Соусы и масла'},
+  {name:'Соевый соус',cal:50,prot:6,fat:0,carb:6,cat:'Соусы и масла'},{name:'Терияки',cal:89,prot:5,fat:0,carb:16,cat:'Соусы и масла'},
+  {name:'Сметанный соус',cal:195,prot:2,fat:18,carb:5,cat:'Соусы и масла'},{name:'Сырный соус',cal:310,prot:6,fat:28,carb:8,cat:'Соусы и масла'},
+  {name:'Песто',cal:450,prot:5,fat:45,carb:6,cat:'Соусы и масла'},{name:'Аджика',cal:59,prot:1,fat:3.7,carb:5.8,cat:'Соусы и масла'},
+  {name:'Ткемали',cal:47,prot:1,fat:0.2,carb:11,cat:'Соусы и масла'},{name:'Бальзамический уксус',cal:88,prot:0.5,fat:0,carb:17,cat:'Соусы и масла'},
+  {name:'Тартар',cal:290,prot:1,fat:30,carb:4,cat:'Соусы и масла'},{name:'Цезарь (соус)',cal:540,prot:2,fat:57,carb:4,cat:'Соусы и масла'},
+  {name:'Хумус',cal:166,prot:8,fat:10,carb:14,cat:'Соусы и масла'},{name:'Гуакамоле',cal:150,prot:2,fat:14,carb:8,cat:'Соусы и масла'},
 ];
 
 /* ===== SEARCH ===== */
@@ -643,24 +827,46 @@ function openSearch(){
   $('#sheetBody').innerHTML=`
     <div class="search-bar">
       <input id="q" placeholder="Найти продукт…" autocomplete="off">
-      <div class="icon-btn" id="qScan" title="Скан"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2M8 8v8M11 8v8M14 8v8M16.5 8v8" stroke-linecap="round"/></svg></div>
-      <div class="icon-btn" id="qPhoto" title="Фото"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L19 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8Z" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5"/></svg></div>
     </div>
     <div class="seg" id="srcSeg">
-      <button class="on" data-src="off">Open Food Facts</button>
+      <button class="on" data-src="common">Базовые</button>
       <button data-src="mine">Моя база</button>
-      <button data-src="common">Базовые</button>
+      <button data-src="off">Поиск онлайн</button>
     </div>
+    <div id="catChips" class="cat-chips"></div>
     <div id="results"></div>`;
   openSheet();setTimeout(()=>$('#q')?.focus(),300);
+  currentSrc='common'; activeCat='all';
+  renderCatChips();
+  showList(COMMON,null,true);
   $('#q').addEventListener('input',e=>{clearTimeout(searchTimer);const v=e.target.value.trim();searchTimer=setTimeout(()=>doSearch(v),420);});
-  $('#qScan').onclick=openScanner;$('#qPhoto').onclick=openPhoto;
   $('#srcSeg').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;
     $('#srcSeg').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
     currentSrc=b.dataset.src;const v=$('#q').value.trim();
-    if(currentSrc==='common')showList(v?COMMON.filter(f=>f.name.toLowerCase().includes(v.toLowerCase())):COMMON,null,!v);
-    else if(currentSrc==='mine')showList(v?MYFOODS.filter(f=>f.name.toLowerCase().includes(v.toLowerCase())):MYFOODS,'mine');
-    else if(v)doSearch(v);else $('#results').innerHTML='';
+    $('#catChips').style.display = currentSrc==='common' ? 'flex' : 'none';
+    if(currentSrc==='common'){activeCat='all';renderCatChips();showList(v?COMMON.filter(f=>matchq(f,v)):COMMON,null,!v);}
+    else if(currentSrc==='mine')showList(v?MYFOODS.filter(f=>matchq(f,v)):MYFOODS,'mine');
+    else if(v)doSearch(v);else $('#results').innerHTML='<div class="loading">Введи название продукта для поиска в большой онлайн-базе.</div>';
+  });
+}
+function matchq(f,v){return f.name.toLowerCase().includes(v.toLowerCase());}
+let activeCat='all';
+function renderCatChips(){
+  const wrap=$('#catChips');if(!wrap)return;
+  const cats=['all'].concat(CAT_ORDER);
+  wrap.innerHTML=cats.map(c=>{
+    const ic = c==='all' ? '' : `<span class="chip-ic">${CAT_ICONS[c]||''}</span>`;
+    const label = c==='all'?'Все':c;
+    return `<button class="cat-chip ${c===activeCat?'on':''}" data-cat="${c}">${ic}${label}</button>`;
+  }).join('');
+  wrap.querySelectorAll('.cat-chip').forEach(b=>b.onclick=()=>{
+    activeCat=b.dataset.cat;
+    wrap.querySelectorAll('.cat-chip').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+    const v=$('#q').value.trim();
+    let arr=COMMON;
+    if(activeCat!=='all')arr=arr.filter(f=>f.cat===activeCat);
+    if(v)arr=arr.filter(f=>matchq(f,v));
+    showList(arr,null,activeCat==='all'&&!v);
   });
 }
 function resultRow(f,tag){
@@ -674,7 +880,7 @@ function showList(arr,tag,grouped){
   if(grouped){
     let lastCat=null;
     arr.forEach(f=>{
-      if(f.cat&&f.cat!==lastCat){lastCat=f.cat;const h=document.createElement('div');h.className='cat-head';h.textContent=f.cat;r.appendChild(h);}
+      if(f.cat&&f.cat!==lastCat){lastCat=f.cat;const h=document.createElement('div');h.className='cat-head';h.innerHTML=`<span class="ch-ic">${CAT_ICONS[f.cat]||''}</span>${f.cat}`;r.appendChild(h);}
       r.appendChild(resultRow(f,''));
     });
     return;
@@ -683,9 +889,14 @@ function showList(arr,tag,grouped){
 }
 async function doSearch(q){
   const r=$('#results');
-  if(currentSrc==='common'){showList(q?COMMON.filter(f=>f.name.toLowerCase().includes(q.toLowerCase())):COMMON,null,!q);return;}
-  if(currentSrc==='mine'){showList(q?MYFOODS.filter(f=>f.name.toLowerCase().includes(q.toLowerCase())):MYFOODS,'mine');return;}
-  if(!q){r.innerHTML='';return;}
+  if(currentSrc==='common'){
+    let arr=COMMON;
+    if(activeCat!=='all')arr=arr.filter(f=>f.cat===activeCat);
+    if(q)arr=arr.filter(f=>matchq(f,q));
+    showList(arr,null,activeCat==='all'&&!q);return;
+  }
+  if(currentSrc==='mine'){showList(q?MYFOODS.filter(f=>matchq(f,q)):MYFOODS,'mine');return;}
+  if(!q){r.innerHTML='<div class="loading">Введи название продукта для поиска в большой онлайн-базе.</div>';return;}
   r.innerHTML='<div class="loading"><div class="spinner"></div>Ищем в Open Food Facts…</div>';
   try{
     const url='https://world.openfoodfacts.org/cgi/search.pl?search_terms='+encodeURIComponent(q)+'&search_simple=1&action=process&json=1&page_size=20&fields=product_name,product_name_ru,brands,nutriments';
@@ -708,7 +919,7 @@ function openPortion(f){
     <div class="portion"><div class="pname">${f.name}</div><div class="pbrand">${f.brand?f.brand+' · ':''}${fmt(f.cal)} ккал на 100 г</div></div>
     <div class="amt-ring"><button id="amtMinus">−</button><div class="amt"><span id="amtVal">100</span><span>г</span></div><button id="amtPlus">+</button></div>
     <div class="macro-preview"><div class="mp"><div class="mv" id="pvCal">0</div><div class="ml">ккал</div></div><div class="mp"><div class="mv" id="pvP">0</div><div class="ml">белки</div></div><div class="mp"><div class="mv" id="pvF">0</div><div class="ml">жиры</div></div><div class="mp"><div class="mv" id="pvC">0</div><div class="ml">углев.</div></div></div>
-    <div class="meal-pick" id="mealPick">${MEALS.map(m=>`<button data-m="${m.id}" class="${m.id===pendingMeal?'on':''}"><span class="e">${m.emoji}</span>${m.name}</button>`).join('')}</div>
+    <div class="meal-pick" id="mealPick">${MEALS.map(m=>`<button data-m="${m.id}" class="${m.id===pendingMeal?'on':''}"><span class="e" style="color:#fff;display:inline-flex;width:18px;height:18px">${MEAL_ICONS[m.id]}</span>${m.name}</button>`).join('')}</div>
     <button class="btn-primary" id="addFinal">Добавить в дневник</button>`;
   openSheet();
   const upd=()=>{const k=portionAmt/100;$('#amtVal').textContent=portionAmt;$('#pvCal').textContent=fmt(f.cal*k);$('#pvP').textContent=fmt(f.prot*k);$('#pvF').textContent=fmt(f.fat*k);$('#pvC').textContent=fmt(f.carb*k);};upd();
@@ -899,7 +1110,7 @@ function renderPremStatus(){
       <button id="premManage" style="width:100%;background:transparent;border:1px solid var(--line);color:var(--ink-soft);border-radius:12px;padding:11px;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;margin-top:10px">Управление подпиской</button>`;
     $('#premManage').onclick=()=>toast('В Play: профиль → Платежи и подписки');
   }else{
-    badge.textContent='демо';badge.style.color='';badge.style.borderColor='';
+    badge.textContent='';badge.style.display='none';
     card.innerHTML=`<div style="display:flex;align-items:center;gap:12px;padding:4px 0 12px">
         <div style="width:42px;height:42px;border-radius:12px;background:var(--panel-2);border:1px solid var(--line);display:grid;place-items:center;font-size:20px;flex:none">⚔️</div>
         <div style="flex:1"><div style="font-weight:700;font-size:14.5px">Убери рекламу с Premium</div><div style="font-size:11.5px;color:var(--ink-faint);margin-top:2px">от 99 ₽/мес · отмена в любой момент</div></div>
@@ -919,7 +1130,7 @@ function openPaywall(){
     </div>
     <div class="pw-benefits">
       <div class="pw-ben"><div class="pb-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="pb-txt">Никакой рекламы<small>чистый интерфейс без баннеров</small></div></div>
-      <div class="pw-ben"><div class="pb-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L19 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8Z" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5"/></svg></div><div class="pb-txt">Анализ еды по фото<small>скоро · распознавание калорий камерой</small></div></div>
+      <div class="pw-ben"><div class="pb-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 7v6c0 5 3.5 7.5 8 9 4.5-1.5 8-4 8-9V7l-8-5Z" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="pb-txt">Без ограничений<small>все функции и продукты открыты</small></div></div>
       <div class="pw-ben"><div class="pb-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5M4 19h16M8 16l3-4 3 2 4-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="pb-txt">Расширенная статистика<small>история и аналитика за всё время</small></div></div>
       <div class="pw-ben"><div class="pb-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 7v6c0 5 3.5 7.5 8 9 4.5-1.5 8-4 8-9V7l-8-5Z" stroke-linejoin="round"/></svg></div><div class="pb-txt">Поддержка разработки<small>помогаешь развивать Kalon</small></div></div>
     </div>
@@ -929,7 +1140,7 @@ function openPaywall(){
     </div>
     <button class="btn-primary" id="pwBuy">Подключить за 149 ₽/мес</button>
     <div class="pw-restore"><button id="pwRestore">Восстановить покупку</button></div>
-    <div class="pw-legal">Демо-версия. Реальная оплата подключится через Google Play после публикации. Подписка продлевается автоматически, отменить можно в любой момент в настройках Google Play.</div>`;
+    <div class="pw-legal">Оплата через Google Play. Подписка продлевается автоматически, отменить можно в любой момент в настройках Google Play.</div>`;
   openSheet();
   $('#pwPlans').addEventListener('click',ev=>{
     const p=ev.target.closest('.pw-plan');if(!p)return;
@@ -940,31 +1151,98 @@ function openPaywall(){
   $('#pwBuy').onclick=()=>buyPremium(selectedPlan);
   $('#pwRestore').onclick=restorePurchase;
 }
-/* === ПОКУПКА ===
-   Сейчас это демо: сразу выдаёт Premium. В собранном приложении здесь
-   вызывается Google Play Billing (см. руководство, раздел про оплату):
-   покупка product 'kalon_premium_monthly' / 'kalon_premium_yearly',
-   после успешного ответа Play выставляется S.premium=true. */
-function buyPremium(plan){
-  S.premium=true;S.plan=plan;saveSettings();
-  fillSettings();closeSheet();
-  toast('Premium активирован ✓ (демо)');
+/* === ПОКУПКА ПОДПИСКИ через Google Play Billing ===
+   Использует плагин @capgo/capacitor-purchases (или совместимый), доступный
+   как window.Capacitor. Если плагина нет (веб/превью) — мягкое сообщение,
+   приложение не падает. */
+async function buyPremium(plan){
+  const productId = plan==='yearly' ? SUB_PRODUCT_YEARLY : SUB_PRODUCT_MONTHLY;
+  const Billing = getBillingPlugin();
+  if(!Billing){
+    toast('Покупки доступны только в приложении из Google Play');
+    return;
+  }
+  try{
+    $('#pwBuy') && ($('#pwBuy').textContent='Обработка…');
+    const res = await Billing.purchase({ productIdentifier: productId });
+    if(res && (res.success || res.transaction || res.customerInfo)){
+      grantPremium(plan);
+    }else{
+      toast('Покупка не завершена');
+    }
+  }catch(e){
+    toast('Покупка отменена');
+  }finally{
+    fillSettings();
+  }
 }
-/* === ВОССТАНОВЛЕНИЕ ===
-   В собранном приложении спрашивает Google Play о ранее купленных подписках
-   текущего Google-аккаунта и восстанавливает их. Регистрация не нужна. */
-function restorePurchase(){
-  toast('Проверяем покупки Google… (демо)');
-  setTimeout(()=>{ toast('Активных покупок не найдено (демо)'); },1400);
+function grantPremium(plan){
+  S.premium=true; S.plan=plan; saveSettings();
+  fillSettings(); closeSheet(); applyAdState();
+  toast('Premium активирован ✓');
+}
+/* === ВОССТАНОВЛЕНИЕ покупок ===
+   Спрашивает Google Play об активных подписках текущего Google-аккаунта.
+   Регистрация в приложении не нужна — учёт ведёт Google. */
+async function restorePurchase(){
+  const Billing = getBillingPlugin();
+  if(!Billing){ toast('Доступно только в приложении из Google Play'); return; }
+  try{
+    toast('Проверяем покупки Google…');
+    const info = await Billing.restorePurchases();
+    const active = info && (info.activeSubscriptions?.length || info.entitlements?.active || info.customerInfo);
+    if(active){ grantPremium(S.plan||'monthly'); toast('Подписка восстановлена ✓'); }
+    else { toast('Активных покупок не найдено'); }
+  }catch(e){ toast('Не удалось проверить покупки'); }
+}
+/* Возвращает плагин покупок, если он доступен в нативной среде, иначе null */
+function getBillingPlugin(){
+  try{
+    if(window.Capacitor && window.Capacitor.Plugins){
+      return window.Capacitor.Plugins.CapacitorPurchases
+          || window.Capacitor.Plugins.Purchases
+          || null;
+    }
+  }catch(e){}
+  return null;
 }
 
-/* ===== AD BANNER (демо AdMob) ===== */
-function applyAdState(){
-  const show=!S.premium;
-  $('#adBanner').classList.toggle('hidden',!show);
-  document.body.classList.toggle('has-ad',show);
+/* ===== AD BANNER (AdMob) ===== */
+let admobReady=false;
+async function initAdMob(){
+  if(FREE_VERSION || S.premium) return;
+  try{
+    const AdMob = window.Capacitor?.Plugins?.AdMob;
+    if(!AdMob || !ADMOB_BANNER_UNIT_ID){ return; } // нет плагина или не задан Ad Unit — показываем заглушку-баннер
+    await AdMob.initialize();
+    await AdMob.showBanner({
+      adId: ADMOB_BANNER_UNIT_ID,
+      adSize: 'BANNER',
+      position: 'BOTTOM_CENTER',
+      margin: 0
+    });
+    admobReady=true;
+    // прячем HTML-заглушку, т.к. показывается реальный баннер
+    $('#adBanner')?.classList.add('hidden');
+    document.body.classList.remove('has-ad');
+  }catch(e){ /* тихо: остаётся HTML-заглушка */ }
 }
-$('#adClose').onclick=()=>{$('#adBanner').classList.add('hidden');document.body.classList.remove('has-ad');toast('Реклама вернётся при перезапуске');};
+async function removeAdMob(){
+  try{ const AdMob=window.Capacitor?.Plugins?.AdMob; if(AdMob&&admobReady){ await AdMob.removeBanner(); admobReady=false; } }catch(e){}
+}
+function applyAdState(){
+  if(S.premium){
+    // Premium — никакой рекламы
+    $('#adBanner')?.classList.add('hidden');
+    document.body.classList.remove('has-ad');
+    removeAdMob();
+    return;
+  }
+  if(admobReady){ return; } // реальный баннер AdMob уже показан
+  // показываем HTML-заглушку баннера (пока нет реального AdMob)
+  $('#adBanner')?.classList.remove('hidden');
+  document.body.classList.add('has-ad');
+}
 $('#adRemove').onclick=()=>{showView('settings');openPaywall();};
 $('#resetBtn').onclick=async()=>{if(!confirm('Удалить все данные? Необратимо.'))return;DIARY={};WEIGHTS={};MYFOODS=[];S={...DEFAULTS};saveDiary();saveWeights();saveMyFoods();saveSettings();fillSettings();renderDiary();renderWeightLast();renderStats();renderMyFoods();if(chart)renderChart();toast('Данные сброшены');};
 
@@ -974,7 +1252,26 @@ document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>showView(b.dat
 $('#fab').onclick=()=>{pendingMeal=pendingMeal||'breakfast';openSearch();};
 
 /* ===== INIT ===== */
-(async function(){await loadAll();fillSettings();renderDiary();renderWeightLast();renderMyFoods();})();
+(async function(){
+  await loadAll();
+  fillSettings();
+  renderDiary();
+  renderWeightLast();
+  renderMyFoods();
+  // Реклама и проверка подписки — только в нативной среде, с fallback
+  try{ await initAdMob(); }catch(e){}
+  try{ if(!S.premium) await silentRestore(); }catch(e){}
+})();
+/* Тихая проверка активной подписки при запуске (без сообщений пользователю) */
+async function silentRestore(){
+  const Billing=getBillingPlugin();
+  if(!Billing)return;
+  try{
+    const info=await Billing.restorePurchases();
+    const active=info&&(info.activeSubscriptions?.length||info.entitlements?.active||info.customerInfo);
+    if(active){ S.premium=true; saveSettings(); fillSettings(); applyAdState(); }
+  }catch(e){}
+}
 </script>
 </body>
 </html>
