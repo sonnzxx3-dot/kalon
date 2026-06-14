@@ -83,6 +83,8 @@ header{padding:max(26px,env(safe-area-inset-top)) 4px 12px;display:flex;align-it
 .ring svg{transform:rotate(-90deg)}
 .ring .center{position:absolute;inset:0;display:grid;place-content:center;text-align:center;padding:0 10px}
 .ring .center .big{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;line-height:1;letter-spacing:-.5px;white-space:nowrap}
+.ring .center .big[data-len="4"]{font-size:24px;letter-spacing:-.4px}
+.ring .center .big[data-len="5"]{font-size:20px;letter-spacing:-.3px}
 .ring .center .lab{font-size:9.5px;color:var(--ink-faint);margin-top:4px;letter-spacing:1.5px;text-transform:uppercase}
 .stats{flex:1;display:flex;flex-direction:column;gap:9px}
 .stat-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
@@ -1006,7 +1008,8 @@ function renderDiary(){
   $('#todayDate').textContent=new Date().toLocaleDateString({ru:'ru-RU',en:'en-US',es:'es-ES',de:'de-DE',fr:'fr-FR',ja:'ja-JP',zh:'zh-CN',hi:'hi-IN',pl:'pl-PL',pt:'pt-BR'}[LANG]||'en-US',{day:'numeric',month:'short'});
   $('#dayLabel').textContent=prettyDate(viewDate);
   const tot=dayTotals(viewDate),goal=S.goal||2000,left=goal-tot.cal;
-  $('#ringEaten').textContent=fmt(tot.cal);$('#sGoal').textContent=fmt(goal);$('#sEaten').textContent=fmt(tot.cal);
+  {const _re=$('#ringEaten'),_v=fmt(tot.cal);_re.textContent=_v;_re.setAttribute('data-len',Math.max(3,String(_v).replace(/\s/g,'').length));}
+  $('#sGoal').textContent=fmt(goal);$('#sEaten').textContent=fmt(tot.cal);
   const le=$('#sLeft');
   if(left<0){le.style.color='var(--hot)';le.textContent='+'+fmt(-left);$('#goalLine').innerHTML=t('over_by',{n:'<b style=\"color:var(--hot)\">'+fmt(-left)+'</b>'});}
   else{le.style.color='var(--edge)';le.textContent=fmt(left);$('#goalLine').innerHTML=t('left_to_goal',{n:'<b>'+fmt(left)+'</b>'});}
