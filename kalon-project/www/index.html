@@ -1742,9 +1742,12 @@ function openPaywall(){
   $('#pwRestore').onclick=restorePurchase;
 }
 /* === ПОКУПКА ПОДПИСКИ через Google Play Billing ===
-   Использует плагин @capgo/capacitor-purchases (или совместимый), доступный
-   как window.Capacitor. Если плагина нет (веб/превью) — мягкое сообщение,
-   приложение не падает. */
+   Плагин @squareetlabs/capacitor-subscriptions (Capacitor 6, Google Billing 7).
+   На Android purchaseProduct лишь ОТКРЫВАЕТ окно покупки (код 0), а результат
+   приходит асинхронно через событие 'ANDROID-PURCHASE-RESPONSE'. После него
+   проверяем активные подписки через getCurrentEntitlements.
+   Если плагина нет (веб/превью) — мягкое сообщение, приложение не падает. */
+let _purchaseListenerAdded=false;
 async function buyPremium(plan){
   const productId = plan==='yearly' ? SUB_PRODUCT_YEARLY : SUB_PRODUCT_MONTHLY;
   const Billing = getBillingPlugin();
@@ -1754,43 +1757,64 @@ async function buyPremium(plan){
   }
   try{
     $('#pwBuy') && ($('#pwBuy').textContent=t('processing'));
-    const res = await Billing.purchase({ productIdentifier: productId });
-    if(res && (res.success || res.transaction || res.customerInfo)){
-      grantPremium(plan);
-    }else{
+
+    // Слушатель результата покупки (Android) — вешаем один раз
+    if(!_purchaseListenerAdded && Billing.addListener){
+      _purchaseListenerAdded=true;
+      Billing.addListener('ANDROID-PURCHASE-RESPONSE', async (resp)=>{
+        // покупка завершилась — перепроверяем активные подписки
+        try{
+          const ent = await Billing.getCurrentEntitlements();
+          if(ent && ent.responseCode===0 && ent.data && ent.data.length>0){
+            const yr = ent.data.some(x=>x.productIdentifier===SUB_PRODUCT_YEARLY);
+            grantPremium(yr ? 'yearly' : 'monthly');
+          }
+        }catch(e){}
+      });
+    }
+
+    const res = await Billing.purchaseProduct({ productIdentifier: productId });
+    // responseCode 0 = окно покупки успешно открыто; сам результат — в слушателе выше
+    if(!res || res.responseCode!==0){
       toast(t('purchase_incomplete'));
     }
   }catch(e){
     toast(t('purchase_cancelled'));
   }finally{
+    $('#pwBuy') && ($('#pwBuy').textContent = (selectedPlan==='monthly' ? t('connect_btn')+' · 149 ₽/'+t('per_mo') : t('connect_btn')+' · 1 190 ₽/'+t('per_yr')));
     fillSettings();
   }
 }
 function grantPremium(plan){
+  if(S.premium) return; // уже выдан — не дублируем тост
   S.premium=true; S.plan=plan; saveSettings();
   fillSettings(); closeSheet(); applyAdState();
   toast(t('premium_on'));
 }
 /* === ВОССТАНОВЛЕНИЕ покупок ===
    Спрашивает Google Play об активных подписках текущего Google-аккаунта.
-   Регистрация в приложении не нужна — учёт ведёт Google. */
+   getCurrentEntitlements возвращает массив активных подписок (responseCode 0). */
 async function restorePurchase(){
   const Billing = getBillingPlugin();
   if(!Billing){ toast(t('purchase_only_play')); return; }
   try{
     toast(t('checking_google'));
-    const info = await Billing.restorePurchases();
-    const active = info && (info.activeSubscriptions?.length || info.entitlements?.active || info.customerInfo);
-    if(active){ grantPremium(S.plan||'monthly'); toast(t('sub_restored')); }
-    else { toast(t('no_active')); }
+    const ent = await Billing.getCurrentEntitlements();
+    if(ent && ent.responseCode===0 && ent.data && ent.data.length>0){
+      const yr = ent.data.some(x=>x.productIdentifier===SUB_PRODUCT_YEARLY);
+      grantPremium(yr ? 'yearly' : 'monthly');
+      toast(t('sub_restored'));
+    } else {
+      toast(t('no_active'));
+    }
   }catch(e){ toast(t('check_failed')); }
 }
 /* Возвращает плагин покупок, если он доступен в нативной среде, иначе null */
 function getBillingPlugin(){
   try{
     if(window.Capacitor && window.Capacitor.Plugins){
-      return window.Capacitor.Plugins.CapacitorPurchases
-          || window.Capacitor.Plugins.Purchases
+      return window.Capacitor.Plugins.Subscriptions
+          || window.Capacitor.Plugins.CapacitorSubscriptions
           || null;
     }
   }catch(e){}
@@ -1873,9 +1897,10 @@ async function silentRestore(){
   const Billing=getBillingPlugin();
   if(!Billing)return;
   try{
-    const info=await Billing.restorePurchases();
-    const active=info&&(info.activeSubscriptions?.length||info.entitlements?.active||info.customerInfo);
-    if(active){ S.premium=true; saveSettings(); fillSettings(); applyAdState(); }
+    const ent=await Billing.getCurrentEntitlements();
+    if(ent && ent.responseCode===0 && ent.data && ent.data.length>0){
+      S.premium=true; saveSettings(); fillSettings(); applyAdState();
+    }
   }catch(e){}
 }
 
