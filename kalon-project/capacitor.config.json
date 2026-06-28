@@ -7,5 +7,10 @@
   },
   "android": {
     "allowMixedContent": false
+  },
+  "plugins": {
+    "AdMob": {
+      "appId": "ca-app-pub-1788139495634661~5741433334"
+    }
   }
 }
