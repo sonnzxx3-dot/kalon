@@ -7,7 +7,7 @@
 <title>Kalon</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Syne:wght@600;700;800&family=Rajdhani:wght@600;700&display=swap');
 
 :root{
   --bg:#07080d;
@@ -58,9 +58,10 @@ header{padding:max(26px,env(safe-area-inset-top)) 4px 12px;display:flex;align-it
 .brand{display:flex;align-items:center;gap:12px;min-width:0}
 .mark{width:46px;height:46px;flex:none;position:relative;display:grid;place-items:center}
 .mark svg{width:46px;height:46px;filter:drop-shadow(0 4px 14px rgba(91,139,255,.55))}
-.brand h1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(20px,6vw,25px);letter-spacing:.5px;line-height:1;white-space:nowrap;
-  background:linear-gradient(120deg,#fff,var(--steel) 60%,var(--blade));-webkit-background-clip:text;background-clip:text;color:transparent}
-.brand p{font-size:clamp(9px,2.6vw,10.5px);color:var(--ink-faint);margin-top:3px;letter-spacing:2.5px;text-transform:uppercase;white-space:nowrap}
+.brand-row{display:flex;align-items:center;gap:10px;min-width:0}
+.brand h1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(20px,6vw,25px);letter-spacing:.5px;line-height:1;white-space:nowrap;color:#fff}
+.brand-div{width:1px;height:17px;flex:none;background:linear-gradient(var(--blade),var(--blade-2))}
+.brand-ss{font-family:'Rajdhani','Syne',sans-serif;font-weight:700;font-size:clamp(11px,3.2vw,13px);letter-spacing:3px;text-transform:uppercase;color:var(--blade);white-space:nowrap}
 .date-pill{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:8px 12px;text-align:right;flex:none;white-space:nowrap}
 .date-pill span{font-size:10px;color:var(--ink-faint);letter-spacing:1px;text-transform:uppercase}
 .date-pill b{display:block;color:var(--ink);font-size:14px;font-weight:600;margin-top:2px}
@@ -325,9 +326,10 @@ body.has-ad .fab{bottom:calc(150px + env(safe-area-inset-bottom))}
           <path d="M14 28h20l-3 5H17Z" fill="#2a3150"/>
         </svg>
       </div>
-      <div>
+      <div class="brand-row">
         <h1>KALON</h1>
-        <p>Synax Sword AI</p>
+        <span class="brand-div"></span>
+        <span class="brand-ss">Synax Sword</span>
       </div>
     </div>
     <div class="date-pill">
@@ -444,7 +446,7 @@ body.has-ad .fab{bottom:calc(150px + env(safe-area-inset-bottom))}
         <button id="resetBtn" style="background:transparent;border:1px solid var(--hot);color:var(--hot);border-radius:11px;padding:8px 13px;font-family:inherit;font-weight:700;cursor:pointer;font-size:12px" data-i18n="reset">Сброс</button></div>
     </div>
     <p style="text-align:center;font-size:11px;color:var(--ink-faint);margin-top:20px;line-height:1.6">
-      Kalon · Synax Sword AI<br><span data-i18n="data_src">Данные продуктов — Open Food Facts.</span><br><span data-i18n="med_note">Не является медицинской рекомендацией.</span>
+      Kalon · Synax Sword<br><span data-i18n="data_src">Данные продуктов — Open Food Facts.</span><br><span data-i18n="med_note">Не является медицинской рекомендацией.</span>
     </p>
   </section>
 </div>
