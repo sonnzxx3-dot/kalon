@@ -47,6 +47,11 @@ jobs:
             echo "=== AdMob App ID injected ==="
           fi
           grep -n "APPLICATION_ID" "$MANIFEST" || echo "WARNING: meta-data not found"
+      - name: Enable Android Auto Backup
+        run: |
+          MANIFEST=android/app/src/main/AndroidManifest.xml
+          sed -i 's/android:allowBackup="false"/android:allowBackup="true"/' "$MANIFEST"
+          grep -n "allowBackup" "$MANIFEST" || echo "allowBackup attr not present (default true)"
       - name: Prepare icon
         run: |
           mkdir -p resources
