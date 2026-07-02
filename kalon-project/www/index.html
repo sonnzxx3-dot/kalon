@@ -1829,12 +1829,19 @@ function getBillingPlugin(){
 
 /* ===== AD BANNER (AdMob) ===== */
 let admobReady=false;
+function _adDebug(msg){
+  // ДИАГНОСТИКА: показывает состояние рекламы в подписи заглушки (временно)
+  try{ const el=document.querySelector('#adBanner .ad-sub'); if(el) el.textContent='[AD] '+msg; }catch(e){}
+}
 async function initAdMob(){
   if(FREE_VERSION || S.premium) return;
   try{
     const AdMob = window.Capacitor?.Plugins?.AdMob;
-    if(!AdMob || !ADMOB_BANNER_UNIT_ID){ return; } // нет плагина или не задан Ad Unit — показываем заглушку-баннер
+    if(!AdMob){ _adDebug('плагин AdMob не найден в Capacitor.Plugins'); return; }
+    if(!ADMOB_BANNER_UNIT_ID){ _adDebug('пустой Ad Unit ID'); return; }
+    _adDebug('инициализация…');
     await AdMob.initialize();
+    _adDebug('показ баннера…');
     await AdMob.showBanner({
       adId: ADMOB_BANNER_UNIT_ID,
       adSize: 'BANNER',
@@ -1845,7 +1852,9 @@ async function initAdMob(){
     // прячем HTML-заглушку, т.к. показывается реальный баннер
     $('#adBanner')?.classList.add('hidden');
     document.body.classList.remove('has-ad');
-  }catch(e){ /* тихо: остаётся HTML-заглушка */ }
+  }catch(e){
+    _adDebug('ошибка: '+(e&&e.message?e.message:String(e)));
+  }
 }
 async function removeAdMob(){
   try{ const AdMob=window.Capacitor?.Plugins?.AdMob; if(AdMob&&admobReady){ await AdMob.removeBanner(); admobReady=false; } }catch(e){}
