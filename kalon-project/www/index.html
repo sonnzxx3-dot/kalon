@@ -316,6 +316,39 @@ body.has-ad .fab{bottom:calc(150px + env(safe-area-inset-bottom))}
 </style>
 </head>
 <body>
+
+<!-- ЭКРАННЫЙ ДИАГНОСТИЧЕСКИЙ ЛОГ (тап — скрыть) -->
+<div id="kalonLog" style="position:fixed;top:0;left:0;right:0;max-height:45vh;overflow:auto;z-index:2147483647;background:rgba(10,10,18,.96);color:#f2f4ff;font-family:monospace;font-size:11px;line-height:1.5;padding:8px 10px 10px;border-bottom:2px solid #5b8bff;box-shadow:0 4px 20px rgba(0,0,0,.6);word-break:break-word">
+  <div style="font-weight:700;color:#46e0ff;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center">
+    <span>KALON DEBUG</span>
+    <span style="font-size:9px;color:#5b6589">тап — скрыть</span>
+  </div>
+  <div id="kalonLogBody"></div>
+</div>
+<script>
+(function(){
+  const box = document.getElementById('kalonLog');
+  const body = document.getElementById('kalonLogBody');
+  box.addEventListener('click', ()=> box.style.display='none');
+  const colors = {info:'#9aa3c4', ok:'#7df0ff', warn:'#ffc869', err:'#ff5d73'};
+  function ts(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0')+'.'+String(d.getMilliseconds()).padStart(3,'0');}
+  window.klog = function(type, msg){
+    const line = document.createElement('div');
+    line.style.color = colors[type] || colors.info;
+    line.textContent = '['+ts()+'] '+msg;
+    body.appendChild(line);
+    box.scrollTop = box.scrollHeight;
+  };
+  // ловим ЛЮБЫЕ JS-ошибки
+  window.addEventListener('error', (e)=>{
+    klog('err', 'JS ERROR: '+(e.message||'?')+' @ '+(e.filename||'?')+':'+(e.lineno||'?'));
+  });
+  window.addEventListener('unhandledrejection', (e)=>{
+    klog('err', 'PROMISE REJECT: '+(e.reason&&e.reason.message ? e.reason.message : String(e.reason)));
+  });
+  klog('info', 'старт лога, UA: '+navigator.userAgent.substring(0,60));
+})();
+</script>
 <div class="app">
   <header>
     <div class="brand">
@@ -950,7 +983,7 @@ function t(key,vars){
   if(vars)for(const k in vars)s=s.replace('{'+k+'}',vars[k]);
   return s;
 }
-function setLang(l){ if(I18N[l]){LANG=l;try{localStorage.setItem('kalon:lang',l)}catch(e){}} }
+function setLang(l){ if(I18N[l]){LANG=l;try{localStorage.setItem('kalon:lang',l)}catch(e){} try{window.Capacitor?.Plugins?.Preferences?.set({key:'kalon:lang',value:l})}catch(e){}} }
 /* Применяет переводы ко всем статичным элементам с data-i18n при запуске */
 function applyI18n(){
   document.documentElement.lang=LANG;
@@ -989,6 +1022,44 @@ const MEALS=[{id:'breakfast'},{id:'lunch'},{id:'dinner'},{id:'snack'}];
 const mealName=id=>t(id);
 
 /* ===== STORAGE ===== */
+/* КРИТИЧЕСКИЙ СЛОЙ ХРАНЕНИЯ.
+   window.storage существует только в среде предпросмотра. В реальном Android
+   WebView его НЕТ — без этого полифилла данные не сохранялись вовсе.
+   Слой 1: localStorage — переживает перезапуск и обновление приложения.
+   Слой 2: Capacitor Preferences (нативное) — переживает переустановку
+   через Android Auto Backup. Если плагина нет — работает только слой 1. */
+(function(){
+  const hasNative = () => window.Capacitor?.Plugins?.Preferences;
+  if(!window.storage || !window.storage.__kalon){
+    window.storage = {
+      __kalon: true,
+      async get(key){
+        // 1) пробуем localStorage
+        try{
+          const v = localStorage.getItem('kalon:'+key);
+          if(v !== null) return { value: v };
+        }catch(e){}
+        // 2) fallback: нативное хранилище (после переустановки localStorage пуст)
+        try{
+          const P = hasNative();
+          if(P){
+            const r = await P.get({ key: 'kalon:'+key });
+            if(r && r.value != null){
+              try{ localStorage.setItem('kalon:'+key, r.value); }catch(e){}
+              return { value: r.value };
+            }
+          }
+        }catch(e){}
+        return null;
+      },
+      async set(key, value){
+        try{ localStorage.setItem('kalon:'+key, value); }catch(e){}
+        // зеркалим в нативное хранилище (переживает переустановку)
+        try{ const P = hasNative(); if(P) P.set({ key: 'kalon:'+key, value: value }); }catch(e){}
+      }
+    };
+  }
+})();
 async function loadAll(){
   for(const [key,setter] of [['settings',v=>S={...DEFAULTS,...v}],['diary',v=>DIARY=v],['weights',v=>WEIGHTS=v],['myfoods',v=>MYFOODS=v]]){
     try{ const r=await window.storage.get(key); if(r&&r.value) setter(JSON.parse(r.value)); }catch(e){}
@@ -1832,6 +1903,7 @@ let admobReady=false;
 function _adDebug(msg){
   // ДИАГНОСТИКА: показывает состояние рекламы в подписи заглушки (временно)
   try{ const el=document.querySelector('#adBanner .ad-sub'); if(el) el.textContent='[AD] '+msg; }catch(e){}
+  try{ klog(msg.includes('ошибка')||msg.includes('не найден')?'err':'info', 'AdMob: '+msg); }catch(e){}
 }
 async function initAdMob(){
   if(FREE_VERSION || S.premium) return;
@@ -1895,17 +1967,26 @@ $('#fab').onclick=()=>{pendingMeal=pendingMeal||'breakfast';openSearch();};
 
 /* ===== INIT ===== */
 (async function(){
+  klog('info', 'CAP: '+(window.Capacitor?'есть':'НЕТ')+', Plugins: '+(window.Capacitor?.Plugins?Object.keys(window.Capacitor.Plugins).join(','):'—'));
+  klog('info', 'Preferences: '+(window.Capacitor?.Plugins?.Preferences?'ЕСТЬ':'НЕТ'));
+  klog('info', 'AdMob plugin: '+(window.Capacitor?.Plugins?.AdMob?'ЕСТЬ':'НЕТ'));
+  klog('info', 'ADMOB_BANNER_UNIT_ID: '+(ADMOB_BANNER_UNIT_ID||'пусто'));
+  klog('info', 'FREE_VERSION: '+FREE_VERSION);
+
+  klog('info', 'loadAll старт…');
   await loadAll();
-  applyI18n();
-  fillSettings();
-  renderDiary();
-  renderWeightLast();
-  renderMyFoods();
-  // Реклама и проверка подписки — только в нативной среде, с fallback
-  try{ await initAdMob(); }catch(e){}
-  try{ if(!S.premium) await silentRestore(); }catch(e){}
-  // Проверка обновлений через Google Play (In-App Updates)
-  try{ await checkForUpdate(); }catch(e){}
+  klog('ok', 'loadAll ок. S.premium='+S.premium+', DIARY ключей='+Object.keys(DIARY).length+', MYFOODS='+MYFOODS.length);
+
+  applyI18n(); klog('ok', 'applyI18n ок (LANG='+LANG+')');
+  fillSettings(); klog('ok', 'fillSettings ок');
+  renderDiary(); klog('ok', 'renderDiary ок');
+  renderWeightLast(); renderMyFoods();
+
+  klog('info', 'initAdMob старт…');
+  try{ await initAdMob(); klog('ok', 'initAdMob вернулся (admobReady='+admobReady+')'); }catch(e){ klog('err','initAdMob: '+e.message); }
+  try{ if(!S.premium) await silentRestore(); }catch(e){ klog('err','silentRestore: '+e.message); }
+  try{ await checkForUpdate(); }catch(e){ klog('err','checkForUpdate: '+e.message); }
+  klog('ok', 'init завершён');
 })();
 /* Тихая проверка активной подписки при запуске (без сообщений пользователю) */
 async function silentRestore(){
