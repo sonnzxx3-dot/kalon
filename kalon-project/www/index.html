@@ -1911,14 +1911,22 @@ async function initAdMob(){
     const AdMob = window.Capacitor?.Plugins?.AdMob;
     if(!AdMob){ _adDebug('плагин AdMob не найден в Capacitor.Plugins'); return; }
     if(!ADMOB_BANNER_UNIT_ID){ _adDebug('пустой Ad Unit ID'); return; }
+
+    // Слушатели событий баннера — покажут РЕАЛЬНЫЙ результат от Google
+    try{
+      AdMob.addListener('bannerAdLoaded', ()=> klog('ok','AdMob: bannerAdLoaded — баннер ЗАГРУЖЕН Google'));
+      AdMob.addListener('bannerAdFailedToLoad', (err)=> klog('err','AdMob: FAILED code='+(err&&err.code!=null?err.code:'?')+' msg='+(err&&err.message?err.message:'?')));
+      AdMob.addListener('bannerAdSizeChanged', (sz)=> klog('info','AdMob: размер баннера '+(sz?JSON.stringify(sz):'?')));
+    }catch(e){ klog('warn','listeners: '+e.message); }
+
     _adDebug('инициализация…');
     await AdMob.initialize();
     _adDebug('показ баннера…');
     await AdMob.showBanner({
       adId: ADMOB_BANNER_UNIT_ID,
       adSize: 'BANNER',
-      position: 'BOTTOM_CENTER',
-      margin: 0
+      position: 'TOP_CENTER',
+      margin: 60
     });
     admobReady=true;
     // прячем HTML-заглушку, т.к. показывается реальный баннер
