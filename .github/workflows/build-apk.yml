@@ -65,7 +65,16 @@ jobs:
       - name: Prepare icon
         run: |
           mkdir -p resources
-          cp ../resources/icon.png resources/icon.png
+          if [ -f ../resources/icon.png ]; then
+            cp ../resources/icon.png resources/icon.png
+          elif [ -f ../icon.png ]; then
+            cp ../icon.png resources/icon.png
+          elif [ -f resources/icon.png ]; then
+            echo "using existing kalon-project/resources/icon.png"
+          else
+            echo "ERROR: icon.png not found (checked ../resources/, ../, resources/)"; exit 1
+          fi
+          ls -la resources/icon.png
       - name: Generate app icons
         run: npx @capacitor/assets generate --android --iconBackgroundColor '#0c0e17' --iconBackgroundColorDark '#0c0e17'
       - name: Sync Capacitor
