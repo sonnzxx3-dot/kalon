@@ -47,6 +47,16 @@ jobs:
             echo "=== AdMob App ID injected ==="
           fi
           grep -n "APPLICATION_ID" "$MANIFEST" || echo "WARNING: meta-data not found"
+      - name: Add camera permission (barcode scanner)
+        run: |
+          MANIFEST=android/app/src/main/AndroidManifest.xml
+          if ! grep -q 'android.permission.CAMERA' "$MANIFEST"; then
+            sed -i 's#<uses-permission android:name="android.permission.INTERNET" */>#&\n    <uses-permission android:name="android.permission.CAMERA" />#' "$MANIFEST"
+          fi
+          if ! grep -q 'android.permission.CAMERA' "$MANIFEST"; then
+            sed -i 's#</manifest>#    <uses-permission android:name="android.permission.CAMERA" />\n</manifest>#' "$MANIFEST"
+          fi
+          grep -n "CAMERA" "$MANIFEST" || echo "WARNING: camera permission not injected"
       - name: Enable Android Auto Backup
         run: |
           MANIFEST=android/app/src/main/AndroidManifest.xml
