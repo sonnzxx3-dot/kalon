@@ -160,7 +160,7 @@ header{padding:max(26px,env(safe-area-inset-top)) 4px 12px;display:flex;align-it
 .nav button svg{width:22px;height:22px}
 .nav button.on{color:var(--edge);background:rgba(70,224,255,.08)}
 /* ad banner */
-.ad-banner{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100% - 32px);max-width:488px;
+.ad-banner{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom));width:calc(100% - 32px);max-width:488px;
   background:linear-gradient(135deg,var(--panel-2),var(--panel));border:1px solid var(--line);border-radius:16px;
   padding:11px 13px;display:flex;align-items:center;gap:11px;z-index:39;box-shadow:0 10px 26px -12px rgba(0,0,0,.6)}
 .ad-banner.hidden{display:none}
@@ -170,8 +170,14 @@ header{padding:max(26px,env(safe-area-inset-top)) 4px 12px;display:flex;align-it
 .ad-banner .ad-title{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ad-banner .ad-sub{font-size:10.5px;color:var(--ink-faint);margin-top:1px}
 .ad-banner .ad-remove{font-size:10px;color:var(--blade);border:1px solid var(--line);border-radius:8px;padding:5px 8px;cursor:pointer;flex:none;font-weight:600;white-space:nowrap}
-body.has-ad .nav{bottom:calc(14px + env(safe-area-inset-bottom))}
-body.has-ad .fab{bottom:calc(150px + env(safe-area-inset-bottom))}
+/* Заглушка (has-ad): реклама внизу, меню и «+» подняты над ней */
+body.has-ad .nav{bottom:calc(82px + env(safe-area-inset-bottom))}
+body.has-ad .fab{bottom:calc(166px + env(safe-area-inset-bottom))}
+body.has-ad .app{padding-bottom:calc(198px + env(safe-area-inset-bottom))}
+/* Реальный баннер AdMob (admob-on): нативный баннер ~50px в самом низу */
+body.admob-on .nav{bottom:calc(64px + env(safe-area-inset-bottom))}
+body.admob-on .fab{bottom:calc(148px + env(safe-area-inset-bottom))}
+body.admob-on .app{padding-bottom:calc(182px + env(safe-area-inset-bottom))}
 
 .fab{position:fixed;right:50%;margin-right:-244px;bottom:calc(86px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:18px;
   background:linear-gradient(140deg,var(--blade),var(--blade-2));border:none;color:#fff;font-size:28px;
@@ -313,10 +319,131 @@ body.has-ad .fab{bottom:calc(150px + env(safe-area-inset-bottom))}
 .toast{position:fixed;bottom:158px;left:50%;transform:translateX(-50%) translateY(20px);
   background:linear-gradient(135deg,var(--blade),var(--blade-2));color:#fff;padding:12px 20px;border-radius:14px;font-weight:700;font-size:13px;z-index:90;opacity:0;transition:.3s;box-shadow:0 12px 28px -8px rgba(124,92,255,.7);pointer-events:none;white-space:nowrap}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+/* ===== АНИМАЦИИ ===== */
+#ringFill{transition:stroke-dashoffset .9s cubic-bezier(.2,.7,.2,1)}
+.mbar i{transition:width .7s cubic-bezier(.2,.7,.2,1)}
+@keyframes viewIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.view.on{animation:viewIn .28s ease}
+@keyframes sheetPop{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* ===== СТРИК ===== */
+.streak-chip{display:inline-flex;align-items:center;gap:7px;margin-top:10px;align-self:flex-start;font-size:12px;font-weight:800;letter-spacing:.3px;color:var(--gold);background:linear-gradient(135deg,rgba(255,200,105,.16),rgba(255,93,115,.09));border:1px solid rgba(255,200,105,.38);border-radius:13px;padding:7px 13px;box-shadow:0 0 20px -7px rgba(255,200,105,.5);white-space:nowrap}
+.streak-chip .fl{font-size:15px;line-height:1}
+.streak-chip b{font-family:'Syne',sans-serif;font-size:15px;line-height:1}
+
+/* ===== ВОДА ===== */
+.water-card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line-soft);border-radius:var(--r);padding:15px 16px;margin-top:14px}
+.water-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:11px}
+.water-head .wt{font-size:13.5px;font-weight:700}
+.water-head .wv{font-size:11.5px;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.water-row{display:flex;gap:7px;justify-content:space-between}
+.water-row button{flex:1;aspect-ratio:.8;max-width:44px;background:transparent;border:none;padding:0;cursor:pointer;display:grid;place-items:center}
+.water-row svg{width:100%;height:100%;transition:transform .15s ease}
+.water-row button:active svg{transform:scale(.85)}
+.water-row .cup{fill:rgba(255,255,255,.06);stroke:var(--line);stroke-width:1.4;transition:fill .25s ease,stroke .25s ease}
+.water-row button.full .cup{fill:url(#waterGrad);stroke:var(--edge)}
+
+/* ===== ОНБОРДИНГ ===== */
+#onboard{position:fixed;inset:0;z-index:9000;background:linear-gradient(180deg,var(--bg-2),var(--bg));display:none;flex-direction:column;padding:max(40px,env(safe-area-inset-top)) 24px max(28px,env(safe-area-inset-bottom));overflow-y:auto}
+#onboard.show{display:flex}
+.ob-step{display:none;flex-direction:column;flex:1;animation:viewIn .3s ease}
+.ob-step.on{display:flex}
+.ob-hero{text-align:center;margin:26px 0 30px}
+.ob-hero .ob-ico{width:84px;height:84px;margin:0 auto 18px;border-radius:24px;overflow:hidden;box-shadow:0 16px 44px -12px rgba(91,139,255,.55)}
+.ob-hero .ob-ico img{width:100%;height:100%;display:block}
+.ob-hero h1{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;margin-bottom:8px}
+.ob-hero p{font-size:13.5px;color:var(--ink-soft);line-height:1.6}
+.ob-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-faint);margin:6px 0 12px}
+.ob-goals{display:flex;flex-direction:column;gap:11px}
+.ob-goals button{background:var(--panel);border:1.5px solid var(--line);color:var(--ink);border-radius:16px;padding:17px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:13px;transition:border-color .15s}
+.ob-goals button .gi{font-size:22px}
+.ob-goals button.on{border-color:var(--blade);background:linear-gradient(140deg,rgba(91,139,255,.12),rgba(124,92,255,.08))}
+.ob-fields{display:flex;flex-direction:column;gap:12px}
+.ob-fields .set-row{background:var(--panel);border:1px solid var(--line-soft);border-radius:14px}
+.ob-result{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.ob-result .num{font-family:'Syne',sans-serif;font-size:56px;font-weight:800;background:linear-gradient(120deg,var(--edge),var(--blade));-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1}
+.ob-result .lab{font-size:12px;letter-spacing:2px;color:var(--ink-faint);text-transform:uppercase;margin-top:8px}
+.ob-result .hint2{font-size:12px;color:var(--ink-faint);margin-top:18px}
+.ob-actions{margin-top:auto;padding-top:24px;display:flex;flex-direction:column;gap:10px}
+.ob-actions .btn-ghost2{background:transparent;border:none;color:var(--ink-faint);font-family:inherit;font-size:13px;padding:10px;cursor:pointer}
+
+/* ===== новые элементы: эмодзи, избранное, достижения ===== */
+.tool-row{display:flex;gap:9px;margin-bottom:13px}
+.tool-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(160deg,var(--panel-2),var(--panel));border:1px solid var(--line);color:var(--steel);border-radius:14px;padding:13px 8px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;transition:.15s}
+.tool-btn:active{border-color:var(--blade);box-shadow:var(--glow)}
+.tool-btn .tb-ic{display:inline-flex;font-size:16px;color:var(--blade)}
+.ri-emo{font-size:20px;flex:none;width:26px;text-align:center}
+.fi-emo{font-size:16px;flex:none;width:22px;text-align:center}
+.ri-fav{flex:none;font-size:18px;color:var(--ink-faint);opacity:.55;padding:4px 6px;cursor:pointer;transition:.15s}
+.ri-fav.on{color:var(--gold);opacity:1;text-shadow:0 0 12px rgba(255,200,105,.6)}
+.seg5 button{padding:9px 6px;font-size:12.5px;min-width:0}
+.copy-yday{width:100%;margin-top:2px;background:transparent;border:1px dashed var(--line);color:var(--ink-soft);border-radius:14px;padding:13px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
+.copy-yday:active{border-color:var(--blade);color:var(--steel)}
+.ach-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:6px}
+.ach{background:var(--panel);border:1px solid var(--line-soft);border-radius:14px;padding:10px 3px 8px;text-align:center;opacity:.32;filter:grayscale(.85);transition:.2s}
+.ach.on{opacity:1;filter:none;border-color:rgba(255,200,105,.45);box-shadow:0 0 18px -8px rgba(255,200,105,.55)}
+.ach .ae{font-size:20px;line-height:1}
+.ach .an{font-size:8.5px;color:var(--ink-soft);margin-top:5px;line-height:1.25;word-break:break-word}
+#forecast{margin-top:10px;font-size:12.5px;line-height:1.5;color:var(--edge)}
+@media (max-width:370px){.ach-grid{grid-template-columns:repeat(4,1fr)}}
 </style>
 </head>
 <body>
 <script>window.klog=function(){};</script>
+
+<!-- ОНБОРДИНГ (первый запуск) -->
+<div id="onboard">
+  <!-- Шаг 1: приветствие + цель -->
+  <div class="ob-step on" data-step="1">
+    <div class="ob-hero">
+      <div class="ob-ico"><img id="obIcon" alt=""></div>
+      <h1 data-i18n="ob_title">Добро пожаловать в Kalon!</h1>
+      <p data-i18n="ob_sub">Настроим твою дневную норму за минуту</p>
+    </div>
+    <div class="ob-label" data-i18n="ob_goal">Твоя цель</div>
+    <div class="ob-goals" id="obGoals">
+      <button data-goal="lose" class="on"><span class="gi">📉</span><span data-i18n="goal_lose">Похудеть</span></button>
+      <button data-goal="keep"><span class="gi">⚖️</span><span data-i18n="goal_keep">Держать вес</span></button>
+      <button data-goal="gain"><span class="gi">💪</span><span data-i18n="goal_gain">Набрать массу</span></button>
+    </div>
+    <div class="ob-actions">
+      <button class="btn-primary" id="obNext1" data-i18n="ob_next">Далее</button>
+      <button class="btn-ghost2" id="obSkip" data-i18n="ob_skip">Пропустить</button>
+    </div>
+  </div>
+
+  <!-- Шаг 2: параметры -->
+  <div class="ob-step" data-step="2">
+    <div class="ob-label" style="margin-top:14px" data-i18n="ob_about">О тебе</div>
+    <div class="ob-fields">
+      <div class="set-row"><div class="sl" data-i18n="sex">Пол</div><div class="seg" style="margin:0;width:140px"><button id="obSexM" class="on" data-i18n="male">М</button><button id="obSexF" data-i18n="female">Ж</button></div></div>
+      <div class="set-row"><div class="sl" data-i18n="age">Возраст</div><input type="number" id="obAge" inputmode="numeric" placeholder="30"></div>
+      <div class="set-row"><div class="sl" data-i18n="height_cm">Рост, см</div><input type="number" id="obH" inputmode="numeric" placeholder="175"></div>
+      <div class="set-row"><div class="sl" data-i18n="weight_kg">Вес, кг</div><input type="number" id="obW" inputmode="decimal" placeholder="72"></div>
+      <div class="set-row"><div class="sl"><span data-i18n="ob_target">Целевой вес, кг</span><small data-i18n="ob_optional">необязательно</small></div><input type="number" id="obTW" inputmode="decimal" placeholder="—"></div>
+      <div class="set-row"><div class="sl" data-i18n="activity">Активность</div><select id="obAct"><option value="1.2" data-i18n="act_low">Низкая</option><option value="1.375" selected data-i18n="act_light">Лёгкая</option><option value="1.55" data-i18n="act_mid">Средняя</option><option value="1.725" data-i18n="act_high">Высокая</option></select></div>
+    </div>
+    <div class="ob-actions">
+      <button class="btn-primary" id="obNext2" data-i18n="ob_next">Далее</button>
+      <button class="btn-ghost2" id="obBack2" data-i18n="ob_back">Назад</button>
+    </div>
+  </div>
+
+  <!-- Шаг 3: результат -->
+  <div class="ob-step" data-step="3">
+    <div class="ob-result">
+      <div class="ob-label" data-i18n="ob_result">Твоя норма</div>
+      <div class="num" id="obNorm">2000</div>
+      <div class="lab" data-i18n="kcal">ккал</div>
+      <div class="hint2" id="obForecast" style="color:var(--edge);margin-bottom:4px"></div>
+      <div class="hint2" data-i18n="ob_hint">Всё можно изменить в настройках</div>
+    </div>
+    <div class="ob-actions">
+      <button class="btn-primary" id="obStart" data-i18n="ob_start">Начать!</button>
+      <button class="btn-ghost2" id="obBack3" data-i18n="ob_back">Назад</button>
+    </div>
+  </div>
+</div>
 <div class="app">
   <header>
     <div class="brand">
@@ -357,6 +484,7 @@ body.has-ad .fab{bottom:calc(150px + env(safe-area-inset-bottom))}
           <div class="stat-row"><span class="k" data-i18n="eaten">Съедено</span><span class="v" id="sEaten">0</span></div>
           <div class="stat-row"><span class="k" data-i18n="left">Осталось</span><span class="v" id="sLeft" style="color:var(--edge)">2000</span></div>
           <div class="goal-line" id="goalLine" data-i18n="add_first">Добавь первый приём пищи →</div>
+          <span class="streak-chip" id="streakChip" style="display:none"></span>
         </div>
       </div>
       <div class="macros">
@@ -367,6 +495,15 @@ body.has-ad .fab{bottom:calc(150px + env(safe-area-inset-bottom))}
     </div>
     <div class="section-head"><h2 data-i18n="meals">Приёмы пищи</h2><span class="hint" data-i18n="tap_add">+ чтобы добавить</span></div>
     <div id="meals"></div>
+    <div class="water-card">
+      <div class="water-head">
+        <span class="wt">💧 <span data-i18n="water">Вода</span></span>
+        <span class="wv"><span id="waterMl">0</span> / 2000 мл</span>
+      </div>
+      <div class="water-row" id="waterRow">
+        <svg width="0" height="0" style="position:absolute"><defs><linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#46e0ff"/><stop offset="1" stop-color="#5b8bff"/></linearGradient></defs></svg>
+      </div>
+    </div>
   </section>
 
   <!-- PROGRESS -->
@@ -385,10 +522,13 @@ body.has-ad .fab{bottom:calc(150px + env(safe-area-inset-bottom))}
       <div class="sc"><div class="sn" id="stAvg">0</div><div class="sl" data-i18n="avg_kcal">ср. ккал / 7 дн</div></div>
       <div class="sc"><div class="sn" id="stDays">0</div><div class="sl" data-i18n="total_records">всего записей</div></div>
     </div>
+    <div class="section-head"><h2 data-i18n="ach_title">Достижения</h2></div>
+    <div class="ach-grid" id="achGrid"></div>
     <div class="section-head"><h2 data-i18n="body_weight">Вес тела</h2><span class="hint">кг</span></div>
     <div class="card">
       <div class="weight-entry"><input type="number" id="weightInput" data-i18n-ph="weight_eg" placeholder="например 72.5" step="0.1" inputmode="decimal"><button id="weightSave" data-i18n="save">Записать</button></div>
       <div id="weightLast" style="margin-top:12px;font-size:12px;color:var(--ink-faint)"></div>
+      <div id="forecast"></div>
     </div>
   </section>
 
@@ -423,6 +563,7 @@ body.has-ad .fab{bottom:calc(150px + env(safe-area-inset-bottom))}
       <div class="set-row"><div class="sl"><span data-i18n="prot">Белки</span><small data-i18n="goal_g">цель, г</small></div><input type="number" id="setProt" inputmode="numeric"></div>
       <div class="set-row"><div class="sl"><span data-i18n="fat">Жиры</span><small data-i18n="goal_g">цель, г</small></div><input type="number" id="setFat" inputmode="numeric"></div>
       <div class="set-row"><div class="sl"><span data-i18n="carb">Углеводы</span><small data-i18n="goal_g">цель, г</small></div><input type="number" id="setCarb" inputmode="numeric"></div>
+      <div class="set-row"><div class="sl"><span data-i18n="target_weight">Целевой вес</span><small>кг</small></div><input type="number" id="setTargetW" inputmode="decimal" step="0.5" placeholder="—"></div>
     </div>
     <div class="section-head"><h2 data-i18n="norm_calc">Расчёт нормы</h2><span class="hint" data-i18n="mifflin">Миффлин</span></div>
     <div class="card">
@@ -448,7 +589,7 @@ body.has-ad .fab{bottom:calc(150px + env(safe-area-inset-bottom))}
 </div>
 
 <button class="fab" id="fab">+</button>
-<div class="ad-banner" id="adBanner">
+<div class="ad-banner hidden" id="adBanner">
   <span class="ad-tag" data-i18n="advert">реклама</span>
   <div class="ad-ico">⚔️</div>
   <div class="ad-main">
@@ -484,7 +625,7 @@ body.has-ad .fab{bottom:calc(150px + env(safe-area-inset-bottom))}
    Поддержка: ru, en, es, de, fr. По умолчанию — английский,
    если язык телефона не из списка. */
 const I18N={
- ru:{cat_all:"Все",empty:"Пусто",add_to_diary:"Добавить в дневник",new_product:"Новый продукт",portion:"Порция",nothing_found:"Ничего не найдено.",own:"своё",per_100g:"на 100 г",lbl_name:"Название",lbl_brand:"Бренд / заметка (необязательно)",lbl_cal:"Ккал",lbl_prot:"Белки",lbl_fat:"Жиры",lbl_carb:"Углев.",name_hint:"Например: Мамин борщ",brand_hint:"домашнее",add_final_dot:"Добавить",create_hint:"Укажи значения на 100 г. Продукт сохранится в твою базу и будет доступен для повторного добавления.",quick_save:"Сохранить и сразу добавить в дневник",
+ ru:{streak_word:"дней подряд",scan_btn:"Штрих-код",scan_title:"Сканер штрих-кода",scan_note2:"Наведи камеру на штрих-код упаковки. Если камера недоступна — введи цифры кода вручную.",scan_find:"Найти",scan_searching:"Ищем продукт {n} в базе Open Food Facts…",scan_nf:"Код {n} не найден в базе Open Food Facts.",scan_create:"Создать продукт вручную",scan_noconn:"Нет соединения с базой. Проверь интернет.",scan_lib_err:"📷 Не удалось запустить камеру.\nВведи цифры штрих-кода вручную ниже — поиск сработает так же.",src_recent:"Недавние",src_favs:"Избранное",src_net:"Интернет",net_hint:"Введи минимум 3 буквы — поиск по мировой базе Open Food Facts (нужен интернет).",net_err:"Не удалось загрузить. Проверь интернет и попробуй ещё раз.",searching:"Ищу…",empty_hint:"Нажми +, чтобы добавить",copy_yesterday:"↺ Повторить вчерашний день",copied_day:"Вчерашний день скопирован",goal_reached:"🎉 Цель дня достигнута!",fav_add:"⭐ В избранном",fav_del:"Убрано из избранного",no_recent:"Здесь появятся продукты, которые ты недавно добавлял в дневник.",no_favs:"Отмечай продукты звёздочкой ★ — они соберутся здесь.",ach_title:"Достижения",ach_unlocked:"🏆 Достижение: {n}",ach_first:"Первая запись",ach_streak3:"3 дня подряд",ach_streak7:"Неделя подряд",ach_streak14:"2 недели подряд",ach_streak30:"Месяц подряд",ach_water:"8 стаканов воды",ach_weight:"Первый замер веса",ach_foods5:"5 своих продуктов",ach_goalday:"День в цели",ach_days30:"30 дней с записями",target_weight:"Целевой вес",forecast_to:"Прогноз: ≈ {w} кг к {d}",forecast_need:"Записывай вес хотя бы раз в несколько дней — и здесь появится прогноз до цели.",forecast_flat:"Вес пока стабилен. Продолжай — прогноз появится вместе с динамикой.",forecast_done:"🎯 Целевой вес достигнут — отличная работа!",ob_target:"Целевой вес, кг",ob_optional:"необязательно",ob_forecast:"≈ {w} кг примерно к {d} — при здоровом темпе",cat_all:"Все",empty:"Пусто",add_to_diary:"Добавить в дневник",new_product:"Новый продукт",portion:"Порция",nothing_found:"Ничего не найдено.",own:"своё",per_100g:"на 100 г",lbl_name:"Название",lbl_brand:"Бренд / заметка (необязательно)",lbl_cal:"Ккал",lbl_prot:"Белки",lbl_fat:"Жиры",lbl_carb:"Углев.",name_hint:"Например: Мамин борщ",brand_hint:"домашнее",add_final_dot:"Добавить",create_hint:"Укажи значения на 100 г. Продукт сохранится в твою базу и будет доступен для повторного добавления.",quick_save:"Сохранить и сразу добавить в дневник",
   language:"Язык",nav_diary:"Дневник",nav_progress:"Прогресс",nav_base:"База",nav_more:"Ещё",
   today:"Сегодня",yesterday:"Вчера",goal:"Цель",eaten:"Съедено",left:"Осталось",
   kcal:"ккал",kcal_day:"ккал/день",g:"г",left_to_goal:"Ещё {n} ккал до цели",
@@ -508,7 +649,7 @@ const I18N={
   goals:"Цели",norm_calc:"Расчёт нормы",mifflin:"Миффлин",
   sex:"Пол",male:"М",female:"Ж",age:"Возраст",height_cm:"Рост, см",
   activity:"Активность",act_low:"Низкая",act_light:"Лёгкая",act_mid:"Средняя",act_high:"Высокая",
-  calc_apply:"Рассчитать и применить",norm_result:"Норма: {n} ккал/день",
+  calc_apply:"Рассчитать и применить",ob_title:"Добро пожаловать в Kalon!",ob_sub:"Настроим твою дневную норму за минуту",ob_goal:"Твоя цель",goal_lose:"Похудеть",goal_keep:"Держать вес",goal_gain:"Набрать массу",ob_about:"О тебе",ob_next:"Далее",ob_back:"Назад",ob_result:"Твоя норма",ob_start:"Начать!",ob_skip:"Пропустить",ob_hint:"Всё можно изменить в настройках",water:"Вода",norm_result:"Норма: {n} ккал/день",
   fill_awh:"Заполни возраст, рост, вес",check_age:"Проверь возраст",check_height:"Проверь рост (см)",
   saved:"Сохранено",reset:"Сброс",reset_all:"Сбросить все данные",
   reset_confirm:"Удалить все данные? Необратимо.",reset_done:"Данные сброшены",
@@ -528,7 +669,7 @@ const I18N={
   no_limits:"Без ограничений",all_open:"все функции и продукты открыты",
   ext_stats:"Расширенная статистика",support_dev:"Поддержка разработки",kg_short:"кг",no_weight:"Пока нет записей веса.",goal_g:"цель, г"
  },
- en:{cat_all:"All",empty:"Empty",add_to_diary:"Add to diary",new_product:"New product",portion:"Portion",nothing_found:"Nothing found.",own:"own",per_100g:"per 100 g",lbl_name:"Name",lbl_brand:"Brand / note (optional)",lbl_cal:"Kcal",lbl_prot:"Protein",lbl_fat:"Fat",lbl_carb:"Carbs",name_hint:"e.g. Mom's borscht",brand_hint:"homemade",add_final_dot:"Add",create_hint:"Enter values per 100 g. The product will be saved to your base for reuse.",quick_save:"Save and add to diary now",
+ en:{streak_word:"day streak",scan_btn:"Barcode",scan_title:"Barcode scanner",scan_note2:"Point the camera at the package barcode. If the camera is unavailable — type the code manually.",scan_find:"Find",scan_searching:"Looking up product {n} in Open Food Facts…",scan_nf:"Code {n} was not found in Open Food Facts.",scan_create:"Create product manually",scan_noconn:"No connection to the database. Check your internet.",scan_lib_err:"📷 Could not start the camera.\nType the barcode digits below — the lookup works the same.",src_recent:"Recent",src_favs:"Favorites",src_net:"Web",net_hint:"Type at least 3 letters — searches the worldwide Open Food Facts base (internet required).",net_err:"Could not load. Check your internet and try again.",searching:"Searching…",empty_hint:"Tap + to add",copy_yesterday:"↺ Repeat yesterday",copied_day:"Yesterday copied",goal_reached:"🎉 Daily goal reached!",fav_add:"⭐ Added to favorites",fav_del:"Removed from favorites",no_recent:"Foods you recently added to the diary will appear here.",no_favs:"Star foods with ★ — they will be collected here.",ach_title:"Achievements",ach_unlocked:"🏆 Achievement: {n}",ach_first:"First entry",ach_streak3:"3-day streak",ach_streak7:"One week streak",ach_streak14:"2-week streak",ach_streak30:"One month streak",ach_water:"8 glasses of water",ach_weight:"First weigh-in",ach_foods5:"5 own products",ach_goalday:"Day on target",ach_days30:"30 logged days",target_weight:"Target weight",forecast_to:"Forecast: ≈ {w} kg by {d}",forecast_need:"Log your weight every few days — a forecast to your goal will appear here.",forecast_flat:"Weight is stable for now. Keep going — the forecast will appear with momentum.",forecast_done:"🎯 Target weight reached — great job!",ob_target:"Target weight, kg",ob_optional:"optional",ob_forecast:"≈ {w} kg around {d} — at a healthy pace",cat_all:"All",empty:"Empty",add_to_diary:"Add to diary",new_product:"New product",portion:"Portion",nothing_found:"Nothing found.",own:"own",per_100g:"per 100 g",lbl_name:"Name",lbl_brand:"Brand / note (optional)",lbl_cal:"Kcal",lbl_prot:"Protein",lbl_fat:"Fat",lbl_carb:"Carbs",name_hint:"e.g. Mom's borscht",brand_hint:"homemade",add_final_dot:"Add",create_hint:"Enter values per 100 g. The product will be saved to your base for reuse.",quick_save:"Save and add to diary now",
   language:"Language",nav_diary:"Diary",nav_progress:"Progress",nav_base:"Foods",nav_more:"More",
   today:"Today",yesterday:"Yesterday",goal:"Goal",eaten:"Eaten",left:"Left",
   kcal:"kcal",kcal_day:"kcal/day",g:"g",left_to_goal:"{n} kcal left to goal",
@@ -552,7 +693,7 @@ const I18N={
   goals:"Goals",norm_calc:"Calorie calculator",mifflin:"Mifflin",
   sex:"Sex",male:"M",female:"F",age:"Age",height_cm:"Height, cm",
   activity:"Activity",act_low:"Low",act_light:"Light",act_mid:"Medium",act_high:"High",
-  calc_apply:"Calculate and apply",norm_result:"Goal: {n} kcal/day",
+  calc_apply:"Calculate and apply",ob_title:"Welcome to Kalon!",ob_sub:"Set up your daily goal in a minute",ob_goal:"Your goal",goal_lose:"Lose weight",goal_keep:"Maintain",goal_gain:"Gain muscle",ob_about:"About you",ob_next:"Next",ob_back:"Back",ob_result:"Your daily goal",ob_start:"Start!",ob_skip:"Skip",ob_hint:"You can change everything in settings",water:"Water",norm_result:"Goal: {n} kcal/day",
   fill_awh:"Fill in age, height, weight",check_age:"Check age",check_height:"Check height (cm)",
   saved:"Saved",reset:"Reset",reset_all:"Reset all data",
   reset_confirm:"Delete all data? This cannot be undone.",reset_done:"Data reset",
@@ -596,7 +737,7 @@ const I18N={
   goals:"Metas",norm_calc:"Calculadora",mifflin:"Mifflin",
   sex:"Sexo",male:"H",female:"M",age:"Edad",height_cm:"Altura, cm",
   activity:"Actividad",act_low:"Baja",act_light:"Ligera",act_mid:"Media",act_high:"Alta",
-  calc_apply:"Calcular y aplicar",norm_result:"Meta: {n} kcal/día",
+  calc_apply:"Calcular y aplicar",ob_title:"¡Bienvenido a Kalon!",ob_sub:"Configura tu meta diaria en un minuto",ob_goal:"Tu objetivo",goal_lose:"Perder peso",goal_keep:"Mantener",goal_gain:"Ganar masa",ob_about:"Sobre ti",ob_next:"Siguiente",ob_back:"Atrás",ob_result:"Tu meta diaria",ob_start:"¡Empezar!",ob_skip:"Omitir",ob_hint:"Puedes cambiar todo en ajustes",water:"Agua",norm_result:"Meta: {n} kcal/día",
   fill_awh:"Rellena edad, altura, peso",check_age:"Revisa la edad",check_height:"Revisa la altura (cm)",
   saved:"Guardado",reset:"Reiniciar",reset_all:"Borrar todos los datos",
   reset_confirm:"¿Borrar todos los datos? No se puede deshacer.",reset_done:"Datos borrados",
@@ -640,7 +781,7 @@ const I18N={
   goals:"Ziele",norm_calc:"Kalorienrechner",mifflin:"Mifflin",
   sex:"Geschlecht",male:"M",female:"W",age:"Alter",height_cm:"Größe, cm",
   activity:"Aktivität",act_low:"Niedrig",act_light:"Leicht",act_mid:"Mittel",act_high:"Hoch",
-  calc_apply:"Berechnen und anwenden",norm_result:"Ziel: {n} kcal/Tag",
+  calc_apply:"Berechnen und anwenden",ob_title:"Willkommen bei Kalon!",ob_sub:"Richte dein Tagesziel in einer Minute ein",ob_goal:"Dein Ziel",goal_lose:"Abnehmen",goal_keep:"Halten",goal_gain:"Zunehmen",ob_about:"Über dich",ob_next:"Weiter",ob_back:"Zurück",ob_result:"Dein Tagesziel",ob_start:"Los geht’s!",ob_skip:"Überspringen",ob_hint:"Alles später in den Einstellungen änderbar",water:"Wasser",norm_result:"Ziel: {n} kcal/Tag",
   fill_awh:"Alter, Größe, Gewicht eingeben",check_age:"Alter prüfen",check_height:"Größe prüfen (cm)",
   saved:"Gespeichert",reset:"Zurücksetzen",reset_all:"Alle Daten löschen",
   reset_confirm:"Alle Daten löschen? Nicht umkehrbar.",reset_done:"Daten zurückgesetzt",
@@ -684,7 +825,7 @@ const I18N={
   goals:"Objectifs",norm_calc:"Calculateur",mifflin:"Mifflin",
   sex:"Sexe",male:"H",female:"F",age:"Âge",height_cm:"Taille, cm",
   activity:"Activité",act_low:"Faible",act_light:"Légère",act_mid:"Moyenne",act_high:"Élevée",
-  calc_apply:"Calculer et appliquer",norm_result:"Objectif : {n} kcal/jour",
+  calc_apply:"Calculer et appliquer",ob_title:"Bienvenue dans Kalon !",ob_sub:"Configure ton objectif quotidien en une minute",ob_goal:"Ton objectif",goal_lose:"Perdre du poids",goal_keep:"Maintenir",goal_gain:"Prendre de la masse",ob_about:"À propos de toi",ob_next:"Suivant",ob_back:"Retour",ob_result:"Ton objectif",ob_start:"C’est parti !",ob_skip:"Passer",ob_hint:"Tout est modifiable dans les réglages",water:"Eau",norm_result:"Objectif : {n} kcal/jour",
   fill_awh:"Remplis âge, taille, poids",check_age:"Vérifie l'âge",check_height:"Vérifie la taille (cm)",
   saved:"Enregistré",reset:"Réinit.",reset_all:"Effacer toutes les données",
   reset_confirm:"Effacer toutes les données ? Irréversible.",reset_done:"Données effacées",
@@ -728,7 +869,7 @@ const I18N={
   goals:"目標",norm_calc:"カロリー計算",mifflin:"Mifflin",
   sex:"性別",male:"男",female:"女",age:"年齢",height_cm:"身長, cm",
   activity:"活動量",act_low:"低い",act_light:"軽い",act_mid:"普通",act_high:"高い",
-  calc_apply:"計算して適用",norm_result:"目標: {n} kcal/日",
+  calc_apply:"計算して適用",ob_title:"Kalonへようこそ!",ob_sub:"1分で1日の目標を設定",ob_goal:"あなたの目標",goal_lose:"減量する",goal_keep:"維持する",goal_gain:"増量する",ob_about:"あなたについて",ob_next:"次へ",ob_back:"戻る",ob_result:"あなたの目標値",ob_start:"始める!",ob_skip:"スキップ",ob_hint:"設定でいつでも変更できます",water:"水",norm_result:"目標: {n} kcal/日",
   fill_awh:"年齢・身長・体重を入力",check_age:"年齢を確認",check_height:"身長を確認 (cm)",
   saved:"保存しました",reset:"リセット",reset_all:"全データを削除",
   reset_confirm:"全データを削除しますか？元に戻せません。",reset_done:"データをリセット",
@@ -772,7 +913,7 @@ const I18N={
   goals:"目标",norm_calc:"热量计算器",mifflin:"Mifflin",
   sex:"性别",male:"男",female:"女",age:"年龄",height_cm:"身高, 厘米",
   activity:"活动量",act_low:"低",act_light:"轻度",act_mid:"中等",act_high:"高",
-  calc_apply:"计算并应用",norm_result:"目标: {n} 千卡/天",
+  calc_apply:"计算并应用",ob_title:"欢迎使用 Kalon!",ob_sub:"一分钟设置每日目标",ob_goal:"你的目标",goal_lose:"减重",goal_keep:"保持",goal_gain:"增肌",ob_about:"关于你",ob_next:"下一步",ob_back:"返回",ob_result:"你的每日目标",ob_start:"开始!",ob_skip:"跳过",ob_hint:"一切都可以在设置中更改",water:"水",norm_result:"目标: {n} 千卡/天",
   fill_awh:"请填写年龄、身高、体重",check_age:"检查年龄",check_height:"检查身高 (厘米)",
   saved:"已保存",reset:"重置",reset_all:"清除所有数据",
   reset_confirm:"删除所有数据？无法恢复。",reset_done:"数据已重置",
@@ -816,7 +957,7 @@ const I18N={
   goals:"लक्ष्य",norm_calc:"कैलोरी कैलकुलेटर",mifflin:"Mifflin",
   sex:"लिंग",male:"पु",female:"म",age:"उम्र",height_cm:"ऊँचाई, cm",
   activity:"गतिविधि",act_low:"कम",act_light:"हल्की",act_mid:"मध्यम",act_high:"अधिक",
-  calc_apply:"गणना करें और लागू करें",norm_result:"लक्ष्य: {n} kcal/दिन",
+  calc_apply:"गणना करें और लागू करें",ob_title:"Kalon में आपका स्वागत है!",ob_sub:"एक मिनट में अपना दैनिक लक्ष्य सेट करें",ob_goal:"आपका लक्ष्य",goal_lose:"वजन घटाना",goal_keep:"वजन बनाए रखें",goal_gain:"मांसपेशी बढ़ाएं",ob_about:"आपके बारे में",ob_next:"आगे",ob_back:"वापस",ob_result:"आपका दैनिक लक्ष्य",ob_start:"शुरू करें!",ob_skip:"छोड़ें",ob_hint:"सब कुछ सेटिंग्स में बदला जा सकता है",water:"पानी",norm_result:"लक्ष्य: {n} kcal/दिन",
   fill_awh:"उम्र, ऊँचाई, वज़न भरें",check_age:"उम्र जाँचें",check_height:"ऊँचाई जाँचें (cm)",
   saved:"सहेजा गया",reset:"रीसेट",reset_all:"सभी डेटा मिटाएं",
   reset_confirm:"सभी डेटा हटाएं? वापस नहीं आएगा।",reset_done:"डेटा रीसेट हुआ",
@@ -860,7 +1001,7 @@ const I18N={
   goals:"Cele",norm_calc:"Kalkulator kalorii",mifflin:"Mifflin",
   sex:"Płeć",male:"M",female:"K",age:"Wiek",height_cm:"Wzrost, cm",
   activity:"Aktywność",act_low:"Niska",act_light:"Lekka",act_mid:"Średnia",act_high:"Wysoka",
-  calc_apply:"Oblicz i zastosuj",norm_result:"Cel: {n} kcal/dzień",
+  calc_apply:"Oblicz i zastosuj",ob_title:"Witaj w Kalon!",ob_sub:"Ustaw dzienny cel w minutę",ob_goal:"Twój cel",goal_lose:"Schudnąć",goal_keep:"Utrzymać",goal_gain:"Nabrać masy",ob_about:"O Tobie",ob_next:"Dalej",ob_back:"Wstecz",ob_result:"Twój dzienny cel",ob_start:"Zaczynamy!",ob_skip:"Pomiń",ob_hint:"Wszystko można zmienić w ustawieniach",water:"Woda",norm_result:"Cel: {n} kcal/dzień",
   fill_awh:"Podaj wiek, wzrost, wagę",check_age:"Sprawdź wiek",check_height:"Sprawdź wzrost (cm)",
   saved:"Zapisano",reset:"Reset",reset_all:"Usuń wszystkie dane",
   reset_confirm:"Usunąć wszystkie dane? Nieodwracalne.",reset_done:"Dane zresetowane",
@@ -904,7 +1045,7 @@ const I18N={
   goals:"Metas",norm_calc:"Calculadora",mifflin:"Mifflin",
   sex:"Sexo",male:"H",female:"M",age:"Idade",height_cm:"Altura, cm",
   activity:"Atividade",act_low:"Baixa",act_light:"Leve",act_mid:"Média",act_high:"Alta",
-  calc_apply:"Calcular e aplicar",norm_result:"Meta: {n} kcal/dia",
+  calc_apply:"Calcular e aplicar",ob_title:"Bem-vindo ao Kalon!",ob_sub:"Configure sua meta diária em um minuto",ob_goal:"Sua meta",goal_lose:"Perder peso",goal_keep:"Manter",goal_gain:"Ganhar massa",ob_about:"Sobre você",ob_next:"Avançar",ob_back:"Voltar",ob_result:"Sua meta diária",ob_start:"Começar!",ob_skip:"Pular",ob_hint:"Tudo pode ser alterado nas configurações",water:"Água",norm_result:"Meta: {n} kcal/dia",
   fill_awh:"Preencha idade, altura, peso",check_age:"Verifique a idade",check_height:"Verifique a altura (cm)",
   saved:"Salvo",reset:"Redefinir",reset_all:"Apagar todos os dados",
   reset_confirm:"Apagar todos os dados? Irreversível.",reset_done:"Dados apagados",
@@ -969,7 +1110,7 @@ const SUB_PRODUCT_YEARLY='kalon_premium_yearly';
 const todayISO=()=>new Date().toISOString().slice(0,10);
 let viewDate=todayISO(), pendingMeal='breakfast';
 const DEFAULTS={goal:2000,prot:120,fat:65,carb:250,sex:'M',age:30,height:175,weight:72,act:1.375,premium:false};
-let S={...DEFAULTS}, DIARY={}, WEIGHTS={}, MYFOODS=[];
+let S={...DEFAULTS}, DIARY={}, WEIGHTS={}, MYFOODS=[], WATER={}, RECENT=[], FAVS=[];
 const MEAL_ICONS={
   breakfast:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18h16M6 18a6 6 0 0 1 12 0M12 6v2"/></svg>',
   lunch:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 4v1.5M12 18.5V20M4 12h1.5M18.5 12H20M6.5 6.5l1 1M16.5 16.5l1 1M17.5 6.5l-1 1M7.5 16.5l-1 1"/></svg>',
@@ -1020,7 +1161,7 @@ const mealName=id=>t(id);
   }
 })();
 async function loadAll(){
-  for(const [key,setter] of [['settings',v=>S={...DEFAULTS,...v}],['diary',v=>DIARY=v],['weights',v=>WEIGHTS=v],['myfoods',v=>MYFOODS=v]]){
+  for(const [key,setter] of [['settings',v=>S={...DEFAULTS,...v}],['diary',v=>DIARY=v],['weights',v=>WEIGHTS=v],['myfoods',v=>MYFOODS=v],['water',v=>WATER=v],['recent',v=>RECENT=v],['favs',v=>FAVS=v]]){
     try{ const r=await window.storage.get(key); if(r&&r.value) setter(JSON.parse(r.value)); }catch(e){}
   }
 }
@@ -1028,6 +1169,57 @@ const saveSettings=()=>{try{window.storage.set('settings',JSON.stringify(S))}cat
 const saveDiary=()=>{try{window.storage.set('diary',JSON.stringify(DIARY))}catch(e){}};
 const saveWeights=()=>{try{window.storage.set('weights',JSON.stringify(WEIGHTS))}catch(e){}};
 const saveMyFoods=()=>{try{window.storage.set('myfoods',JSON.stringify(MYFOODS))}catch(e){}};
+const saveWater=()=>{try{window.storage.set('water',JSON.stringify(WATER))}catch(e){}};
+const saveRecent=()=>{try{window.storage.set('recent',JSON.stringify(RECENT))}catch(e){}};
+const saveFavs=()=>{try{window.storage.set('favs',JSON.stringify(FAVS))}catch(e){}};
+const foodKey=f=>((f.name||'')+'|'+(f.brand||''));
+function addRecent(f){
+  const k=foodKey(f);
+  RECENT=RECENT.filter(x=>foodKey(x)!==k);
+  RECENT.unshift({name:f.name,brand:f.brand||'',cal:+f.cal||0,prot:+f.prot||0,fat:+f.fat||0,carb:+f.carb||0});
+  if(RECENT.length>30)RECENT.length=30;
+  saveRecent();
+}
+const isFav=f=>FAVS.some(x=>foodKey(x)===foodKey(f));
+function toggleFav(f){
+  const k=foodKey(f);
+  if(isFav(f)){FAVS=FAVS.filter(x=>foodKey(x)!==k);saveFavs();toast(t('fav_del'));return false;}
+  FAVS.unshift({name:f.name,brand:f.brand||'',cal:+f.cal||0,prot:+f.prot||0,fat:+f.fat||0,carb:+f.carb||0});
+  if(FAVS.length>100)FAVS.length=100;
+  saveFavs();toast(t('fav_add'));return true;
+}
+
+/* ===== ЭМОДЗИ ЕДЫ (по названию/категории) ===== */
+const EMO_KEYS=[['курин','🍗'],['курица','🍗'],['индейк','🦃'],['утк','🦆'],['утин','🦆'],['гус','🦢'],['говя','🥩'],['телят','🥩'],['стейк','🥩'],['свин','🥓'],['бекон','🥓'],['сало','🥓'],['баран','🍖'],['ветчин','🍖'],['колбас','🌭'],['сосиск','🌭'],['сардел','🌭'],['шашлы','🍢'],['котлет','🍖'],['фарш','🥩'],['лосос','🐟'],['сёмг','🐟'],['форел','🐟'],['туне','🐟'],['треск','🐟'],['минта','🐟'],['сельд','🐟'],['скумбр','🐟'],['рыб','🐟'],['хек','🐟'],['икра','🍥'],['кревет','🦐'],['кальмар','🦑'],['мидии','🦪'],['устриц','🦪'],['краб','🦀'],['осьминог','🐙'],['яйц','🥚'],['яичниц','🍳'],['омлет','🍳'],['творог','🥛'],['творож','🥛'],['молок','🥛'],['кефир','🥛'],['ряженк','🥛'],['йогурт','🥛'],['сливк','🥛'],['сметан','🥛'],['сыр','🧀'],['масло слив','🧈'],['мороженое','🍨'],['рис','🍚'],['гречк','🌾'],['гречн','🌾'],['овсян','🥣'],['каша','🥣'],['хлопья','🥣'],['мюсли','🥣'],['гранола','🥣'],['перловк','🌾'],['пшен','🌾'],['булгур','🌾'],['кускус','🌾'],['киноа','🌾'],['чечевиц','🫘'],['фасол','🫘'],['нут','🫘'],['горох','🫘'],['соя','🫘'],['маш','🫘'],['макарон','🍝'],['спагетти','🍝'],['паста','🍝'],['лапша','🍜'],['вермишел','🍜'],['хлеб','🍞'],['батон','🥖'],['багет','🥖'],['лаваш','🫓'],['питта','🫓'],['хлебц','🍞'],['сухар','🍞'],['булочк','🥐'],['круассан','🥐'],['пончик','🍩'],['печенье','🍪'],['печень','🥩'],['крекер','🍪'],['пряник','🍪'],['вафл','🧇'],['блин','🥞'],['оладь','🥞'],['сырник','🥞'],['кекс','🧁'],['маффин','🧁'],['торт','🍰'],['бисквит','🍰'],['чизкейк','🍰'],['тирамису','🍰'],['эклер','🍮'],['огурец','🥒'],['помидор','🍅'],['томат','🍅'],['перец','🫑'],['морков','🥕'],['капуст','🥬'],['брокколи','🥦'],['картоф','🥔'],['пюре','🥔'],['фри','🍟'],['лук','🧅'],['чеснок','🧄'],['свёкл','🍠'],['свекл','🍠'],['кабач','🥒'],['цукини','🥒'],['баклажан','🍆'],['тыкв','🎃'],['редис','🌶'],['шпинат','🥬'],['салат','🥗'],['руккол','🥬'],['зелен','🌿'],['укроп','🌿'],['петрушк','🌿'],['базилик','🌿'],['гриб','🍄'],['шампиньон','🍄'],['вёшенк','🍄'],['лисичк','🍄'],['кукуруз','🌽'],['горошек','🫛'],['авокадо','🥑'],['олив','🫒'],['маслин','🫒'],['банан','🍌'],['яблок','🍎'],['груш','🍐'],['апельсин','🍊'],['мандарин','🍊'],['грейпфрут','🍊'],['лимон','🍋'],['лайм','🍋'],['виноград','🍇'],['клубник','🍓'],['землян','🍓'],['малин','🫐'],['ежевик','🫐'],['черник','🫐'],['голубик','🫐'],['смородин','🫐'],['клюкв','🫐'],['брусник','🫐'],['арбуз','🍉'],['дын','🍈'],['персик','🍑'],['нектарин','🍑'],['абрикос','🍑'],['слив','🟣'],['вишн','🍒'],['черешн','🍒'],['киви','🥝'],['ананас','🍍'],['манго','🥭'],['гранат','🍎'],['хурм','🟠'],['кокос','🥥'],['орех','🥜'],['миндал','🥜'],['кешью','🥜'],['фундук','🥜'],['арахис','🥜'],['фисташк','🥜'],['семена','🌻'],['семечк','🌻'],['изюм','🍇'],['курага','🍑'],['чернослив','🟣'],['финик','🌴'],['инжир','🟣'],['мёд','🍯'],['мед','🍯'],['сахар','🍬'],['шоколад','🍫'],['конфет','🍬'],['мармелад','🍬'],['зефир','🍡'],['халв','🍬'],['варень','🍯'],['джем','🍯'],['суп','🍲'],['борщ','🍲'],['щи','🍲'],['солянк','🍲'],['уха','🍲'],['окрошк','🍲'],['рассольник','🍲'],['плов','🍛'],['гуляш','🍛'],['рагу','🍛'],['жарко','🍛'],['лазань','🍝'],['пельмен','🥟'],['вареник','🥟'],['мант','🥟'],['хинкал','🥟'],['голубц','🥬'],['запеканк','🥧'],['пицц','🍕'],['бургер','🍔'],['гамбургер','🍔'],['чизбургер','🍔'],['наггетс','🍗'],['шаурм','🌯'],['бурито','🌯'],['тако','🌮'],['кесадиль','🌮'],['хот-дог','🌭'],['сэндвич','🥪'],['ролл','🍣'],['суши','🍣'],['чипс','🥔'],['попкорн','🍿'],['начос','🌮'],['вода','💧'],['кофе','☕'],['капучино','☕'],['латте','☕'],['американо','☕'],['чай','🍵'],['какао','☕'],['сок','🧃'],['морс','🧃'],['компот','🧃'],['кол','🥤'],['лимонад','🥤'],['энергетик','🥤'],['квас','🥤'],['смузи','🥤'],['коктейл','🥤'],['пиво','🍺'],['вино','🍷'],['шампанск','🍾'],['водка','🥃'],['виски','🥃'],['коньяк','🥃'],['протеин','💪'],['гейнер','💪'],['bcaa','💪'],['батончик','🍫'],['майонез','🥫'],['кетчуп','🥫'],['соус','🥫'],['горчиц','🥫'],['хумус','🥫'],['гуакамоле','🥑'],['масло','🫗']];
+const CAT_EMO={'Мясо и птица':'🍗','Рыба и морепродукты':'🐟','Яйца и молочное':'🥛','Крупы, бобовые, каши':'🌾','Хлеб и выпечка':'🍞','Овощи и зелень':'🥦','Фрукты и ягоды':'🍎','Орехи и сухофрукты':'🥜','Сладкое и десерты':'🍰','Напитки':'🥤','Готовые блюда':'🍲','Фастфуд и снеки':'🍔','Соусы и масла':'🫗','Завтраки и хлопья':'🥣','Спортивное питание':'💪','Консервы':'🥫','Замороженные продукты':'🧊','Детское питание':'🍼','Приправы и специи':'🧂','Грибы':'🍄'};
+function foodEmoji(f){
+  const n=String(f&&f.name||'').toLowerCase();
+  for(const [k,e] of EMO_KEYS){ if(n.includes(k)) return e; }
+  if(f&&f.cat&&CAT_EMO[f.cat]) return CAT_EMO[f.cat];
+  return '🍽';
+}
+
+/* ===== КОНФЕТТИ (празднуем достижения) ===== */
+function confetti(n){
+  try{
+    n=n||80;
+    const c=document.createElement('canvas');
+    c.style.cssText='position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9999';
+    c.width=innerWidth;c.height=innerHeight;document.body.appendChild(c);
+    const ctx=c.getContext('2d');
+    const cols=['#46e0ff','#5b8bff','#7c5cff','#ffc869','#ff6b8a','#f2f4ff'];
+    const ps=Array.from({length:n},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*0.4,vx:(Math.random()-.5)*2.4,vy:2+Math.random()*3.5,r:3+Math.random()*4,a:Math.random()*Math.PI,va:(Math.random()-.5)*.3,col:cols[Math.random()*cols.length|0]}));
+    const t0=performance.now();
+    (function tick(now){
+      const k=(now-t0)/1900;
+      ctx.clearRect(0,0,c.width,c.height);
+      ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.04;p.a+=p.va;
+        ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.globalAlpha=Math.max(0,1-k);
+        ctx.fillStyle=p.col;ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);ctx.restore();});
+      if(k<1)requestAnimationFrame(tick);else c.remove();
+    })(t0);
+  }catch(e){}
+}
 
 /* ===== HELPERS ===== */
 const $=s=>document.querySelector(s);
@@ -1059,11 +1251,103 @@ function renderDiary(){
     const el=document.createElement('div');el.className='meal';
     el.innerHTML=`<div class="meal-head"><span class="meal-ico" style="background:${MEAL_GRAD[m.id]}">${MEAL_ICONS[m.id]}</span><span class="mname">${esc(mealName(m.id))}</span><span class="mcal">${fmt(mcal)} ${t("kcal")}</span><button class="meal-add" data-meal="${m.id}">+</button></div>`;
     if(items.length){items.forEach((it,idx)=>{const row=document.createElement('div');row.className='fitem';
-      row.innerHTML=`<div class="fi-main"><div class="fi-name">${esc(tprod(it.name))}</div><div class="fi-sub">${fmt(it.amount)} ${esc(t('portion_g'))} · ${esc(t('mc_p'))}${fmt(it.prot)} ${esc(t('mc_f'))}${fmt(it.fat)} ${esc(t('mc_c'))}${fmt(it.carb)}</div></div><div class="fi-cal">${fmt(it.cal)}</div><div class="fi-del" data-meal="${m.id}" data-idx="${idx}">✕</div>`;
+      row.innerHTML=`<span class="fi-emo">${foodEmoji(it)}</span><div class="fi-main"><div class="fi-name">${esc(tprod(it.name))}</div><div class="fi-sub">${fmt(it.amount)} ${esc(t('portion_g'))} · ${esc(t('mc_p'))}${fmt(it.prot)} ${esc(t('mc_f'))}${fmt(it.fat)} ${esc(t('mc_c'))}${fmt(it.carb)}</div></div><div class="fi-cal">${fmt(it.cal)}</div><div class="fi-del" data-meal="${m.id}" data-idx="${idx}">✕</div>`;
       el.appendChild(row);});}
-    else{const e=document.createElement('div');e.className='empty-meal';e.textContent=t('empty');el.appendChild(e);}
+    else{const e=document.createElement('div');e.className='empty-meal';const emo={breakfast:'🥞',lunch:'🍲',dinner:'🍛',snack:'🍏'}[m.id]||'🍽';e.innerHTML=`<span style="font-size:15px;margin-right:7px;opacity:.9">${emo}</span>${esc(t('empty_hint'))}`;el.appendChild(e);}
     wrap.appendChild(el);
   });
+  /* «Повторить вчера»: если сегодня пусто, а вчера были записи */
+  if(viewDate===todayISO()){
+    const yd=new Date(Date.now()-864e5).toISOString().slice(0,10);
+    if(tot.cal===0 && dayTotals(yd).cal>0){
+      const b=document.createElement('button');b.className='copy-yday';b.textContent=t('copy_yesterday');
+      b.onclick=()=>{const src=DIARY[yd]||{};const dst=dayData(viewDate);MEALS.forEach(m=>{dst[m.id]=(src[m.id]||[]).map(i=>({...i}));});saveDiary();renderDiary();toast(t('copied_day'));};
+      wrap.appendChild(b);
+    }
+  }
+  checkAch();
+  renderWater();
+  updateStreakChip();
+}
+/* ===== ВОДА (стаканы по 250 мл, цель 2000) ===== */
+function renderWater(){
+  const row=$('#waterRow'); if(!row) return;
+  const n=WATER[viewDate]||0;
+  $('#waterMl').textContent=fmt(n*250);
+  // 8 стаканов
+  let html='<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#46e0ff"/><stop offset="1" stop-color="#5b8bff"/></linearGradient></defs></svg>';
+  for(let i=1;i<=8;i++){
+    html+=`<button data-cup="${i}" class="${i<=n?'full':''}" aria-label="${i*250} ml"><svg viewBox="0 0 24 30"><path class="cup" d="M4 3 L20 3 L18 26 Q18 28 16 28 L8 28 Q6 28 6 26 Z"/></svg></button>`;
+  }
+  row.innerHTML=html;
+}
+$('#waterRow')?.addEventListener('click',e=>{
+  const b=e.target.closest('button[data-cup]'); if(!b) return;
+  const cup=+b.dataset.cup, cur=WATER[viewDate]||0;
+  WATER[viewDate] = (cup===cur) ? cup-1 : cup; // тап по последнему полному — убирает его
+  saveWater(); renderWater(); checkAch();
+});
+/* ===== ДОСТИЖЕНИЯ ===== */
+const ACH=[{id:'first',emo:'🍽'},{id:'streak3',emo:'🔥'},{id:'streak7',emo:'⚡'},{id:'streak14',emo:'🌟'},{id:'streak30',emo:'👑'},{id:'water',emo:'💧'},{id:'weight',emo:'⚖️'},{id:'foods5',emo:'📦'},{id:'goalday',emo:'🎯'},{id:'days30',emo:'🗓'}];
+function renderAch(){
+  const g=$('#achGrid'); if(!g) return;
+  const un=S.ach||{};
+  g.innerHTML=ACH.map(a=>`<div class="ach ${un[a.id]?'on':''}"><div class="ae">${a.emo}</div><div class="an">${esc(t('ach_'+a.id))}</div></div>`).join('');
+}
+function checkAch(){
+  S.ach=S.ach||{};
+  let newly=null;
+  const un=id=>{ if(S.ach[id])return; S.ach[id]=todayISO(); newly=id; };
+  const s=calcStreak();
+  const totalDays=Object.keys(DIARY).filter(d=>dayTotals(d).cal>0).length;
+  if(totalDays>=1)un('first');
+  if(s>=3)un('streak3'); if(s>=7)un('streak7'); if(s>=14)un('streak14'); if(s>=30)un('streak30');
+  if((WATER[todayISO()]||0)>=8)un('water');
+  if(Object.keys(WEIGHTS).length>=1)un('weight');
+  if(MYFOODS.length>=5)un('foods5');
+  const tt=dayTotals(todayISO()); const g=S.goal||2000;
+  if(tt.cal>0 && Math.abs(tt.cal-g)<=g*0.05)un('goalday');
+  if(totalDays>=30)un('days30');
+  if(newly){ saveSettings(); renderAch(); toast(t('ach_unlocked',{n:t('ach_'+newly)})); confetti(55); }
+}
+/* ===== ПРОГНОЗ ВЕСА ===== */
+function renderForecast(){
+  const el=$('#forecast'); if(!el) return;
+  const tw=+S.targetW||0;
+  if(!tw){ el.textContent=''; return; }
+  const keys=Object.keys(WEIGHTS).sort();
+  if(!keys.length){ el.textContent=t('forecast_need'); el.style.color='var(--ink-faint)'; return; }
+  const cur=WEIGHTS[keys[keys.length-1]];
+  if(Math.abs(cur-tw)<=0.3){ el.textContent=t('forecast_done'); el.style.color='var(--gold)'; return; }
+  if(keys.length<2){ el.textContent=t('forecast_need'); el.style.color='var(--ink-faint)'; return; }
+  // берём срез до 30 последних дней
+  const recent=keys.slice(-15);
+  const w0=WEIGHTS[recent[0]], w1=WEIGHTS[recent[recent.length-1]];
+  const days=Math.max(1,(new Date(recent[recent.length-1])-new Date(recent[0]))/864e5);
+  const rate=(w1-w0)/days; // кг/день
+  const need=tw-w1;
+  if(rate===0 || (rate>0)!==(need>0) || Math.abs(need/rate)>730){ el.textContent=t('forecast_flat'); el.style.color='var(--ink-faint)'; return; }
+  const d=new Date(Date.now()+(need/rate)*864e5);
+  const loc={ru:'ru-RU',en:'en-US',es:'es-ES',de:'de-DE',fr:'fr-FR',ja:'ja-JP',zh:'zh-CN',hi:'hi-IN',pl:'pl-PL',pt:'pt-BR'}[LANG]||'en-US';
+  el.textContent=t('forecast_to',{w:tw,d:d.toLocaleDateString(loc,{day:'numeric',month:'long'})});
+  el.style.color='var(--edge)';
+}
+/* ===== СТРИК (дни подряд с записями) ===== */
+function calcStreak(){
+  let streak=0,cur=todayISO();
+  if(dayTotals(cur).cal===0)cur=new Date(Date.now()-864e5).toISOString().slice(0,10);
+  while(dayTotals(cur).cal>0){streak++;cur=new Date(+new Date(cur)-864e5).toISOString().slice(0,10);}
+  return streak;
+}
+function streakWord(n){
+  if(LANG==='ru'){const m10=n%10,m100=n%100;if(m10===1&&m100!==11)return 'день подряд';if(m10>=2&&m10<=4&&(m100<12||m100>14))return 'дня подряд';return 'дней подряд';}
+  return t('streak_word');
+}
+function updateStreakChip(){
+  const chip=$('#streakChip'); if(!chip) return;
+  const s=calcStreak();
+  if(s>=2){ chip.style.display='inline-flex'; chip.innerHTML='<span class="fl">🔥</span><b>'+s+'</b><span>'+esc(streakWord(s))+'</span>'; }
+  else chip.style.display='none';
 }
 $('#meals').addEventListener('click',e=>{
   const del=e.target.closest('.fi-del');
@@ -1444,16 +1728,23 @@ let searchTimer,currentSrc='common';
 function openSearch(){
   $('#sheetTitle').textContent=t('add_title')+' · '+mealName(pendingMeal);
   $('#sheetBody').innerHTML=`
+    <div class="tool-row">
+      <button class="tool-btn" id="toolScan"><span class="tb-ic"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2M7 8v8M10.5 8v8M13.5 8v8M17 8v8"/></svg></span>${esc(t('scan_btn'))}</button>
+    </div>
     <div class="search-bar">
       <input id="q" placeholder="${esc(t('find_product'))}" autocomplete="off">
     </div>
-    <div class="seg" id="srcSeg">
+    <div class="seg seg5" id="srcSeg">
       <button class="on" data-src="common">${esc(t('src_base'))}</button>
       <button data-src="mine">${esc(t('src_mine'))}</button>
+      <button data-src="net" title="${esc(t('src_net'))}">🌐</button>
+      <button data-src="recent" title="${esc(t('src_recent'))}">⏱</button>
+      <button data-src="favs" title="${esc(t('src_favs'))}">★</button>
     </div>
     <div id="catChips" class="cat-chips"></div>
     <div id="results"></div>`;
   openSheet();setTimeout(()=>$('#q')?.focus(),300);
+  $('#toolScan').onclick=()=>openScanner();
   currentSrc='common'; activeCat='all';
   renderCatChips();
   showList(COMMON,null,true);
@@ -1463,7 +1754,7 @@ function openSearch(){
     currentSrc=b.dataset.src;const v=$('#q').value.trim();
     $('#catChips').style.display = currentSrc==='common' ? 'flex' : 'none';
     if(currentSrc==='common'){activeCat='all';renderCatChips();showList(v?COMMON.filter(f=>matchq(f,v)):COMMON,null,!v);}
-    else if(currentSrc==='mine')showList(v?MYFOODS.filter(f=>matchq(f,v)):MYFOODS,'mine');
+    else doSearch(v);
   });
 }
 function matchq(f,v){v=v.toLowerCase();if(f.name.toLowerCase().includes(v))return true;var tr=tprod(f.name);return tr&&tr.toLowerCase().includes(v);}
@@ -1488,7 +1779,8 @@ function renderCatChips(){
 }
 function resultRow(f,tag){
   const el=document.createElement('div');el.className='res';
-  el.innerHTML=`<div class="ri-main"><div class="ri-name">${esc(tprod(f.name))}</div><div class="ri-sub">${f.brand?esc(f.brand)+' · ':''}${esc(t('per_100g'))}</div>${tag?`<span class="ri-tag">${tag}</span>`:''}</div><div class="ri-cal"><b>${fmt(f.cal)}</b><span>${esc(t('kcal'))}</span></div>`;
+  el.innerHTML=`<span class="ri-emo">${foodEmoji(f)}</span><div class="ri-main"><div class="ri-name">${esc(tprod(f.name))}</div><div class="ri-sub">${f.brand?esc(f.brand)+' · ':''}${esc(t('per_100g'))}</div>${tag?`<span class="ri-tag">${tag}</span>`:''}</div><div class="ri-fav ${isFav(f)?'on':''}" role="button" aria-label="fav">★</div><div class="ri-cal"><b>${fmt(f.cal)}</b><span>${esc(t('kcal'))}</span></div>`;
+  el.querySelector('.ri-fav').onclick=(ev)=>{ev.stopPropagation();const on=toggleFav(f);ev.target.classList.toggle('on',on);if(currentSrc==='favs')doSearch($('#q').value.trim());};
   el.onclick=()=>openPortion(f);return el;
 }
 function showList(arr,tag,grouped){
@@ -1504,6 +1796,7 @@ function showList(arr,tag,grouped){
   }
   arr.forEach(f=>r.appendChild(resultRow(f,tag==='mine'?t('own'):'')));
 }
+let netToken=0;
 async function doSearch(q){
   const r=$('#results');
   if(currentSrc==='common'){
@@ -1513,6 +1806,30 @@ async function doSearch(q){
     showList(arr,null,activeCat==='all'&&!q);return;
   }
   if(currentSrc==='mine'){showList(q?MYFOODS.filter(f=>matchq(f,q)):MYFOODS,'mine');return;}
+  if(currentSrc==='recent'){
+    const arr=q?RECENT.filter(f=>matchq(f,q)):RECENT;
+    if(!arr.length){r.innerHTML='<div class="loading">'+esc(t('no_recent'))+'</div>';return;}
+    showList(arr,'⏱');return;
+  }
+  if(currentSrc==='favs'){
+    const arr=q?FAVS.filter(f=>matchq(f,q)):FAVS;
+    if(!arr.length){r.innerHTML='<div class="loading">'+esc(t('no_favs'))+'</div>';return;}
+    showList(arr,'★');return;
+  }
+  if(currentSrc==='net'){
+    if(!q||q.length<3){r.innerHTML='<div class="loading">'+esc(t('net_hint'))+'</div>';return;}
+    const my=++netToken;
+    r.innerHTML='<div class="loading">'+esc(t('searching'))+'</div>';
+    try{
+      const resp=await fetch('https://world.openfoodfacts.org/cgi/search.pl?search_terms='+encodeURIComponent(q)+'&search_simple=1&action=process&json=1&page_size=20&fields=product_name,product_name_ru,brands,nutriments');
+      const data=await resp.json();
+      if(my!==netToken)return; // пользователь уже ввёл другой запрос
+      const arr=(data.products||[]).map(parseOFF).filter(Boolean);
+      if(!arr.length){r.innerHTML='<div class="loading">'+esc(t('nothing_found'))+'</div>';return;}
+      showList(arr,'OFF');
+    }catch(e){ if(my===netToken)r.innerHTML='<div class="loading">'+esc(t('net_err'))+'</div>'; }
+    return;
+  }
 }
 function parseOFF(p){const n=p.nutriments||{};const cal=n['energy-kcal_100g']??(n['energy_100g']?n['energy_100g']/4.184:null);if(cal==null)return null;
   const name=(p.product_name_ru||p.product_name||'').trim();if(!name)return null;
@@ -1520,8 +1837,8 @@ function parseOFF(p){const n=p.nutriments||{};const cal=n['energy-kcal_100g']??(
 
 /* ===== PORTION ===== */
 let portionFood,portionAmt;
-function openPortion(f){
-  portionFood=f;portionAmt=100;pendingMeal=pendingMeal||'breakfast';
+function openPortion(f,amt){
+  portionFood=f;portionAmt=(amt&&+amt>=10)?Math.min(5000,Math.round(+amt/10)*10):100;pendingMeal=pendingMeal||'breakfast';
   $('#sheetTitle').textContent=t('portion');
   $('#sheetBody').innerHTML=`
     <div class="portion"><div class="pname">${esc(tprod(f.name))}</div><div class="pbrand">${f.brand?esc(f.brand)+' · ':''}${fmt(f.cal)} ${esc(t('kcal'))} ${esc(t('per_100g'))}</div></div>
@@ -1534,7 +1851,12 @@ function openPortion(f){
   $('#amtMinus').onclick=()=>{portionAmt=Math.max(10,portionAmt-10);upd();};
   $('#amtPlus').onclick=()=>{portionAmt=Math.min(5000,portionAmt+10);upd();};
   $('#mealPick').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;$('#mealPick').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');pendingMeal=b.dataset.m;});
-  $('#addFinal').onclick=()=>{const k=portionAmt/100;dayData(viewDate)[pendingMeal].push({name:String(f.name).slice(0,60),amount:portionAmt,cal:f.cal*k,prot:f.prot*k,fat:f.fat*k,carb:f.carb*k});saveDiary();renderDiary();closeSheet();toast(t('added'));};
+  $('#addFinal').onclick=()=>{const k=portionAmt/100;const before=dayTotals(viewDate).cal;
+    dayData(viewDate)[pendingMeal].push({name:String(f.name).slice(0,60),amount:portionAmt,cal:f.cal*k,prot:f.prot*k,fat:f.fat*k,carb:f.carb*k});
+    saveDiary();addRecent(f);renderDiary();closeSheet();
+    const after=dayTotals(viewDate).cal,g=S.goal||2000;
+    if(before<g && after>=g && after<=g*1.15 && viewDate===todayISO()){confetti(90);toast(t('goal_reached'));}
+    else toast(t('added'));};
 }
 
 /* ===== MANUAL / CREATE FOOD ===== */
@@ -1567,8 +1889,8 @@ function openCreateFood(prefill){
     if(!f.name){toast(t('enter_name'));return null;}
     if(!f.cal){toast(t('enter_cal'));return null;}
     return f;};
-  $('#nfSave').onclick=()=>{const f=collect();if(!f)return;MYFOODS.unshift(f);saveMyFoods();renderMyFoods();closeSheet();toast(t('product_saved'));};
-  $('#nfQuick').onclick=()=>{const f=collect();if(!f)return;MYFOODS.unshift(f);saveMyFoods();renderMyFoods();openPortion(f);};
+  $('#nfSave').onclick=()=>{const f=collect();if(!f)return;MYFOODS.unshift(f);saveMyFoods();renderMyFoods();checkAch();closeSheet();toast(t('product_saved'));};
+  $('#nfQuick').onclick=()=>{const f=collect();if(!f)return;MYFOODS.unshift(f);saveMyFoods();renderMyFoods();checkAch();openPortion(f);};
 }
 function renderMyFoods(){
   $('#foodsCount').textContent=MYFOODS.length+' '+t('pcs');
@@ -1584,80 +1906,54 @@ $('#newFoodBtn').onclick=()=>openCreateFood();
 
 /* ===== SCANNER ===== */
 let scanner=null;
-function openScanner(){
-  $('#sheetTitle').textContent='Сканировать штрих-код';
-  $('#sheetBody').innerHTML=`<div id="reader"></div><div class="scan-note">Наведи камеру на штрих-код.<br>Если камера недоступна — введи код вручную.</div>
-    <div class="manual-code"><input id="manualCode" placeholder="4607004890017" inputmode="numeric"><button id="manualGo">Найти</button></div>`;
-  openSheet();$('#manualGo').onclick=()=>{const c=$('#manualCode').value.trim();if(c)lookupBarcode(c);};startScanner();
+function loadScript(src){return new Promise((res,rej)=>{const el=document.createElement('script');const to=setTimeout(()=>rej(new Error('timeout')),8000);el.src=src;el.onload=()=>{clearTimeout(to);res();};el.onerror=()=>{clearTimeout(to);rej(new Error('load'));};document.head.appendChild(el);});}
+async function ensureQrLib(){
+  if(typeof Html5Qrcode!=='undefined')return true;
+  try{ await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js'); }catch(e){}
+  return typeof Html5Qrcode!=='undefined';
+}
+async function openScanner(){
+  $('#sheetTitle').textContent=t('scan_title');
+  $('#sheetBody').innerHTML=`<div id="reader"></div><div class="scan-note">${esc(t('scan_note2'))}</div>
+    <div class="manual-code"><input id="manualCode" placeholder="4607004890017" inputmode="numeric"><button id="manualGo">${esc(t('scan_find'))}</button></div>`;
+  openSheet();
+  $('#manualGo').onclick=()=>{const c=$('#manualCode').value.trim();if(c)lookupBarcode(c);};
+  $('#manualCode').addEventListener('keydown',e=>{if(e.key==='Enter'){const c=e.target.value.trim();if(c)lookupBarcode(c);}});
+  const rd=$('#reader');
+  rd.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  const ok=await ensureQrLib();
+  if(!$('#reader'))return; // шторку успели закрыть
+  if(!ok){ $('#reader').innerHTML='<div class="loading" style="padding:28px 14px;white-space:pre-line">'+esc(t('scan_lib_err'))+'</div>'; return; }
+  $('#reader').innerHTML='';
+  startScanner();
 }
 function startScanner(){
   if(typeof Html5Qrcode==='undefined')return;
-  scanner=new Html5Qrcode('reader');
-  scanner.start({facingMode:'environment'},{fps:10,qrbox:{width:250,height:160}},code=>{stopScanner();lookupBarcode(code);},()=>{})
-  .catch(()=>{const rd=$('#reader');if(rd)rd.innerHTML='<div class="loading" style="padding:34px 14px">📷 Камера недоступна в этом окне.<br><br>Открой Kalon в браузере телефона или собранном приложении, либо введи код вручную ниже.</div>';});
+  try{
+    scanner=new Html5Qrcode('reader');
+    scanner.start({facingMode:'environment'},{fps:10,qrbox:{width:250,height:160}},code=>{stopScanner();lookupBarcode(code);},()=>{})
+    .catch(()=>{const rd=$('#reader');if(rd)rd.innerHTML='<div class="loading" style="padding:28px 14px;white-space:pre-line">'+esc(t('scan_lib_err'))+'</div>';});
+  }catch(e){const rd=$('#reader');if(rd)rd.innerHTML='<div class="loading" style="padding:28px 14px;white-space:pre-line">'+esc(t('scan_lib_err'))+'</div>';}
 }
 function stopScanner(){if(scanner){try{scanner.stop().then(()=>{scanner.clear();scanner=null;}).catch(()=>{scanner=null;});}catch(e){scanner=null;}}}
 async function lookupBarcode(code){
-  $('#sheetTitle').textContent='Поиск по коду';
-  $('#sheetBody').innerHTML='<div class="loading"><div class="spinner"></div>Ищем продукт '+code+'…</div>';
+  code=String(code).replace(/\D/g,'');
+  if(!code)return;
+  stopScanner();
+  $('#sheetTitle').textContent=t('scan_title');
+  $('#sheetBody').innerHTML='<div class="loading"><div class="spinner"></div>'+esc(t('scan_searching',{n:code}))+'</div>';
   try{
     const data=await(await fetch('https://world.openfoodfacts.org/api/v2/product/'+encodeURIComponent(code)+'.json?fields=product_name,product_name_ru,brands,nutriments')).json();
     if(data.status===1&&data.product){const f=parseOFF(data.product);if(f){openPortion(f);return;}}
-    $('#sheetBody').innerHTML='<div class="loading">Код '+code+' не найден.<br><br>Можешь добавить продукт вручную.<br><br><button class="btn-primary" id="toCreate" style="max-width:240px;margin:14px auto 0">Создать продукт вручную</button></div>';
+    $('#sheetBody').innerHTML='<div class="loading">'+esc(t('scan_nf',{n:code}))+'<br><br><button class="btn-primary" id="toCreate" style="max-width:260px;margin:14px auto 0">'+esc(t('scan_create'))+'</button></div>';
     $('#toCreate').onclick=()=>openCreateFood();
-  }catch(e){$('#sheetBody').innerHTML='<div class="loading">Нет соединения.<br><br><button class="btn-primary" id="toCreate" style="max-width:240px;margin:14px auto 0">Создать вручную</button></div>';$('#toCreate').onclick=()=>openCreateFood();}
+  }catch(e){
+    $('#sheetBody').innerHTML='<div class="loading">'+esc(t('scan_noconn'))+'<br><br><button class="btn-primary" id="toCreate" style="max-width:260px;margin:14px auto 0">'+esc(t('scan_create'))+'</button></div>';
+    $('#toCreate').onclick=()=>openCreateFood();
+  }
 }
 
-/* ===== PHOTO ANALYSIS (заготовка под AI vision API) ===== */
-function openPhoto(){
-  $('#sheetTitle').textContent='Анализ по фото';
-  $('#sheetBody').innerHTML=`
-    <input type="file" id="photoFile" accept="image/*" capture="environment" style="display:none">
-    <div class="photo-zone" id="photoZone">
-      <div class="pi">📸</div>
-      <div class="pt">Сфотографируй блюдо <span class="badge-soon">AI</span></div>
-      <div class="ps">Нажми, чтобы открыть камеру или выбрать фото.<br>Kalon оценит примерную калорийность.</div>
-    </div>
-    <div id="photoResult"></div>`;
-  openSheet();
-  $('#photoZone').onclick=()=>$('#photoFile').click();
-  $('#photoFile').onchange=e=>{const file=e.target.files[0];if(file)handlePhoto(file);};
-}
-async function handlePhoto(file){
-  const reader=new FileReader();
-  reader.onload=async ev=>{
-    const dataUrl=ev.target.result;
-    $('#sheetBody').innerHTML=`<img class="photo-preview" src="${dataUrl}"><div id="photoResult"></div>`;
-    const res=$('#photoResult');
-    // Фото-анализ — заготовка на будущее (демо для всех). Реальный AI подключается позже.
-    res.innerHTML=`<div class="card" style="text-align:center;line-height:1.7">
-        <div style="font-size:34px;margin-bottom:8px">✨</div>
-        <div style="font-weight:700;margin-bottom:6px">Анализ по фото <span class="badge-soon">скоро</span></div>
-        <div style="font-size:12.5px;color:var(--ink-faint);margin-bottom:14px">Это заготовка. В будущей версии фото отправляется в AI-модель и возвращает блюдо с примерными калориями и БЖУ.</div>
-        <button class="btn-primary" id="demoAnalyze">Показать демо-результат</button>
-        <button class="btn-ghost" id="manualInstead">Ввести вручную</button>
-      </div>`;
-    $('#manualInstead').onclick=()=>openCreateFood();
-    $('#demoAnalyze').onclick=()=>demoPhotoResult(dataUrl);
-    /* === МЕСТО ДЛЯ РЕАЛЬНОГО AI-ЗАПРОСА (на будущее) ===
-       Здесь пойдёт fetch на твой backend, который вызывает vision-модель
-       с base64-картинкой и возвращает JSON { name, cal, prot, fat, carb }.
-       Backend нужен, чтобы скрыть API-ключ. Детали — в руководстве. */
-  };
-  reader.readAsDataURL(file);
-}
-function demoPhotoResult(){
-  const guess={name:'Распознанное блюдо (демо)',brand:'оценка AI',cal:185,prot:9,fat:7,carb:22};
-  $('#photoResult').innerHTML=`<div class="card" style="line-height:1.6">
-    <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Демо-оценка</div>
-    <div style="font-weight:700;font-size:15px;margin-bottom:10px">${esc(guess.name)}</div>
-    <div class="macro-preview" style="margin-bottom:14px"><div class="mp"><div class="mv">${guess.cal}</div><div class="ml">ккал/100г</div></div><div class="mp"><div class="mv">${guess.prot}</div><div class="ml">белки</div></div><div class="mp"><div class="mv">${guess.fat}</div><div class="ml">жиры</div></div><div class="mp"><div class="mv">${guess.carb}</div><div class="ml">углев.</div></div></div>
-    <button class="btn-primary" id="usePhoto">Уточнить порцию и добавить</button>
-    <button class="btn-ghost" id="editPhoto">Поправить значения вручную</button>
-  </div>`;
-  $('#usePhoto').onclick=()=>openPortion(guess);
-  $('#editPhoto').onclick=()=>openCreateFood(guess);
-}
+/* Фото-анализ убран по решению владельца — вернём позже */
 
 /* ===== CHARTS ===== */
 let chart,chartType='cal';
@@ -1685,27 +1981,27 @@ function renderChart(){
   }
 }
 function renderStats(){
-  let streak=0,cur=todayISO();
-  if(dayTotals(cur).cal===0)cur=new Date(Date.now()-864e5).toISOString().slice(0,10);
-  while(dayTotals(cur).cal>0){streak++;cur=new Date(+new Date(cur)-864e5).toISOString().slice(0,10);}
+  const streak=calcStreak();
   const d7=last7().map(d=>dayTotals(d).cal).filter(v=>v>0);
   const avg=d7.length?d7.reduce((a,b)=>a+b,0)/d7.length:0;
   const total=Object.keys(DIARY).filter(d=>dayTotals(d).cal>0).length;
   $('#stStreak').textContent=streak;$('#stAvg').textContent=fmt(avg);$('#stDays').textContent=total;
 }
 document.querySelectorAll('.chart-tabs .chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('.chart-tabs .chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');chartType=c.dataset.chart;renderChart();});
-$('#weightSave').onclick=()=>{const v=parseFloat($('#weightInput').value.replace(',','.'));if(!v||v<=0){toast(t('enter_weight'));return;}if(v<25||v>400){toast(t('check_weight'));return;}WEIGHTS[todayISO()]=v;saveWeights();$('#weightInput').value='';renderWeightLast();if(chartType==='weight')renderChart();renderStats();toast(t('weight_saved'));};
+$('#weightSave').onclick=()=>{const v=parseFloat($('#weightInput').value.replace(',','.'));if(!v||v<=0){toast(t('enter_weight'));return;}if(v<25||v>400){toast(t('check_weight'));return;}WEIGHTS[todayISO()]=v;saveWeights();$('#weightInput').value='';renderWeightLast();if(chartType==='weight')renderChart();renderStats();renderForecast();checkAch();toast(t('weight_saved'));};
 function renderWeightLast(){const d=Object.keys(WEIGHTS).sort();if(!d.length){$('#weightLast').textContent=t('no_weight');return;}const last=d[d.length-1];let s=t('last')+': '+WEIGHTS[last]+' '+t('kg_short')+' · '+prettyDate(last);if(d.length>1){const diff=WEIGHTS[last]-WEIGHTS[d[0]];s+=' · '+(diff>=0?'+':'')+diff.toFixed(1)+' '+t('kg_short');}$('#weightLast').textContent=s;}
 
 /* ===== SETTINGS ===== */
 function fillSettings(){
   $('#setGoal').value=S.goal;$('#setProt').value=S.prot;$('#setFat').value=S.fat;$('#setCarb').value=S.carb;
+  $('#setTargetW').value=S.targetW||'';
   $('#calcAge').value=S.age;$('#calcH').value=S.height;$('#calcW').value=S.weight;$('#calcAct').value=S.act;
   $('#sexM').classList.toggle('on',S.sex==='M');$('#sexF').classList.toggle('on',S.sex==='F');
   renderPremStatus();
   applyAdState();
 }
 ['setGoal','setProt','setFat','setCarb'].forEach(id=>$('#'+id).addEventListener('change',e=>{const k={setGoal:'goal',setProt:'prot',setFat:'fat',setCarb:'carb'}[id];S[k]=Math.max(0,parseInt(e.target.value)||0);saveSettings();renderDiary();toast(t('saved'));}));
+$('#setTargetW').addEventListener('change',e=>{const v=parseFloat(String(e.target.value).replace(',','.'))||0;S.targetW=(v>=25&&v<=400)?v:0;saveSettings();renderForecast();toast(t('saved'));});
 $('#sexM').onclick=()=>{S.sex='M';$('#sexM').classList.add('on');$('#sexF').classList.remove('on');};
 $('#sexF').onclick=()=>{S.sex='F';$('#sexF').classList.add('on');$('#sexM').classList.remove('on');};
 $('#calcBtn').onclick=()=>{
@@ -1875,10 +2171,12 @@ async function initAdMob(){
     admobReady=true;
     $('#adBanner')?.classList.add('hidden');
     document.body.classList.remove('has-ad');
+    document.body.classList.add('admob-on'); // меню поднято, низ отдан баннеру
   }catch(e){ /* тихо: остаётся HTML-заглушка */ }
 }
 async function removeAdMob(){
   try{ const AdMob=window.Capacitor?.Plugins?.AdMob; if(AdMob&&admobReady){ await AdMob.removeBanner(); admobReady=false; } }catch(e){}
+  document.body.classList.remove('admob-on');
 }
 function applyAdState(){
   if(S.premium){
@@ -1894,7 +2192,7 @@ function applyAdState(){
   document.body.classList.add('has-ad');
 }
 $('#adRemove').onclick=()=>{showView('settings');openPaywall();};
-$('#resetBtn').onclick=async()=>{if(!confirm(t('reset_confirm')))return;DIARY={};WEIGHTS={};MYFOODS=[];S={...DEFAULTS};saveDiary();saveWeights();saveMyFoods();saveSettings();fillSettings();renderDiary();renderWeightLast();renderStats();renderMyFoods();if(chart)renderChart();toast(t('reset_done'));};
+$('#resetBtn').onclick=async()=>{if(!confirm(t('reset_confirm')))return;DIARY={};WEIGHTS={};MYFOODS=[];WATER={};RECENT=[];FAVS=[];S={...DEFAULTS,onboarded:true};saveDiary();saveWeights();saveMyFoods();saveWater();saveRecent();saveFavs();saveSettings();fillSettings();renderDiary();renderWeightLast();renderStats();renderMyFoods();renderAch();renderForecast();if(chart)renderChart();toast(t('reset_done'));};
 /* Переключатель языка */
 (function(){
   const sel=$('#langSelect'); if(!sel)return;
@@ -1914,6 +2212,72 @@ function showView(v){document.querySelectorAll('.view').forEach(x=>x.classList.r
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>showView(b.dataset.view));
 $('#fab').onclick=()=>{pendingMeal=pendingMeal||'breakfast';openSearch();};
 
+/* ===== ОНБОРДИНГ ===== */
+let _obGoal='lose', _obSex='M';
+function showOnboarding(){
+  const ob=$('#onboard'); if(!ob) return;
+  // иконка — берём ту же, что в шапке
+  try{ const src=document.querySelector('.mark img')?.src; if(src) $('#obIcon').src=src; }catch(e){}
+  ob.classList.add('show');
+  const goStep=n=>{ document.querySelectorAll('.ob-step').forEach(s=>s.classList.toggle('on',s.dataset.step==String(n))); ob.scrollTop=0; };
+  $('#obGoals').onclick=e=>{ const b=e.target.closest('button[data-goal]'); if(!b)return;
+    document.querySelectorAll('#obGoals button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); _obGoal=b.dataset.goal; };
+  $('#obSexM').onclick=()=>{_obSex='M';$('#obSexM').classList.add('on');$('#obSexF').classList.remove('on');};
+  $('#obSexF').onclick=()=>{_obSex='F';$('#obSexF').classList.add('on');$('#obSexM').classList.remove('on');};
+  $('#obNext1').onclick=()=>goStep(2);
+  $('#obBack2').onclick=()=>goStep(1);
+  $('#obBack3').onclick=()=>goStep(2);
+  $('#obNext2').onclick=()=>{
+    const age=+$('#obAge').value||30, h=+$('#obH').value||175, w=parseFloat($('#obW').value)||72, act=+$('#obAct').value||1.375;
+    let bmr=10*w+6.25*h-5*age+(_obSex==='M'?5:-161);
+    let tdee=Math.round(bmr*act);
+    if(_obGoal==='lose') tdee=Math.round(tdee*0.85);
+    if(_obGoal==='gain') tdee=Math.round(tdee*1.10);
+    if(tdee<500)tdee=500; if(tdee>6000)tdee=6000;
+    ob._tdee=tdee; ob._params={age,h,w,act};
+    const tw=parseFloat(String($('#obTW').value).replace(',','.'))||0;
+    ob._tw=(tw>=25&&tw<=400)?tw:0;
+    let ft='';
+    if(ob._tw && Math.abs(ob._tw-w)>=1 && _obGoal!=='keep'){
+      const ok=(_obGoal==='lose'&&ob._tw<w)||(_obGoal==='gain'&&ob._tw>w);
+      if(ok){
+        const perWk=_obGoal==='lose'?0.5:0.25; // здоровый темп, кг/неделю
+        const wk=Math.ceil(Math.abs(w-ob._tw)/perWk);
+        const d=new Date(Date.now()+wk*7*864e5);
+        const loc={ru:'ru-RU',en:'en-US',es:'es-ES',de:'de-DE',fr:'fr-FR',ja:'ja-JP',zh:'zh-CN',hi:'hi-IN',pl:'pl-PL',pt:'pt-BR'}[LANG]||'en-US';
+        ft=t('ob_forecast',{w:ob._tw,d:d.toLocaleDateString(loc,{day:'numeric',month:'long'})});
+      }
+    }
+    const fEl=$('#obForecast'); if(fEl)fEl.textContent=ft;
+    $('#obNorm').textContent=fmt(tdee);
+    goStep(3);
+  };
+  const finish=(apply)=>{
+    if(apply && ob._tdee){
+      const p=ob._params||{};
+      S.goal=ob._tdee; S.sex=_obSex; S.age=p.age; S.height=p.h; S.weight=p.w; S.act=p.act;
+      S.prot=Math.round(ob._tdee*.3/4); S.fat=Math.round(ob._tdee*.3/9); S.carb=Math.round(ob._tdee*.4/4);
+      if(ob._tw)S.targetW=ob._tw;
+    }
+    S.onboarded=true; saveSettings(); fillSettings(); renderDiary();
+    ob.classList.remove('show');
+  };
+  $('#obStart').onclick=()=>finish(true);
+  $('#obSkip').onclick=()=>finish(false);
+}
+/* плавный набег числа в кольце при старте */
+function countUpRing(){
+  const el=$('#ringEaten'); if(!el) return;
+  const target=parseFloat(String(el.textContent).replace(/\s/g,''))||0;
+  if(target<=0) return;
+  const t0=performance.now(), dur=900;
+  (function tick(now){
+    const k=Math.min((now-t0)/dur,1), e=1-Math.pow(1-k,3);
+    el.textContent=fmt(Math.round(target*e));
+    if(k<1) requestAnimationFrame(tick);
+  })(t0);
+}
+
 /* ===== INIT ===== */
 (async function(){
   await loadAll();
@@ -1922,6 +2286,16 @@ $('#fab').onclick=()=>{pendingMeal=pendingMeal||'breakfast';openSearch();};
   renderDiary();
   renderWeightLast();
   renderMyFoods();
+  renderAch();
+  renderForecast();
+  countUpRing();
+  // Онбординг: только для новых пользователей (нет реальных данных и нет флага)
+  if(!S.onboarded){
+    const hasData = Object.keys(DIARY).some(d=>dayTotals(d).cal>0) || MYFOODS.length>0 || Object.keys(WEIGHTS).length>0;
+    if(!hasData){
+      showOnboarding();
+    } else { S.onboarded=true; saveSettings(); }
+  }
   // Реклама и проверка подписки — только в нативной среде, с fallback
   try{ await initAdMob(); }catch(e){}
   try{ if(!S.premium) await silentRestore(); }catch(e){}
