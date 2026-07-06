@@ -57,6 +57,13 @@ jobs:
             sed -i 's#</manifest>#    <uses-permission android:name="android.permission.CAMERA" />\n</manifest>#' "$MANIFEST"
           fi
           grep -n "CAMERA" "$MANIFEST" || echo "WARNING: camera permission not injected"
+      - name: Harden network security (no cleartext HTTP)
+        run: |
+          MANIFEST=android/app/src/main/AndroidManifest.xml
+          if ! grep -q 'usesCleartextTraffic' "$MANIFEST"; then
+            sed -i 's#<application #<application android:usesCleartextTraffic="false" #' "$MANIFEST"
+          fi
+          grep -n "usesCleartextTraffic" "$MANIFEST" || echo "note: cleartext attr not present"
       - name: Enable Android Auto Backup
         run: |
           MANIFEST=android/app/src/main/AndroidManifest.xml
