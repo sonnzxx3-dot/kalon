@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://world.openfoodfacts.org; media-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://world.openfoodfacts.org https://search.openfoodfacts.org; media-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#07080d">
 <title>Kalon</title>
@@ -338,7 +338,7 @@ body.admob-on .app{padding-bottom:calc(158px + env(safe-area-inset-bottom))}
 .water-head .wt{font-size:13.5px;font-weight:700}
 .water-head .wv{font-size:11.5px;color:var(--ink-faint);font-variant-numeric:tabular-nums}
 .water-row{display:flex;gap:7px;justify-content:space-between}
-.water-row button{flex:1;aspect-ratio:.8;max-width:44px;background:transparent;border:none;padding:0;cursor:pointer;display:grid;place-items:center}
+.water-row button{flex:1;height:54px;max-width:44px;min-width:26px;background:transparent;border:none;padding:0;cursor:pointer;display:grid;place-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .water-row svg{width:100%;height:100%;transition:transform .15s ease}
 .water-row button:active svg{transform:scale(.85)}
 .water-row .cup{fill:rgba(255,255,255,.06);stroke:var(--line);stroke-width:1.4;transition:fill .25s ease,stroke .25s ease}
@@ -368,6 +368,35 @@ body.admob-on .app{padding-bottom:calc(158px + env(safe-area-inset-bottom))}
 .ob-actions{margin-top:auto;padding-top:24px;display:flex;flex-direction:column;gap:10px}
 .ob-actions .btn-ghost2{background:transparent;border:none;color:var(--ink-faint);font-family:inherit;font-size:13px;padding:10px;cursor:pointer}
 
+/* ===== ТЕМЫ ===== */
+body[data-theme="black"]{
+  --bg:#000000;--bg-2:#07070d;--panel:#0a0a10;--panel-2:#101018;--line:#1f2437;--line-soft:#14161e;
+}
+body[data-theme="light"]{
+  --bg:#eef1f9;--bg-2:#f4f6fc;--panel:#ffffff;--panel-2:#f7f9ff;--line:#d9dfef;--line-soft:#e8ecf7;
+  --ink:#141631;--ink-soft:#525b80;--ink-faint:#8a93b5;--steel:#2b3568;
+  --blade:#4a6fe3;--edge:#0a90b8;--hot:#d94360;--gold:#c8891f;
+  --prot:#d94f72;--fat:#c8891f;--carb:#0886ab;
+  --glow:0 0 0 1px rgba(74,111,227,.14), 0 10px 30px -14px rgba(74,111,227,.35);
+}
+body[data-theme="light"]{background:
+  radial-gradient(130% 90% at 88% -8%, rgba(96,116,235,.10), transparent 52%),
+  radial-gradient(120% 80% at 4% 104%, rgba(8,144,184,.07), transparent 48%),
+  var(--bg) !important;}
+body[data-theme="black"]{background:
+  radial-gradient(130% 90% at 88% -8%, rgba(124,92,255,.10), transparent 52%),
+  radial-gradient(120% 80% at 4% 104%, rgba(70,224,255,.06), transparent 48%),
+  var(--bg) !important;}
+body[data-theme="light"] .sheet{background:#ffffff}
+body[data-theme="light"] .set-row input,body[data-theme="light"] .set-row select,body[data-theme="light"] .weight-entry input{background:#f1f4fb}
+body[data-theme="light"] .pw-crown{box-shadow:0 14px 34px -10px rgba(96,116,235,.45)}
+body[data-theme="light"] .water-row .cup{fill:rgba(20,32,80,.06)}
+body[data-theme="light"] .res:active{background:#f2f5ff}
+body[data-theme="light"] .copy-yday{border-color:#c9d2ea;color:#525b80}
+body[data-theme="light"] .streak-chip{background:linear-gradient(135deg,rgba(200,137,31,.12),rgba(217,67,96,.07));border-color:rgba(200,137,31,.4);box-shadow:0 0 16px -8px rgba(200,137,31,.4)}
+body[data-theme="light"] .ach{opacity:.45}
+body[data-theme="light"] .ach.on{opacity:1;border-color:rgba(200,137,31,.5);box-shadow:0 0 16px -8px rgba(200,137,31,.45)}
+body[data-theme="light"] .tool-btn{background:linear-gradient(160deg,#ffffff,#f2f5ff)}
 /* ===== новые элементы: эмодзи, избранное, достижения ===== */
 .tool-row{display:flex;gap:9px;margin-bottom:13px}
 .tool-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(160deg,var(--panel-2),var(--panel));border:1px solid var(--line);color:var(--steel);border-radius:14px;padding:13px 8px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;transition:.15s}
@@ -525,7 +554,7 @@ body.admob-on .app{padding-bottom:calc(158px + env(safe-area-inset-bottom))}
     </div>
     <div class="section-head"><h2 data-i18n="ach_title">Достижения</h2></div>
     <div class="ach-grid" id="achGrid"></div>
-    <div class="section-head"><h2 data-i18n="body_weight">Вес тела</h2><span class="hint">кг</span></div>
+    <div class="section-head"><h2 data-i18n="body_weight">Вес тела</h2><span class="hint" data-i18n="kg_short">кг</span></div>
     <div class="card">
       <div class="weight-entry"><input type="number" id="weightInput" data-i18n-ph="weight_eg" placeholder="например 72.5" step="0.1" inputmode="decimal"><button id="weightSave" data-i18n="save">Записать</button></div>
       <div id="weightLast" style="margin-top:12px;font-size:12px;color:var(--ink-faint)"></div>
@@ -558,13 +587,21 @@ body.admob-on .app{padding-bottom:calc(158px + env(safe-area-inset-bottom))}
         <option value="pt">Português</option>
       </select>
     </div>
+    <div class="section-head"><h2 data-i18n="theme">Тема</h2></div>
+    <div class="card" style="padding:12px">
+      <div class="seg" id="themeSeg" style="margin:0">
+        <button type="button" class="on" data-th="" data-i18n="theme_obsidian">Обсидиан</button>
+        <button type="button" data-th="black" data-i18n="theme_black">Чёрная</button>
+        <button type="button" data-th="light" data-i18n="theme_light">Светлая</button>
+      </div>
+    </div>
     <div class="section-head"><h2 data-i18n="goals">Цели</h2></div>
     <div class="card">
       <div class="set-row"><div class="sl"><span data-i18n="calories">Калории</span><small data-i18n="kcal_day">ккал/день</small></div><input type="number" id="setGoal" inputmode="numeric"></div>
       <div class="set-row"><div class="sl"><span data-i18n="prot">Белки</span><small data-i18n="goal_g">цель, г</small></div><input type="number" id="setProt" inputmode="numeric"></div>
       <div class="set-row"><div class="sl"><span data-i18n="fat">Жиры</span><small data-i18n="goal_g">цель, г</small></div><input type="number" id="setFat" inputmode="numeric"></div>
       <div class="set-row"><div class="sl"><span data-i18n="carb">Углеводы</span><small data-i18n="goal_g">цель, г</small></div><input type="number" id="setCarb" inputmode="numeric"></div>
-      <div class="set-row"><div class="sl"><span data-i18n="target_weight">Целевой вес</span><small>кг</small></div><input type="number" id="setTargetW" inputmode="decimal" step="0.5" placeholder="—"></div>
+      <div class="set-row"><div class="sl"><span data-i18n="target_weight">Целевой вес</span><small data-i18n="kg_short">кг</small></div><input type="number" id="setTargetW" inputmode="decimal" step="0.5" placeholder="—"></div>
     </div>
     <div class="section-head"><h2 data-i18n="norm_calc">Расчёт нормы</h2><span class="hint" data-i18n="mifflin">Миффлин</span></div>
     <div class="card">
@@ -626,7 +663,7 @@ body.admob-on .app{padding-bottom:calc(158px + env(safe-area-inset-bottom))}
    Поддержка: ru, en, es, de, fr. По умолчанию — английский,
    если язык телефона не из списка. */
 const I18N={
- ru:{streak_word:"дней подряд",scan_btn:"Штрих-код",scan_title:"Сканер штрих-кода",scan_note2:"Наведи камеру на штрих-код упаковки. Если камера недоступна — введи цифры кода вручную.",scan_find:"Найти",scan_searching:"Ищем продукт {n} в базе Open Food Facts…",scan_nf:"Код {n} не найден в базе Open Food Facts.",scan_create:"Создать продукт вручную",scan_noconn:"Нет соединения с базой. Проверь интернет.",scan_lib_err:"📷 Не удалось запустить камеру.\nВведи цифры штрих-кода вручную ниже — поиск сработает так же.",src_recent:"Недавние",src_favs:"Избранное",src_net:"Интернет",net_hint:"Введи минимум 3 буквы — поиск по мировой базе Open Food Facts (нужен интернет).",net_err:"Не удалось загрузить. Проверь интернет и попробуй ещё раз.",searching:"Ищу…",empty_hint:"Нажми +, чтобы добавить",copy_yesterday:"↺ Повторить вчерашний день",copied_day:"Вчерашний день скопирован",goal_reached:"🎉 Цель дня достигнута!",fav_add:"⭐ В избранном",fav_del:"Убрано из избранного",no_recent:"Здесь появятся продукты, которые ты недавно добавлял в дневник.",no_favs:"Отмечай продукты звёздочкой ★ — они соберутся здесь.",ach_title:"Достижения",ach_unlocked:"🏆 Достижение: {n}",ach_first:"Первая запись",ach_streak3:"3 дня подряд",ach_streak7:"Неделя подряд",ach_streak14:"2 недели подряд",ach_streak30:"Месяц подряд",ach_water:"8 стаканов воды",ach_weight:"Первый замер веса",ach_foods5:"5 своих продуктов",ach_goalday:"День в цели",ach_days30:"30 дней с записями",target_weight:"Целевой вес",forecast_to:"Прогноз: ≈ {w} кг к {d}",forecast_need:"Записывай вес хотя бы раз в несколько дней — и здесь появится прогноз до цели.",forecast_flat:"Вес пока стабилен. Продолжай — прогноз появится вместе с динамикой.",forecast_done:"🎯 Целевой вес достигнут — отличная работа!",ob_target:"Целевой вес, кг",ob_optional:"необязательно",ob_forecast:"≈ {w} кг примерно к {d} — при здоровом темпе",cat_all:"Все",empty:"Пусто",add_to_diary:"Добавить в дневник",new_product:"Новый продукт",portion:"Порция",nothing_found:"Ничего не найдено.",own:"своё",per_100g:"на 100 г",lbl_name:"Название",lbl_brand:"Бренд / заметка (необязательно)",lbl_cal:"Ккал",lbl_prot:"Белки",lbl_fat:"Жиры",lbl_carb:"Углев.",name_hint:"Например: Мамин борщ",brand_hint:"домашнее",add_final_dot:"Добавить",create_hint:"Укажи значения на 100 г. Продукт сохранится в твою базу и будет доступен для повторного добавления.",quick_save:"Сохранить и сразу добавить в дневник",
+ ru:{theme:"Тема",theme_obsidian:"Обсидиан",theme_black:"Чёрная",theme_light:"Светлая",streak_word:"дней подряд",scan_retry:"Повторить поиск",scan_by_name:"Искать по названию",scan_btn:"Штрих-код",scan_title:"Сканер штрих-кода",scan_note2:"Наведи камеру на штрих-код упаковки. Если камера недоступна — введи цифры кода вручную.",scan_find:"Найти",scan_searching:"Ищем продукт {n} в базе Open Food Facts…",scan_nf:"Товара с кодом {n} нет в базе Open Food Facts. Так бывает с локальными продуктами — найди его по названию или создай вручную (1 минута).",scan_create:"Создать продукт вручную",scan_noconn:"База не ответила за 12 секунд. Проверь интернет и попробуй ещё раз.",scan_lib_err:"📷 Не удалось запустить камеру.\nВведи цифры штрих-кода вручную ниже — поиск сработает так же.",src_recent:"Недавние",src_favs:"Избранное",src_net:"Интернет",net_hint:"Введи минимум 3 буквы — поиск по мировой базе Open Food Facts (нужен интернет).",net_err:"Не удалось загрузить. Проверь интернет и попробуй ещё раз.",searching:"Ищу…",empty_hint:"Нажми +, чтобы добавить",copy_yesterday:"↺ Повторить вчерашний день",copied_day:"Вчерашний день скопирован",goal_reached:"🎉 Цель дня достигнута!",fav_add:"⭐ В избранном",fav_del:"Убрано из избранного",no_recent:"Здесь появятся продукты, которые ты недавно добавлял в дневник.",no_favs:"Отмечай продукты звёздочкой ★ — они соберутся здесь.",ach_title:"Достижения",ach_unlocked:"🏆 Достижение: {n}",ach_first:"Первая запись",ach_streak3:"3 дня подряд",ach_streak7:"Неделя подряд",ach_streak14:"2 недели подряд",ach_streak30:"Месяц подряд",ach_water:"8 стаканов воды",ach_weight:"Первый замер веса",ach_foods5:"5 своих продуктов",ach_goalday:"День в цели",ach_days30:"30 дней с записями",target_weight:"Целевой вес",forecast_to:"Прогноз: ≈ {w} кг к {d}",forecast_need:"Записывай вес хотя бы раз в несколько дней — и здесь появится прогноз до цели.",forecast_flat:"Вес пока стабилен. Продолжай — прогноз появится вместе с динамикой.",forecast_done:"🎯 Целевой вес достигнут — отличная работа!",ob_target:"Целевой вес, кг",ob_optional:"необязательно",ob_forecast:"≈ {w} кг примерно к {d} — при здоровом темпе",cat_all:"Все",empty:"Пусто",add_to_diary:"Добавить в дневник",new_product:"Новый продукт",portion:"Порция",nothing_found:"Ничего не найдено.",own:"своё",per_100g:"на 100 г",lbl_name:"Название",lbl_brand:"Бренд / заметка (необязательно)",lbl_cal:"Ккал",lbl_prot:"Белки",lbl_fat:"Жиры",lbl_carb:"Углев.",name_hint:"Например: Мамин борщ",brand_hint:"домашнее",add_final_dot:"Добавить",create_hint:"Укажи значения на 100 г. Продукт сохранится в твою базу и будет доступен для повторного добавления.",quick_save:"Сохранить и сразу добавить в дневник",
   language:"Язык",nav_diary:"Дневник",nav_progress:"Прогресс",nav_base:"База",nav_more:"Ещё",
   today:"Сегодня",yesterday:"Вчера",goal:"Цель",eaten:"Съедено",left:"Осталось",
   kcal:"ккал",kcal_day:"ккал/день",g:"г",left_to_goal:"Ещё {n} ккал до цели",
@@ -670,7 +707,7 @@ const I18N={
   no_limits:"Без ограничений",all_open:"все функции и продукты открыты",
   ext_stats:"Расширенная статистика",support_dev:"Поддержка разработки",kg_short:"кг",no_weight:"Пока нет записей веса.",goal_g:"цель, г"
  },
- en:{streak_word:"day streak",scan_btn:"Barcode",scan_title:"Barcode scanner",scan_note2:"Point the camera at the package barcode. If the camera is unavailable — type the code manually.",scan_find:"Find",scan_searching:"Looking up product {n} in Open Food Facts…",scan_nf:"Code {n} was not found in Open Food Facts.",scan_create:"Create product manually",scan_noconn:"No connection to the database. Check your internet.",scan_lib_err:"📷 Could not start the camera.\nType the barcode digits below — the lookup works the same.",src_recent:"Recent",src_favs:"Favorites",src_net:"Web",net_hint:"Type at least 3 letters — searches the worldwide Open Food Facts base (internet required).",net_err:"Could not load. Check your internet and try again.",searching:"Searching…",empty_hint:"Tap + to add",copy_yesterday:"↺ Repeat yesterday",copied_day:"Yesterday copied",goal_reached:"🎉 Daily goal reached!",fav_add:"⭐ Added to favorites",fav_del:"Removed from favorites",no_recent:"Foods you recently added to the diary will appear here.",no_favs:"Star foods with ★ — they will be collected here.",ach_title:"Achievements",ach_unlocked:"🏆 Achievement: {n}",ach_first:"First entry",ach_streak3:"3-day streak",ach_streak7:"One week streak",ach_streak14:"2-week streak",ach_streak30:"One month streak",ach_water:"8 glasses of water",ach_weight:"First weigh-in",ach_foods5:"5 own products",ach_goalday:"Day on target",ach_days30:"30 logged days",target_weight:"Target weight",forecast_to:"Forecast: ≈ {w} kg by {d}",forecast_need:"Log your weight every few days — a forecast to your goal will appear here.",forecast_flat:"Weight is stable for now. Keep going — the forecast will appear with momentum.",forecast_done:"🎯 Target weight reached — great job!",ob_target:"Target weight, kg",ob_optional:"optional",ob_forecast:"≈ {w} kg around {d} — at a healthy pace",cat_all:"All",empty:"Empty",add_to_diary:"Add to diary",new_product:"New product",portion:"Portion",nothing_found:"Nothing found.",own:"own",per_100g:"per 100 g",lbl_name:"Name",lbl_brand:"Brand / note (optional)",lbl_cal:"Kcal",lbl_prot:"Protein",lbl_fat:"Fat",lbl_carb:"Carbs",name_hint:"e.g. Mom's borscht",brand_hint:"homemade",add_final_dot:"Add",create_hint:"Enter values per 100 g. The product will be saved to your base for reuse.",quick_save:"Save and add to diary now",
+ en:{theme:"Theme",theme_obsidian:"Obsidian",theme_black:"Black",theme_light:"Light",streak_word:"day streak",scan_retry:"Retry lookup",scan_by_name:"Search by name",scan_btn:"Barcode",scan_title:"Barcode scanner",scan_note2:"Point the camera at the package barcode. If the camera is unavailable — type the code manually.",scan_find:"Find",scan_searching:"Looking up product {n} in Open Food Facts…",scan_nf:"No product with code {n} in Open Food Facts. Local products are often missing — search by name or create it manually (1 minute).",scan_create:"Create product manually",scan_noconn:"The database did not respond within 12 seconds. Check your internet and try again.",scan_lib_err:"📷 Could not start the camera.\nType the barcode digits below — the lookup works the same.",src_recent:"Recent",src_favs:"Favorites",src_net:"Web",net_hint:"Type at least 3 letters — searches the worldwide Open Food Facts base (internet required).",net_err:"Could not load. Check your internet and try again.",searching:"Searching…",empty_hint:"Tap + to add",copy_yesterday:"↺ Repeat yesterday",copied_day:"Yesterday copied",goal_reached:"🎉 Daily goal reached!",fav_add:"⭐ Added to favorites",fav_del:"Removed from favorites",no_recent:"Foods you recently added to the diary will appear here.",no_favs:"Star foods with ★ — they will be collected here.",ach_title:"Achievements",ach_unlocked:"🏆 Achievement: {n}",ach_first:"First entry",ach_streak3:"3-day streak",ach_streak7:"One week streak",ach_streak14:"2-week streak",ach_streak30:"One month streak",ach_water:"8 glasses of water",ach_weight:"First weigh-in",ach_foods5:"5 own products",ach_goalday:"Day on target",ach_days30:"30 logged days",target_weight:"Target weight",forecast_to:"Forecast: ≈ {w} kg by {d}",forecast_need:"Log your weight every few days — a forecast to your goal will appear here.",forecast_flat:"Weight is stable for now. Keep going — the forecast will appear with momentum.",forecast_done:"🎯 Target weight reached — great job!",ob_target:"Target weight, kg",ob_optional:"optional",ob_forecast:"≈ {w} kg around {d} — at a healthy pace",cat_all:"All",empty:"Empty",add_to_diary:"Add to diary",new_product:"New product",portion:"Portion",nothing_found:"Nothing found.",own:"own",per_100g:"per 100 g",lbl_name:"Name",lbl_brand:"Brand / note (optional)",lbl_cal:"Kcal",lbl_prot:"Protein",lbl_fat:"Fat",lbl_carb:"Carbs",name_hint:"e.g. Mom's borscht",brand_hint:"homemade",add_final_dot:"Add",create_hint:"Enter values per 100 g. The product will be saved to your base for reuse.",quick_save:"Save and add to diary now",
   language:"Language",nav_diary:"Diary",nav_progress:"Progress",nav_base:"Foods",nav_more:"More",
   today:"Today",yesterday:"Yesterday",goal:"Goal",eaten:"Eaten",left:"Left",
   kcal:"kcal",kcal_day:"kcal/day",g:"g",left_to_goal:"{n} kcal left to goal",
@@ -714,7 +751,7 @@ const I18N={
   no_limits:"No limits",all_open:"all features and foods unlocked",
   ext_stats:"Extended statistics",support_dev:"Support development",kg_short:"kg",no_weight:"No weight entries yet.",goal_g:"goal, g"
  },
- es:{cat_all:"Todos",empty:"Vacío",add_to_diary:"Añadir al diario",new_product:"Nuevo producto",portion:"Porción",nothing_found:"No se encontró nada.",own:"propio",per_100g:"por 100 g",lbl_name:"Nombre",lbl_brand:"Marca / nota (opcional)",lbl_cal:"Kcal",lbl_prot:"Proteínas",lbl_fat:"Grasas",lbl_carb:"Carbohid.",name_hint:"ej. Borsch de mamá",brand_hint:"casero",add_final_dot:"Añadir",create_hint:"Indica los valores por 100 g. El producto se guardará en tu base para reutilizarlo.",quick_save:"Guardar y añadir al diario ahora",
+ es:{theme:"Tema",theme_obsidian:"Obsidiana",theme_black:"Negro",theme_light:"Claro",streak_word:"días seguidos",scan_retry:"Reintentar búsqueda",scan_by_name:"Buscar por nombre",scan_btn:"Código de barras",scan_title:"Escáner de código de barras",scan_note2:"Apunta la cámara al código de barras del envase. Si la cámara no está disponible, escribe el código manualmente.",scan_find:"Buscar",scan_searching:"Buscando el producto {n} en Open Food Facts…",scan_nf:"No hay producto con el código {n} en Open Food Facts. Los productos locales suelen faltar: búscalo por nombre o créalo manualmente (1 minuto).",scan_create:"Crear producto manualmente",scan_noconn:"La base de datos no respondió en 12 segundos. Revisa tu internet e inténtalo de nuevo.",scan_lib_err:"📷 No se pudo iniciar la cámara.\nEscribe los dígitos del código abajo: la búsqueda funciona igual.",src_recent:"Recientes",src_favs:"Favoritos",src_net:"Internet",net_hint:"Escribe al menos 3 letras: busca en la base mundial Open Food Facts (requiere internet).",net_err:"No se pudo cargar. Revisa tu internet e inténtalo otra vez.",searching:"Buscando…",empty_hint:"Toca + para añadir",copy_yesterday:"↺ Repetir ayer",copied_day:"Ayer copiado",goal_reached:"🎉 ¡Meta diaria lograda!",fav_add:"⭐ Añadido a favoritos",fav_del:"Eliminado de favoritos",no_recent:"Aquí aparecerán los alimentos que añadiste recientemente al diario.",no_favs:"Marca alimentos con ★ y se guardarán aquí.",ach_title:"Logros",ach_unlocked:"🏆 Logro: {n}",ach_first:"Primera entrada",ach_streak3:"Racha de 3 días",ach_streak7:"Racha de 1 semana",ach_streak14:"Racha de 2 semanas",ach_streak30:"Racha de 1 mes",ach_water:"8 vasos de agua",ach_weight:"Primer pesaje",ach_foods5:"5 productos propios",ach_goalday:"Día en la meta",ach_days30:"30 días registrados",target_weight:"Peso objetivo",forecast_to:"Pronóstico: ≈ {w} kg para el {d}",forecast_need:"Registra tu peso cada pocos días y aquí aparecerá un pronóstico hasta tu meta.",forecast_flat:"El peso está estable por ahora. Sigue así: el pronóstico aparecerá con la tendencia.",forecast_done:"🎯 ¡Peso objetivo alcanzado, gran trabajo!",ob_target:"Peso objetivo, kg",ob_optional:"opcional",ob_forecast:"≈ {w} kg hacia el {d}, a un ritmo saludable",cat_all:"Todos",empty:"Vacío",add_to_diary:"Añadir al diario",new_product:"Nuevo producto",portion:"Porción",nothing_found:"No se encontró nada.",own:"propio",per_100g:"por 100 g",lbl_name:"Nombre",lbl_brand:"Marca / nota (opcional)",lbl_cal:"Kcal",lbl_prot:"Proteínas",lbl_fat:"Grasas",lbl_carb:"Carbohid.",name_hint:"ej. Borsch de mamá",brand_hint:"casero",add_final_dot:"Añadir",create_hint:"Indica los valores por 100 g. El producto se guardará en tu base para reutilizarlo.",quick_save:"Guardar y añadir al diario ahora",
   language:"Idioma",nav_diary:"Diario",nav_progress:"Progreso",nav_base:"Comida",nav_more:"Más",
   today:"Hoy",yesterday:"Ayer",goal:"Meta",eaten:"Consumido",left:"Restante",
   kcal:"kcal",kcal_day:"kcal/día",g:"g",left_to_goal:"Faltan {n} kcal para la meta",
@@ -758,7 +795,7 @@ const I18N={
   no_limits:"Sin límites",all_open:"todas las funciones desbloqueadas",
   ext_stats:"Estadísticas avanzadas",support_dev:"Apoya el desarrollo",kg_short:"kg",no_weight:"Aún no hay registros de peso.",goal_g:"meta, g"
  },
- de:{cat_all:"Alle",empty:"Leer",add_to_diary:"Zum Tagebuch",new_product:"Neues Produkt",portion:"Portion",nothing_found:"Nichts gefunden.",own:"eigen",per_100g:"pro 100 g",lbl_name:"Name",lbl_brand:"Marke / Notiz (optional)",lbl_cal:"Kcal",lbl_prot:"Eiweiß",lbl_fat:"Fett",lbl_carb:"Kohlenh.",name_hint:"z.B. Omas Borschtsch",brand_hint:"hausgemacht",add_final_dot:"Hinzufügen",create_hint:"Werte pro 100 g angeben. Das Produkt wird in deiner Basis gespeichert und ist wiederverwendbar.",quick_save:"Speichern und direkt ins Tagebuch",
+ de:{theme:"Design",theme_obsidian:"Obsidian",theme_black:"Schwarz",theme_light:"Hell",streak_word:"Tage in Folge",scan_retry:"Erneut suchen",scan_by_name:"Nach Name suchen",scan_btn:"Barcode",scan_title:"Barcode-Scanner",scan_note2:"Richte die Kamera auf den Barcode der Verpackung. Wenn die Kamera nicht verfügbar ist, gib den Code manuell ein.",scan_find:"Suchen",scan_searching:"Suche Produkt {n} in Open Food Facts…",scan_nf:"Kein Produkt mit Code {n} in Open Food Facts. Lokale Produkte fehlen oft — suche nach Name oder lege es manuell an (1 Minute).",scan_create:"Produkt manuell anlegen",scan_noconn:"Die Datenbank hat innerhalb von 12 Sekunden nicht geantwortet. Prüfe deine Internetverbindung und versuche es erneut.",scan_lib_err:"📷 Kamera konnte nicht gestartet werden.\nGib die Ziffern des Codes unten ein — die Suche funktioniert genauso.",src_recent:"Zuletzt",src_favs:"Favoriten",src_net:"Internet",net_hint:"Gib mindestens 3 Buchstaben ein — Suche in der weltweiten Open-Food-Facts-Datenbank (Internet erforderlich).",net_err:"Laden fehlgeschlagen. Prüfe deine Internetverbindung und versuche es erneut.",searching:"Suche…",empty_hint:"Tippe +, um hinzuzufügen",copy_yesterday:"↺ Gestern wiederholen",copied_day:"Gestern kopiert",goal_reached:"🎉 Tagesziel erreicht!",fav_add:"⭐ Zu Favoriten hinzugefügt",fav_del:"Aus Favoriten entfernt",no_recent:"Hier erscheinen Lebensmittel, die du kürzlich ins Tagebuch eingetragen hast.",no_favs:"Markiere Lebensmittel mit ★ — sie werden hier gesammelt.",ach_title:"Erfolge",ach_unlocked:"🏆 Erfolg: {n}",ach_first:"Erster Eintrag",ach_streak3:"3 Tage in Folge",ach_streak7:"1 Woche in Folge",ach_streak14:"2 Wochen in Folge",ach_streak30:"1 Monat in Folge",ach_water:"8 Gläser Wasser",ach_weight:"Erstes Wiegen",ach_foods5:"5 eigene Produkte",ach_goalday:"Tag im Ziel",ach_days30:"30 erfasste Tage",target_weight:"Zielgewicht",forecast_to:"Prognose: ≈ {w} kg bis {d}",forecast_need:"Trage dein Gewicht alle paar Tage ein — hier erscheint eine Prognose bis zum Ziel.",forecast_flat:"Das Gewicht ist derzeit stabil. Weiter so — die Prognose erscheint mit der Dynamik.",forecast_done:"🎯 Zielgewicht erreicht — stark!",ob_target:"Zielgewicht, kg",ob_optional:"optional",ob_forecast:"≈ {w} kg etwa am {d} — in gesundem Tempo",cat_all:"Alle",empty:"Leer",add_to_diary:"Zum Tagebuch",new_product:"Neues Produkt",portion:"Portion",nothing_found:"Nichts gefunden.",own:"eigen",per_100g:"pro 100 g",lbl_name:"Name",lbl_brand:"Marke / Notiz (optional)",lbl_cal:"Kcal",lbl_prot:"Eiweiß",lbl_fat:"Fett",lbl_carb:"Kohlenh.",name_hint:"z.B. Omas Borschtsch",brand_hint:"hausgemacht",add_final_dot:"Hinzufügen",create_hint:"Werte pro 100 g angeben. Das Produkt wird in deiner Basis gespeichert und ist wiederverwendbar.",quick_save:"Speichern und direkt ins Tagebuch",
   language:"Sprache",nav_diary:"Tagebuch",nav_progress:"Verlauf",nav_base:"Essen",nav_more:"Mehr",
   today:"Heute",yesterday:"Gestern",goal:"Ziel",eaten:"Gegessen",left:"Übrig",
   kcal:"kcal",kcal_day:"kcal/Tag",g:"g",left_to_goal:"Noch {n} kcal bis zum Ziel",
@@ -802,7 +839,7 @@ const I18N={
   no_limits:"Keine Grenzen",all_open:"alle Funktionen freigeschaltet",
   ext_stats:"Erweiterte Statistik",support_dev:"Entwicklung unterstützen",kg_short:"kg",no_weight:"Noch keine Gewichtseinträge.",goal_g:"Ziel, g"
  },
- fr:{cat_all:"Tous",empty:"Vide",add_to_diary:"Ajouter au journal",new_product:"Nouveau produit",portion:"Portion",nothing_found:"Rien trouvé.",own:"perso",per_100g:"pour 100 g",lbl_name:"Nom",lbl_brand:"Marque / note (facultatif)",lbl_cal:"Kcal",lbl_prot:"Protéines",lbl_fat:"Lipides",lbl_carb:"Glucides",name_hint:"ex. Bortsch maison",brand_hint:"maison",add_final_dot:"Ajouter",create_hint:"Indique les valeurs pour 100 g. Le produit sera enregistré dans ta base pour réutilisation.",quick_save:"Enregistrer et ajouter au journal",
+ fr:{theme:"Thème",theme_obsidian:"Obsidienne",theme_black:"Noir",theme_light:"Clair",streak_word:"jours d’affilée",scan_retry:"Réessayer",scan_by_name:"Chercher par nom",scan_btn:"Code-barres",scan_title:"Scanner de code-barres",scan_note2:"Pointez la caméra vers le code-barres de l’emballage. Si la caméra est indisponible, saisissez le code manuellement.",scan_find:"Rechercher",scan_searching:"Recherche du produit {n} dans Open Food Facts…",scan_nf:"Aucun produit avec le code {n} dans Open Food Facts. Les produits locaux manquent souvent — cherchez par nom ou créez-le manuellement (1 minute).",scan_create:"Créer le produit manuellement",scan_noconn:"La base de données n’a pas répondu en 12 secondes. Vérifiez votre connexion et réessayez.",scan_lib_err:"📷 Impossible de démarrer la caméra.\nSaisissez les chiffres du code ci-dessous — la recherche fonctionne pareil.",src_recent:"Récents",src_favs:"Favoris",src_net:"Internet",net_hint:"Saisissez au moins 3 lettres — recherche dans la base mondiale Open Food Facts (internet requis).",net_err:"Chargement impossible. Vérifiez votre connexion et réessayez.",searching:"Recherche…",empty_hint:"Touchez + pour ajouter",copy_yesterday:"↺ Reprendre hier",copied_day:"Hier copié",goal_reached:"🎉 Objectif du jour atteint !",fav_add:"⭐ Ajouté aux favoris",fav_del:"Retiré des favoris",no_recent:"Les aliments récemment ajoutés au journal apparaîtront ici.",no_favs:"Marquez des aliments avec ★ — ils seront regroupés ici.",ach_title:"Succès",ach_unlocked:"🏆 Succès : {n}",ach_first:"Première entrée",ach_streak3:"Série de 3 jours",ach_streak7:"Série d’une semaine",ach_streak14:"Série de 2 semaines",ach_streak30:"Série d’un mois",ach_water:"8 verres d’eau",ach_weight:"Première pesée",ach_foods5:"5 produits perso",ach_goalday:"Journée dans l’objectif",ach_days30:"30 jours suivis",target_weight:"Poids cible",forecast_to:"Prévision : ≈ {w} kg vers le {d}",forecast_need:"Notez votre poids tous les quelques jours — une prévision vers votre objectif apparaîtra ici.",forecast_flat:"Le poids est stable pour l’instant. Continuez — la prévision viendra avec la tendance.",forecast_done:"🎯 Poids cible atteint — bravo !",ob_target:"Poids cible, kg",ob_optional:"facultatif",ob_forecast:"≈ {w} kg vers le {d} — à un rythme sain",cat_all:"Tous",empty:"Vide",add_to_diary:"Ajouter au journal",new_product:"Nouveau produit",portion:"Portion",nothing_found:"Rien trouvé.",own:"perso",per_100g:"pour 100 g",lbl_name:"Nom",lbl_brand:"Marque / note (facultatif)",lbl_cal:"Kcal",lbl_prot:"Protéines",lbl_fat:"Lipides",lbl_carb:"Glucides",name_hint:"ex. Bortsch maison",brand_hint:"maison",add_final_dot:"Ajouter",create_hint:"Indique les valeurs pour 100 g. Le produit sera enregistré dans ta base pour réutilisation.",quick_save:"Enregistrer et ajouter au journal",
   language:"Langue",nav_diary:"Journal",nav_progress:"Progrès",nav_base:"Aliments",nav_more:"Plus",
   today:"Aujourd'hui",yesterday:"Hier",goal:"Objectif",eaten:"Consommé",left:"Restant",
   kcal:"kcal",kcal_day:"kcal/jour",g:"g",left_to_goal:"Encore {n} kcal avant l'objectif",
@@ -846,7 +883,7 @@ const I18N={
   no_limits:"Sans limites",all_open:"toutes les fonctions débloquées",
   ext_stats:"Statistiques avancées",support_dev:"Soutenir le développement",kg_short:"kg",no_weight:"Pas encore de poids enregistré.",goal_g:"objectif, g"
  },
- ja:{cat_all:"すべて",empty:"空",add_to_diary:"日記に追加",new_product:"新しい食品",portion:"分量",nothing_found:"見つかりません。",own:"自分",per_100g:"100gあたり",lbl_name:"名前",lbl_brand:"ブランド / メモ(任意)",lbl_cal:"kcal",lbl_prot:"タンパク質",lbl_fat:"脂質",lbl_carb:"炭水化物",name_hint:"例:ママのボルシチ",brand_hint:"自家製",add_final_dot:"追加",create_hint:"100gあたりの値を入力してください。商品はあなたのベースに保存され、再利用できます。",quick_save:"保存してすぐ日記に追加",
+ ja:{theme:"テーマ",theme_obsidian:"オブシディアン",theme_black:"ブラック",theme_light:"ライト",streak_word:"日連続",scan_retry:"もう一度検索",scan_by_name:"名前で検索",scan_btn:"バーコード",scan_title:"バーコードスキャナー",scan_note2:"パッケージのバーコードにカメラを向けてください。カメラが使えない場合は、コードを手動で入力してください。",scan_find:"検索",scan_searching:"Open Food Facts で商品 {n} を検索中…",scan_nf:"コード {n} の商品は Open Food Facts にありません。ローカル商品は未登録のことが多いです。名前で検索するか、手動で作成してください（1分）。",scan_create:"手動で商品を作成",scan_noconn:"データベースが12秒以内に応答しませんでした。通信環境を確認して、もう一度お試しください。",scan_lib_err:"📷 カメラを起動できませんでした。\n下にコードの数字を入力してください。同じように検索できます。",src_recent:"最近",src_favs:"お気に入り",src_net:"ネット",net_hint:"3文字以上入力してください。世界的なOpen Food Factsデータベースを検索します（要インターネット）。",net_err:"読み込めませんでした。通信環境を確認して再試行してください。",searching:"検索中…",empty_hint:"＋をタップして追加",copy_yesterday:"↺ 昨日をくり返す",copied_day:"昨日をコピーしました",goal_reached:"🎉 今日の目標達成！",fav_add:"⭐ お気に入りに追加",fav_del:"お気に入りから削除",no_recent:"最近日記に追加した食品がここに表示されます。",no_favs:"★を付けた食品がここに集まります。",ach_title:"実績",ach_unlocked:"🏆 実績：{n}",ach_first:"最初の記録",ach_streak3:"3日連続",ach_streak7:"1週間連続",ach_streak14:"2週間連続",ach_streak30:"1か月連続",ach_water:"水8杯",ach_weight:"初めての体重記録",ach_foods5:"自作食品5件",ach_goalday:"目標達成の日",ach_days30:"記録30日",target_weight:"目標体重",forecast_to:"予測：{d}頃に約{w} kg",forecast_need:"数日おきに体重を記録すると、目標までの予測がここに表示されます。",forecast_flat:"体重は今のところ安定しています。続ければ、変化とともに予測が表示されます。",forecast_done:"🎯 目標体重に到達！お見事！",ob_target:"目標体重（kg）",ob_optional:"任意",ob_forecast:"健康的なペースで {d} 頃に約 {w} kg",cat_all:"すべて",empty:"空",add_to_diary:"日記に追加",new_product:"新しい食品",portion:"分量",nothing_found:"見つかりません。",own:"自分",per_100g:"100gあたり",lbl_name:"名前",lbl_brand:"ブランド / メモ(任意)",lbl_cal:"kcal",lbl_prot:"タンパク質",lbl_fat:"脂質",lbl_carb:"炭水化物",name_hint:"例:ママのボルシチ",brand_hint:"自家製",add_final_dot:"追加",create_hint:"100gあたりの値を入力してください。商品はあなたのベースに保存され、再利用できます。",quick_save:"保存してすぐ日記に追加",
   language:"言語",nav_diary:"日記",nav_progress:"進捗",nav_base:"食品",nav_more:"その他",
   today:"今日",yesterday:"昨日",goal:"目標",eaten:"摂取",left:"残り",
   kcal:"kcal",kcal_day:"kcal/日",g:"g",left_to_goal:"目標まであと{n} kcal",
@@ -890,7 +927,7 @@ const I18N={
   no_limits:"制限なし",all_open:"全機能が解放",
   ext_stats:"詳細な統計",support_dev:"開発を支援",kg_short:"kg",no_weight:"体重の記録はまだありません。",goal_g:"目標, g"
  },
- zh:{cat_all:"全部",empty:"空",add_to_diary:"添加到日记",new_product:"新产品",portion:"份量",nothing_found:"未找到。",own:"自定义",per_100g:"每100克",lbl_name:"名称",lbl_brand:"品牌 / 备注(可选)",lbl_cal:"千卡",lbl_prot:"蛋白质",lbl_fat:"脂肪",lbl_carb:"碳水",name_hint:"例如:妈妈的罗宋汤",brand_hint:"自制",add_final_dot:"添加",create_hint:"输入每100克的数值。该食品将保存到你的库中以便重复使用。",quick_save:"保存并立即添加到日记",
+ zh:{theme:"主题",theme_obsidian:"黑曜石",theme_black:"纯黑",theme_light:"浅色",streak_word:"天连续",scan_retry:"重试查找",scan_by_name:"按名称搜索",scan_btn:"条形码",scan_title:"条形码扫描",scan_note2:"将相机对准包装上的条形码。如果相机不可用，请手动输入代码。",scan_find:"查找",scan_searching:"正在 Open Food Facts 中查找商品 {n}…",scan_nf:"Open Food Facts 中没有代码为 {n} 的商品。本地商品常常缺失——按名称搜索或手动创建（1 分钟）。",scan_create:"手动创建商品",scan_noconn:"数据库在 12 秒内未响应。请检查网络后重试。",scan_lib_err:"📷 无法启动相机。\n在下方输入条码数字——查找同样有效。",src_recent:"最近",src_favs:"收藏",src_net:"网络",net_hint:"输入至少 3 个字符——在全球 Open Food Facts 数据库中搜索（需要联网）。",net_err:"无法加载。请检查网络后重试。",searching:"搜索中…",empty_hint:"点按 + 添加",copy_yesterday:"↺ 重复昨天",copied_day:"已复制昨天",goal_reached:"🎉 达成今日目标！",fav_add:"⭐ 已加入收藏",fav_del:"已从收藏移除",no_recent:"最近添加到日记的食物会显示在这里。",no_favs:"用 ★ 标记食物——它们会集中在这里。",ach_title:"成就",ach_unlocked:"🏆 成就：{n}",ach_first:"首次记录",ach_streak3:"连续3天",ach_streak7:"连续一周",ach_streak14:"连续两周",ach_streak30:"连续一个月",ach_water:"8杯水",ach_weight:"首次称重",ach_foods5:"5个自建食品",ach_goalday:"达标的一天",ach_days30:"记录30天",target_weight:"目标体重",forecast_to:"预测：约 {d} 达到 {w} 公斤",forecast_need:"每隔几天记录体重——这里会显示达到目标的预测。",forecast_flat:"体重目前稳定。继续坚持——有变化后就会出现预测。",forecast_done:"🎯 已达到目标体重——太棒了！",ob_target:"目标体重（公斤）",ob_optional:"可选",ob_forecast:"以健康的速度，约 {d} 达到 {w} 公斤",cat_all:"全部",empty:"空",add_to_diary:"添加到日记",new_product:"新产品",portion:"份量",nothing_found:"未找到。",own:"自定义",per_100g:"每100克",lbl_name:"名称",lbl_brand:"品牌 / 备注(可选)",lbl_cal:"千卡",lbl_prot:"蛋白质",lbl_fat:"脂肪",lbl_carb:"碳水",name_hint:"例如:妈妈的罗宋汤",brand_hint:"自制",add_final_dot:"添加",create_hint:"输入每100克的数值。该食品将保存到你的库中以便重复使用。",quick_save:"保存并立即添加到日记",
   language:"语言",nav_diary:"日记",nav_progress:"进度",nav_base:"食品",nav_more:"更多",
   today:"今天",yesterday:"昨天",goal:"目标",eaten:"已摄入",left:"剩余",
   kcal:"千卡",kcal_day:"千卡/天",g:"克",left_to_goal:"距目标还差 {n} 千卡",
@@ -934,7 +971,7 @@ const I18N={
   no_limits:"无限制",all_open:"所有功能已解锁",
   ext_stats:"高级统计",support_dev:"支持开发",kg_short:"公斤",no_weight:"还没有体重记录。",goal_g:"目标, 克"
  },
- hi:{cat_all:"सभी",empty:"खाली",add_to_diary:"डायरी में जोड़ें",new_product:"नया उत्पाद",portion:"मात्रा",nothing_found:"कुछ नहीं मिला।",own:"अपना",per_100g:"प्रति 100 ग्रा",lbl_name:"नाम",lbl_brand:"ब्रांड / नोट (वैकल्पिक)",lbl_cal:"कैलोरी",lbl_prot:"प्रोटीन",lbl_fat:"वसा",lbl_carb:"कार्ब्स",name_hint:"जैसे: माँ का बोर्श",brand_hint:"घर का बना",add_final_dot:"जोड़ें",create_hint:"प्रति 100 ग्राम मान दर्ज करें। उत्पाद आपके बेस में सहेजा जाएगा और दोबारा जोड़ा जा सकेगा।",quick_save:"सहेजें और तुरंत डायरी में जोड़ें",
+ hi:{theme:"थीम",theme_obsidian:"ऑब्सीडियन",theme_black:"काली",theme_light:"हल्की",streak_word:"दिन लगातार",scan_retry:"फिर से खोजें",scan_by_name:"नाम से खोजें",scan_btn:"बारकोड",scan_title:"बारकोड स्कैनर",scan_note2:"कैमरे को पैकेज के बारकोड पर रखें। यदि कैमरा उपलब्ध नहीं है, तो कोड हाथ से दर्ज करें।",scan_find:"खोजें",scan_searching:"Open Food Facts में उत्पाद {n} खोजा जा रहा है…",scan_nf:"Open Food Facts में कोड {n} वाला उत्पाद नहीं है। स्थानीय उत्पाद अक्सर नहीं होते — नाम से खोजें या हाथ से बनाएं (1 मिनट)।",scan_create:"उत्पाद हाथ से बनाएं",scan_noconn:"डेटाबेस ने 12 सेकंड में जवाब नहीं दिया। इंटरनेट जांचें और फिर से कोशिश करें।",scan_lib_err:"📷 कैमरा शुरू नहीं हो सका।\nनीचे कोड के अंक लिखें — खोज वैसे ही काम करेगी।",src_recent:"हाल के",src_favs:"पसंदीदा",src_net:"इंटरनेट",net_hint:"कम से कम 3 अक्षर लिखें — विश्वव्यापी Open Food Facts डेटाबेस में खोज (इंटरनेट आवश्यक)।",net_err:"लोड नहीं हो सका। इंटरनेट जांचें और फिर कोशिश करें।",searching:"खोज रहा है…",empty_hint:"जोड़ने के लिए + दबाएं",copy_yesterday:"↺ कल दोहराएं",copied_day:"कल कॉपी हो गया",goal_reached:"🎉 दैनिक लक्ष्य पूरा!",fav_add:"⭐ पसंदीदा में जोड़ा गया",fav_del:"पसंदीदा से हटाया गया",no_recent:"हाल में डायरी में जोड़े गए खाद्य यहां दिखेंगे।",no_favs:"खाद्य को ★ से चिह्नित करें — वे यहां जमा होंगे।",ach_title:"उपलब्धियां",ach_unlocked:"🏆 उपलब्धि: {n}",ach_first:"पहली प्रविष्टि",ach_streak3:"लगातार 3 दिन",ach_streak7:"लगातार 1 सप्ताह",ach_streak14:"लगातार 2 सप्ताह",ach_streak30:"लगातार 1 महीना",ach_water:"8 गिलास पानी",ach_weight:"पहला वज़न",ach_foods5:"5 अपने उत्पाद",ach_goalday:"लक्ष्य में दिन",ach_days30:"30 दर्ज दिन",target_weight:"लक्ष्य वज़न",forecast_to:"अनुमान: {d} तक ≈ {w} किग्रा",forecast_need:"हर कुछ दिनों में वज़न दर्ज करें — यहां लक्ष्य तक का अनुमान दिखेगा।",forecast_flat:"वज़न फिलहाल स्थिर है। जारी रखें — रुझान के साथ अनुमान दिखेगा।",forecast_done:"🎯 लक्ष्य वज़न प्राप्त — शानदार!",ob_target:"लक्ष्य वज़न, किग्रा",ob_optional:"वैकल्पिक",ob_forecast:"स्वस्थ गति से {d} तक ≈ {w} किग्रा",cat_all:"सभी",empty:"खाली",add_to_diary:"डायरी में जोड़ें",new_product:"नया उत्पाद",portion:"मात्रा",nothing_found:"कुछ नहीं मिला।",own:"अपना",per_100g:"प्रति 100 ग्रा",lbl_name:"नाम",lbl_brand:"ब्रांड / नोट (वैकल्पिक)",lbl_cal:"कैलोरी",lbl_prot:"प्रोटीन",lbl_fat:"वसा",lbl_carb:"कार्ब्स",name_hint:"जैसे: माँ का बोर्श",brand_hint:"घर का बना",add_final_dot:"जोड़ें",create_hint:"प्रति 100 ग्राम मान दर्ज करें। उत्पाद आपके बेस में सहेजा जाएगा और दोबारा जोड़ा जा सकेगा।",quick_save:"सहेजें और तुरंत डायरी में जोड़ें",
   language:"भाषा",nav_diary:"डायरी",nav_progress:"प्रगति",nav_base:"भोजन",nav_more:"और",
   today:"आज",yesterday:"कल",goal:"लक्ष्य",eaten:"खाया",left:"शेष",
   kcal:"kcal",kcal_day:"kcal/दिन",g:"ग्रा",left_to_goal:"लक्ष्य तक {n} kcal शेष",
@@ -978,7 +1015,7 @@ const I18N={
   no_limits:"कोई सीमा नहीं",all_open:"सभी सुविधाएं अनलॉक",
   ext_stats:"विस्तृत आँकड़े",support_dev:"विकास का समर्थन करें",kg_short:"kg",no_weight:"अभी तक कोई वज़न रिकॉर्ड नहीं।",goal_g:"लक्ष्य, g"
  },
- pl:{cat_all:"Wszystkie",empty:"Pusto",add_to_diary:"Dodaj do dziennika",new_product:"Nowy produkt",portion:"Porcja",nothing_found:"Nic nie znaleziono.",own:"własne",per_100g:"na 100 g",lbl_name:"Nazwa",lbl_brand:"Marka / notatka (opcjonalnie)",lbl_cal:"Kcal",lbl_prot:"Białko",lbl_fat:"Tłuszcze",lbl_carb:"Węglow.",name_hint:"np. Barszcz mamy",brand_hint:"domowe",add_final_dot:"Dodaj",create_hint:"Podaj wartości na 100 g. Produkt zostanie zapisany w Twojej bazie do ponownego użycia.",quick_save:"Zapisz i dodaj do dziennika",
+ pl:{theme:"Motyw",theme_obsidian:"Obsydian",theme_black:"Czarny",theme_light:"Jasny",streak_word:"dni z rzędu",scan_retry:"Spróbuj ponownie",scan_by_name:"Szukaj po nazwie",scan_btn:"Kod kreskowy",scan_title:"Skaner kodów kreskowych",scan_note2:"Skieruj aparat na kod kreskowy opakowania. Jeśli aparat jest niedostępny — wpisz kod ręcznie.",scan_find:"Szukaj",scan_searching:"Szukam produktu {n} w Open Food Facts…",scan_nf:"Brak produktu o kodzie {n} w Open Food Facts. Lokalnych produktów często brakuje — wyszukaj po nazwie lub utwórz ręcznie (1 minuta).",scan_create:"Utwórz produkt ręcznie",scan_noconn:"Baza danych nie odpowiedziała w ciągu 12 sekund. Sprawdź internet i spróbuj ponownie.",scan_lib_err:"📷 Nie udało się uruchomić aparatu.\nWpisz cyfry kodu poniżej — wyszukiwanie działa tak samo.",src_recent:"Ostatnie",src_favs:"Ulubione",src_net:"Internet",net_hint:"Wpisz co najmniej 3 litery — wyszukiwanie w światowej bazie Open Food Facts (wymagany internet).",net_err:"Nie udało się wczytać. Sprawdź internet i spróbuj ponownie.",searching:"Szukam…",empty_hint:"Dotknij +, aby dodać",copy_yesterday:"↺ Powtórz wczoraj",copied_day:"Skopiowano wczoraj",goal_reached:"🎉 Cel dnia osiągnięty!",fav_add:"⭐ Dodano do ulubionych",fav_del:"Usunięto z ulubionych",no_recent:"Tu pojawią się produkty ostatnio dodane do dziennika.",no_favs:"Oznacz produkty gwiazdką ★ — zbiorą się tutaj.",ach_title:"Osiągnięcia",ach_unlocked:"🏆 Osiągnięcie: {n}",ach_first:"Pierwszy wpis",ach_streak3:"3 dni z rzędu",ach_streak7:"Tydzień z rzędu",ach_streak14:"2 tygodnie z rzędu",ach_streak30:"Miesiąc z rzędu",ach_water:"8 szklanek wody",ach_weight:"Pierwsze ważenie",ach_foods5:"5 własnych produktów",ach_goalday:"Dzień w celu",ach_days30:"30 dni z wpisami",target_weight:"Waga docelowa",forecast_to:"Prognoza: ≈ {w} kg do {d}",forecast_need:"Zapisuj wagę co kilka dni — tu pojawi się prognoza do celu.",forecast_flat:"Waga jest na razie stabilna. Kontynuuj — prognoza pojawi się wraz z trendem.",forecast_done:"🎯 Waga docelowa osiągnięta — brawo!",ob_target:"Waga docelowa, kg",ob_optional:"opcjonalnie",ob_forecast:"≈ {w} kg około {d} — w zdrowym tempie",cat_all:"Wszystkie",empty:"Pusto",add_to_diary:"Dodaj do dziennika",new_product:"Nowy produkt",portion:"Porcja",nothing_found:"Nic nie znaleziono.",own:"własne",per_100g:"na 100 g",lbl_name:"Nazwa",lbl_brand:"Marka / notatka (opcjonalnie)",lbl_cal:"Kcal",lbl_prot:"Białko",lbl_fat:"Tłuszcze",lbl_carb:"Węglow.",name_hint:"np. Barszcz mamy",brand_hint:"domowe",add_final_dot:"Dodaj",create_hint:"Podaj wartości na 100 g. Produkt zostanie zapisany w Twojej bazie do ponownego użycia.",quick_save:"Zapisz i dodaj do dziennika",
   language:"Język",nav_diary:"Dziennik",nav_progress:"Postęp",nav_base:"Jedzenie",nav_more:"Więcej",
   today:"Dziś",yesterday:"Wczoraj",goal:"Cel",eaten:"Zjedzone",left:"Zostało",
   kcal:"kcal",kcal_day:"kcal/dzień",g:"g",left_to_goal:"Jeszcze {n} kcal do celu",
@@ -1022,7 +1059,7 @@ const I18N={
   no_limits:"Bez ograniczeń",all_open:"wszystkie funkcje odblokowane",
   ext_stats:"Rozszerzone statystyki",support_dev:"Wesprzyj rozwój",kg_short:"kg",no_weight:"Brak wpisów wagi.",goal_g:"cel, g"
  },
- pt:{cat_all:"Todos",empty:"Vazio",add_to_diary:"Adicionar ao diário",new_product:"Novo produto",portion:"Porção",nothing_found:"Nada encontrado.",own:"próprio",per_100g:"por 100 g",lbl_name:"Nome",lbl_brand:"Marca / nota (opcional)",lbl_cal:"Kcal",lbl_prot:"Proteínas",lbl_fat:"Gorduras",lbl_carb:"Carbo.",name_hint:"ex.: Borscht da mãe",brand_hint:"caseiro",add_final_dot:"Adicionar",create_hint:"Insira os valores por 100 g. O produto será salvo na sua base para reutilização.",quick_save:"Salvar e adicionar ao diário",
+ pt:{theme:"Tema",theme_obsidian:"Obsidiana",theme_black:"Preto",theme_light:"Claro",streak_word:"dias seguidos",scan_retry:"Tentar novamente",scan_by_name:"Buscar pelo nome",scan_btn:"Código de barras",scan_title:"Leitor de código de barras",scan_note2:"Aponte a câmera para o código de barras da embalagem. Se a câmera não estiver disponível, digite o código manualmente.",scan_find:"Buscar",scan_searching:"Procurando o produto {n} no Open Food Facts…",scan_nf:"Nenhum produto com o código {n} no Open Food Facts. Produtos locais costumam faltar — busque pelo nome ou crie manualmente (1 minuto).",scan_create:"Criar produto manualmente",scan_noconn:"O banco de dados não respondeu em 12 segundos. Verifique sua internet e tente novamente.",scan_lib_err:"📷 Não foi possível iniciar a câmera.\nDigite os números do código abaixo — a busca funciona igual.",src_recent:"Recentes",src_favs:"Favoritos",src_net:"Internet",net_hint:"Digite pelo menos 3 letras — busca na base mundial Open Food Facts (requer internet).",net_err:"Não foi possível carregar. Verifique sua internet e tente de novo.",searching:"Buscando…",empty_hint:"Toque em + para adicionar",copy_yesterday:"↺ Repetir ontem",copied_day:"Ontem copiado",goal_reached:"🎉 Meta diária alcançada!",fav_add:"⭐ Adicionado aos favoritos",fav_del:"Removido dos favoritos",no_recent:"Os alimentos adicionados recentemente ao diário aparecerão aqui.",no_favs:"Marque alimentos com ★ — eles ficarão aqui.",ach_title:"Conquistas",ach_unlocked:"🏆 Conquista: {n}",ach_first:"Primeiro registro",ach_streak3:"3 dias seguidos",ach_streak7:"1 semana seguida",ach_streak14:"2 semanas seguidas",ach_streak30:"1 mês seguido",ach_water:"8 copos de água",ach_weight:"Primeira pesagem",ach_foods5:"5 produtos próprios",ach_goalday:"Dia na meta",ach_days30:"30 dias registrados",target_weight:"Peso alvo",forecast_to:"Previsão: ≈ {w} kg até {d}",forecast_need:"Registre seu peso a cada poucos dias — aqui aparecerá uma previsão até a meta.",forecast_flat:"O peso está estável por enquanto. Continue — a previsão aparecerá com a tendência.",forecast_done:"🎯 Peso alvo alcançado — mandou bem!",ob_target:"Peso alvo, kg",ob_optional:"opcional",ob_forecast:"≈ {w} kg por volta de {d} — em ritmo saudável",cat_all:"Todos",empty:"Vazio",add_to_diary:"Adicionar ao diário",new_product:"Novo produto",portion:"Porção",nothing_found:"Nada encontrado.",own:"próprio",per_100g:"por 100 g",lbl_name:"Nome",lbl_brand:"Marca / nota (opcional)",lbl_cal:"Kcal",lbl_prot:"Proteínas",lbl_fat:"Gorduras",lbl_carb:"Carbo.",name_hint:"ex.: Borscht da mãe",brand_hint:"caseiro",add_final_dot:"Adicionar",create_hint:"Insira os valores por 100 g. O produto será salvo na sua base para reutilização.",quick_save:"Salvar e adicionar ao diário",
   language:"Idioma",nav_diary:"Diário",nav_progress:"Progresso",nav_base:"Alimentos",nav_more:"Mais",
   today:"Hoje",yesterday:"Ontem",goal:"Meta",eaten:"Consumido",left:"Restante",
   kcal:"kcal",kcal_day:"kcal/dia",g:"g",left_to_goal:"Faltam {n} kcal para a meta",
@@ -1292,16 +1329,16 @@ function renderWater(){
   // 8 стаканов
   let html='<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#46e0ff"/><stop offset="1" stop-color="#5b8bff"/></linearGradient></defs></svg>';
   for(let i=1;i<=8;i++){
-    html+=`<button data-cup="${i}" class="${i<=n?'full':''}" aria-label="${i*250} ml"><svg viewBox="0 0 24 30"><path class="cup" d="M4 3 L20 3 L18 26 Q18 28 16 28 L8 28 Q6 28 6 26 Z"/></svg></button>`;
+    html+=`<button type="button" data-cup="${i}" class="${i<=n?'full':''}" aria-label="${i*250} ml"><svg viewBox="0 0 24 30"><path class="cup" d="M4 3 L20 3 L18 26 Q18 28 16 28 L8 28 Q6 28 6 26 Z"/></svg></button>`;
   }
   row.innerHTML=html;
+  row.querySelectorAll('button[data-cup]').forEach(b=>{b.onclick=()=>onCupTap(+b.dataset.cup);});
 }
-$('#waterRow')?.addEventListener('click',e=>{
-  const b=e.target.closest('button[data-cup]'); if(!b) return;
-  const cup=+b.dataset.cup, cur=WATER[viewDate]||0;
+function onCupTap(cup){
+  const cur=WATER[viewDate]||0;
   WATER[viewDate] = (cup===cur) ? cup-1 : cup; // тап по последнему полному — убирает его
   saveWater(); renderWater(); checkAch();
-});
+}
 /* ===== ДОСТИЖЕНИЯ ===== */
 const ACH=[{id:'first',emo:'🍽'},{id:'streak3',emo:'🔥'},{id:'streak7',emo:'⚡'},{id:'streak14',emo:'🌟'},{id:'streak30',emo:'👑'},{id:'water',emo:'💧'},{id:'weight',emo:'⚖️'},{id:'foods5',emo:'📦'},{id:'goalday',emo:'🎯'},{id:'days30',emo:'🗓'}];
 function renderAch(){
@@ -1855,15 +1892,27 @@ async function doSearch(q){
   if(currentSrc==='net'){
     if(!q||q.length<3){r.innerHTML='<div class="loading">'+esc(t('net_hint'))+'</div>';return;}
     const my=++netToken;
-    r.innerHTML='<div class="loading">'+esc(t('searching'))+'</div>';
+    r.innerHTML='<div class="loading"><div class="spinner"></div>'+esc(t('searching'))+'</div>';
+    let arr=[];
+    // 1) быстрый новый API (search-a-licious)
     try{
-      const resp=await fetch('https://world.openfoodfacts.org/cgi/search.pl?search_terms='+encodeURIComponent(q)+'&search_simple=1&action=process&json=1&page_size=20&fields=product_name,product_name_ru,brands,nutriments');
+      const resp=await fetchT('https://search.openfoodfacts.org/search?q='+encodeURIComponent(q)+'&page_size=20&langs='+(LANG==='ru'?'ru,en':LANG+',en')+'&fields=product_name,product_name_ru,brands,nutriments',9000);
       const data=await resp.json();
-      if(my!==netToken)return; // пользователь уже ввёл другой запрос
-      const arr=(data.products||[]).map(parseOFF).filter(Boolean);
-      if(!arr.length){r.innerHTML='<div class="loading">'+esc(t('nothing_found'))+'</div>';return;}
-      showList(arr,'OFF');
-    }catch(e){ if(my===netToken)r.innerHTML='<div class="loading">'+esc(t('net_err'))+'</div>'; }
+      if(my!==netToken)return;
+      arr=((data.hits||data.products)||[]).map(parseOFF).filter(Boolean);
+    }catch(e){ if(my!==netToken)return; }
+    // 2) не вышло — классический API как запасной
+    if(!arr.length){
+      try{
+        const resp2=await fetchT('https://world.openfoodfacts.org/cgi/search.pl?search_terms='+encodeURIComponent(q)+'&search_simple=1&action=process&json=1&page_size=20&fields=product_name,product_name_ru,brands,nutriments',12000);
+        const data2=await resp2.json();
+        if(my!==netToken)return;
+        arr=(data2.products||[]).map(parseOFF).filter(Boolean);
+      }catch(e){ if(my===netToken)r.innerHTML='<div class="loading">'+esc(t('net_err'))+'</div>'; return; }
+    }
+    if(my!==netToken)return;
+    if(!arr.length){r.innerHTML='<div class="loading">'+esc(t('nothing_found'))+'</div>';return;}
+    showList(arr,'OFF');
     return;
   }
 }
@@ -1955,6 +2004,12 @@ function renderMyFoods(){
 }
 $('#newFoodBtn').onclick=()=>openCreateFood();
 
+/* fetch с жёстким таймаутом: без ответа за N мс — обрываем */
+function fetchT(url,ms){
+  const ctl=('AbortController' in window)?new AbortController():null;
+  const timer=ctl?setTimeout(()=>ctl.abort(),ms||12000):null;
+  return fetch(url,ctl?{signal:ctl.signal}:{}).finally(()=>{if(timer)clearTimeout(timer);});
+}
 /* ===== SCANNER ===== */
 let scanner=null;
 function loadScript(src){return new Promise((res,rej)=>{const el=document.createElement('script');const to=setTimeout(()=>rej(new Error('timeout')),8000);el.src=src;el.onload=()=>{clearTimeout(to);res();};el.onerror=()=>{clearTimeout(to);rej(new Error('load'));};document.head.appendChild(el);});}
@@ -1981,8 +2036,10 @@ async function openScanner(){
 function startScanner(){
   if(typeof Html5Qrcode==='undefined')return;
   try{
-    scanner=new Html5Qrcode('reader');
-    scanner.start({facingMode:'environment'},{fps:10,qrbox:{width:250,height:160}},code=>{stopScanner();lookupBarcode(code);},()=>{})
+    let fmts;
+    try{ const F=Html5QrcodeSupportedFormats; fmts=[F.EAN_13,F.EAN_8,F.UPC_A,F.UPC_E,F.CODE_128,F.QR_CODE]; }catch(e){}
+    scanner=new Html5Qrcode('reader',{formatsToSupport:fmts,experimentalFeatures:{useBarCodeDetectorIfSupported:true},verbose:false});
+    scanner.start({facingMode:'environment'},{fps:12,qrbox:{width:290,height:150}},code=>{toast('✓ '+code);stopScanner();lookupBarcode(code);},()=>{})
     .catch(()=>{const rd=$('#reader');if(rd)rd.innerHTML='<div class="loading" style="padding:28px 14px;white-space:pre-line">'+esc(t('scan_lib_err'))+'</div>';});
   }catch(e){const rd=$('#reader');if(rd)rd.innerHTML='<div class="loading" style="padding:28px 14px;white-space:pre-line">'+esc(t('scan_lib_err'))+'</div>';}
 }
@@ -1993,15 +2050,22 @@ async function lookupBarcode(code){
   stopScanner();
   $('#sheetTitle').textContent=t('scan_title');
   $('#sheetBody').innerHTML='<div class="loading"><div class="spinner"></div>'+esc(t('scan_searching',{n:code}))+'</div>';
+  const fail=(msgKey)=>{
+    $('#sheetBody').innerHTML='<div class="loading">'+esc(t(msgKey,{n:code}))
+      +'<div style="max-width:280px;margin:18px auto 0;display:flex;flex-direction:column;gap:10px">'
+      +(msgKey==='scan_noconn'?'<button class="btn-primary" id="scRetry">'+esc(t('scan_retry'))+'</button>':'')
+      +'<button class="'+(msgKey==='scan_noconn'?'btn-ghost':'btn-primary')+'" id="scByName">🔍 '+esc(t('scan_by_name'))+'</button>'
+      +'<button class="btn-ghost" id="toCreate">'+esc(t('scan_create'))+'</button></div></div>';
+    const r1=$('#scRetry'); if(r1)r1.onclick=()=>lookupBarcode(code);
+    $('#scByName').onclick=()=>{openSearch();const seg=$('#srcSeg');if(seg){seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.src==='net'));currentSrc='net';$('#catChips').style.display='none';doSearch('');setTimeout(()=>$('#q')?.focus(),250);}};
+    $('#toCreate').onclick=()=>openCreateFood();
+  };
   try{
-    const data=await(await fetch('https://world.openfoodfacts.org/api/v2/product/'+encodeURIComponent(code)+'.json?fields=product_name,product_name_ru,brands,nutriments')).json();
+    const resp=await fetchT('https://world.openfoodfacts.org/api/v2/product/'+encodeURIComponent(code)+'.json?fields=product_name,product_name_ru,brands,nutriments',12000);
+    const data=await resp.json();
     if(data.status===1&&data.product){const f=parseOFF(data.product);if(f){openPortion(f);return;}}
-    $('#sheetBody').innerHTML='<div class="loading">'+esc(t('scan_nf',{n:code}))+'<br><br><button class="btn-primary" id="toCreate" style="max-width:260px;margin:14px auto 0">'+esc(t('scan_create'))+'</button></div>';
-    $('#toCreate').onclick=()=>openCreateFood();
-  }catch(e){
-    $('#sheetBody').innerHTML='<div class="loading">'+esc(t('scan_noconn'))+'<br><br><button class="btn-primary" id="toCreate" style="max-width:260px;margin:14px auto 0">'+esc(t('scan_create'))+'</button></div>';
-    $('#toCreate').onclick=()=>openCreateFood();
-  }
+    fail('scan_nf');
+  }catch(e){ fail('scan_noconn'); }
 }
 
 /* Фото-анализ убран по решению владельца — вернём позже */
@@ -2013,8 +2077,9 @@ function renderChart(){
   const ctx=$('#chart');if(!ctx)return;const days=last7();
   const labels=days.map(d=>new Date(d+'T00:00').toLocaleDateString({ru:'ru-RU',en:'en-US',es:'es-ES',de:'de-DE',fr:'fr-FR',ja:'ja-JP',zh:'zh-CN',hi:'hi-IN',pl:'pl-PL',pt:'pt-BR'}[LANG]||'en-US',{weekday:'short'}));
   if(chart)chart.destroy();
-  const grid='rgba(255,255,255,.05)',tick='#5b6589';
-  const base={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:chartType==='macro',labels:{color:'#9aa3c4',boxWidth:10,font:{size:11}}}},scales:{x:{grid:{color:grid},ticks:{color:tick,font:{size:11}}},y:{grid:{color:grid},ticks:{color:tick,font:{size:11}},beginAtZero:true}}};
+  const _light=document.body.getAttribute('data-theme')==='light';
+  const grid=_light?'rgba(20,30,70,.08)':'rgba(255,255,255,.05)',tick=_light?'#7a83a8':'#5b6589';
+  const base={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:chartType==='macro',labels:{color:_light?'#525b80':'#9aa3c4',boxWidth:10,font:{size:11}}}},scales:{x:{grid:{color:grid},ticks:{color:tick,font:{size:11}}},y:{grid:{color:grid},ticks:{color:tick,font:{size:11}},beginAtZero:true}}};
   if(chartType==='cal'){
     const data=days.map(d=>Math.round(dayTotals(d).cal));
     chart=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:t('kcal'),data,backgroundColor:data.map(v=>v>S.goal?'rgba(255,93,115,.85)':'rgba(91,139,255,.85)'),borderRadius:8,maxBarThickness:34}]},options:{...base,scales:{...base.scales,y:{...base.scales.y,suggestedMax:S.goal*1.2}}}});
@@ -2028,7 +2093,7 @@ function renderChart(){
     const d30=[],_td=todayISO();for(let i=29;i>=0;i--)d30.push(addDays(_td,-i));
     const pts=d30.map(d=>WEIGHTS[d]??null);
     const _loc={ru:'ru-RU',en:'en-US',es:'es-ES',de:'de-DE',fr:'fr-FR',ja:'ja-JP',zh:'zh-CN',hi:'hi-IN',pl:'pl-PL',pt:'pt-BR'}[LANG]||'en-US';const lbl=d30.map((d,i)=>i%5===0?new Date(d+'T00:00').toLocaleDateString(_loc,{day:'numeric',month:'short'}):'');
-    chart=new Chart(ctx,{type:'line',data:{labels:lbl,datasets:[{label:'кг',data:pts,borderColor:'#46e0ff',backgroundColor:'rgba(70,224,255,.12)',tension:.35,spanGaps:true,fill:true,pointRadius:3,pointBackgroundColor:'#46e0ff'}]},options:{...base,plugins:{legend:{display:false}},scales:{...base.scales,y:{...base.scales.y,beginAtZero:false}}}});
+    chart=new Chart(ctx,{type:'line',data:{labels:lbl,datasets:[{label:t('kg_short'),data:pts,borderColor:'#46e0ff',backgroundColor:'rgba(70,224,255,.12)',tension:.35,spanGaps:true,fill:true,pointRadius:3,pointBackgroundColor:'#46e0ff'}]},options:{...base,plugins:{legend:{display:false}},scales:{...base.scales,y:{...base.scales.y,beginAtZero:false}}}});
   }
 }
 function renderStats(){
@@ -2043,7 +2108,18 @@ $('#weightSave').onclick=()=>{const v=parseFloat($('#weightInput').value.replace
 function renderWeightLast(){const d=Object.keys(WEIGHTS).sort();if(!d.length){$('#weightLast').textContent=t('no_weight');return;}const last=d[d.length-1];let s=t('last')+': '+WEIGHTS[last]+' '+t('kg_short')+' · '+prettyDate(last);if(d.length>1){const diff=WEIGHTS[last]-WEIGHTS[d[0]];s+=' · '+(diff>=0?'+':'')+diff.toFixed(1)+' '+t('kg_short');}$('#weightLast').textContent=s;}
 
 /* ===== SETTINGS ===== */
+function applyTheme(){
+  const th=S.theme||'';
+  if(th)document.body.setAttribute('data-theme',th);else document.body.removeAttribute('data-theme');
+  const seg=$('#themeSeg');
+  if(seg)seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',(b.dataset.th||'')===th));
+  let m=document.querySelector('meta[name="theme-color"]');
+  if(!m){m=document.createElement('meta');m.name='theme-color';document.head.appendChild(m);}
+  m.content=th==='light'?'#eef1f9':(th==='black'?'#000000':'#07080d');
+  try{if(typeof chart!=='undefined'&&chart)renderChart();}catch(e){}
+}
 function fillSettings(){
+  applyTheme();
   $('#setGoal').value=S.goal;$('#setProt').value=S.prot;$('#setFat').value=S.fat;$('#setCarb').value=S.carb;
   $('#setTargetW').value=S.targetW||'';
   $('#calcAge').value=S.age;$('#calcH').value=S.height;$('#calcW').value=S.weight;$('#calcAct').value=S.act;
@@ -2058,6 +2134,10 @@ function fillSettings(){
   else v=Math.min(2000,Math.max(0,v));
   S[k]=v; e.target.value=v; saveSettings(); renderDiary(); toast(t('saved'));
 }));
+$('#themeSeg')?.addEventListener('click',e=>{
+  const b=e.target.closest('button[data-th]'); if(!b)return;
+  S.theme=b.dataset.th||''; saveSettings(); applyTheme();
+});
 $('#setTargetW').addEventListener('change',e=>{const v=parseFloat(String(e.target.value).replace(',','.'))||0;S.targetW=(v>=25&&v<=400)?v:0;saveSettings();renderForecast();toast(t('saved'));});
 $('#sexM').onclick=()=>{S.sex='M';$('#sexM').classList.add('on');$('#sexF').classList.remove('on');};
 $('#sexF').onclick=()=>{S.sex='F';$('#sexF').classList.add('on');$('#sexM').classList.remove('on');};
@@ -2260,7 +2340,7 @@ $('#resetBtn').onclick=async()=>{if(!confirm(t('reset_confirm')))return;DIARY={}
     if(v==='auto'){ try{localStorage.removeItem('kalon:lang')}catch(e){} LANG=detectLang(); }
     else { setLang(v); }
     // перерисовать весь интерфейс на новом языке
-    applyI18n(); fillSettings(); renderDiary(); renderWeightLast(); renderMyFoods(); if(typeof renderStats==='function')renderStats(); if(chart)renderChart();
+    applyI18n(); fillSettings(); renderDiary(); renderWeightLast(); renderMyFoods(); renderAch(); renderForecast(); if(typeof renderStats==='function')renderStats(); if(chart)renderChart();
   };
 })();
 
