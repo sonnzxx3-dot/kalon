@@ -358,8 +358,26 @@ body[data-theme="light"] .ring .big{-webkit-text-fill-color:initial;color:var(--
 .water-row button{flex:1;height:54px;max-width:44px;min-width:26px;background:transparent;border:none;padding:0;cursor:pointer;display:grid;place-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .water-row svg{width:100%;height:100%;transition:transform .15s ease;pointer-events:none}
 .water-row button:active svg{transform:scale(.85)}
-.water-row .cup{fill:rgba(255,255,255,.06);stroke:var(--line);stroke-width:1.4;transition:fill .25s ease,stroke .25s ease}
-.water-row button.full .cup{fill:url(#waterGrad);stroke:var(--edge)}
+.water-row .cup-bg{fill:rgba(255,255,255,.05);stroke:none}
+.water-row .cup-rim{fill:none;stroke:var(--line);stroke-width:1.4;transition:stroke .3s ease}
+.water-row button.full .cup-rim{stroke:var(--edge)}
+/* слой воды: по умолчанию опущен ниже дна (пусто), у полного — поднят */
+/* подъём воды: отдельный слой, только translateY, без конфликтов */
+.water-row .water-lift{transform:translateY(24px)}
+.water-row button.full .water-lift{animation:waterRise .7s cubic-bezier(.22,.61,.36,1) forwards}
+@keyframes waterRise{0%{transform:translateY(24px)}100%{transform:translateY(2px)}}
+/* волна: широкий путь в 2 периода, сдвиг ровно на 1 период (24) = бесшовный цикл */
+.water-row .wave-back path,.water-row .wave-front path{fill:url(#waterGrad)}
+.water-row .wave-back{opacity:.5;animation:waveSlide 3.4s linear infinite;will-change:transform}
+.water-row .wave-front{opacity:.92;animation:waveSlide 2.6s linear infinite;will-change:transform}
+@keyframes waveSlide{from{transform:translateX(0)}to{transform:translateX(-24px)}}
+/* капля, падающая при доливе */
+.water-row .drop{fill:var(--edge);opacity:0;animation:dropFall .55s cubic-bezier(.5,0,.75,.3) forwards}
+@keyframes dropFall{0%{opacity:0;transform:translateY(-1px) scale(.7)}20%{opacity:.9}75%{opacity:.9;transform:translateY(8px) scale(1)}100%{opacity:0;transform:translateY(9px) scale(1)}}
+/* пустой стакан слегка светлеет при наведении/нажатии */
+.water-row button:not(.full):active .cup-bg{fill:rgba(91,139,255,.12)}
+body[data-theme="light"] .water-row .cup-bg{fill:rgba(20,32,80,.05)}
+@media (prefers-reduced-motion:reduce){.water-row .wave,.water-row .water-lift,.water-row .drop{animation-duration:.01s!important}}
 
 /* ===== ОНБОРДИНГ ===== */
 #onboard{position:fixed;inset:0;z-index:9000;background:linear-gradient(180deg,var(--bg-2),var(--bg));display:none;flex-direction:column;padding:max(40px,env(safe-area-inset-top)) 24px max(28px,env(safe-area-inset-bottom));overflow-y:auto}
@@ -468,7 +486,7 @@ body[data-theme="black"]{background:
 body[data-theme="light"] .sheet{background:#ffffff}
 body[data-theme="light"] .set-row input,body[data-theme="light"] .set-row select,body[data-theme="light"] .weight-entry input{background:#f1f4fb}
 body[data-theme="light"] .pw-crown{box-shadow:0 14px 34px -10px rgba(96,116,235,.45)}
-body[data-theme="light"] .water-row .cup{fill:rgba(20,32,80,.06)}
+
 body[data-theme="light"] .res:active{background:#f2f5ff}
 body[data-theme="light"] .copy-yday{border-color:#c9d2ea;color:#525b80}
 body[data-theme="light"] .streak-chip{background:linear-gradient(135deg,rgba(200,137,31,.12),rgba(217,67,96,.07));border-color:rgba(200,137,31,.4)}
@@ -1429,12 +1447,33 @@ function renderWater(){
   const row=$('#waterRow'); if(!row) return;
   const n=WATER[viewDate]||0;
   $('#waterMl').textContent=fmt(n*250);
-  // 8 стаканов
-  let html='<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#46e0ff"/><stop offset="1" stop-color="#5b8bff"/></linearGradient></defs></svg>';
+  const prevFull=+row.dataset.full||0; // сколько было заполнено до перерисовки — для анимации долива
+  // общие defs: градиент воды + форма стакана как clip
+  let html=`<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b8bff"/><stop offset="1" stop-color="#46e0ff"/></linearGradient>
+    <clipPath id="cupClip"><path d="M4.6 4 L19.4 4 L17.7 25.4 Q17.5 27.4 15.6 27.4 L8.4 27.4 Q6.5 27.4 6.3 25.4 Z"/></clipPath>
+  </defs></svg>`;
   for(let i=1;i<=8;i++){
-    html+=`<button type="button" data-cup="${i}" class="${i<=n?'full':''}" aria-label="${i*250} ml"><svg viewBox="0 0 24 30"><path class="cup" d="M4 3 L20 3 L18 26 Q18 28 16 28 L8 28 Q6 28 6 26 Z"/></svg></button>`;
+    const full=i<=n;
+    // задержка «долива» каскадом только для вновь добавленных стаканов
+    const justFilled = full && i>prevFull;
+    const delay = justFilled ? (i-prevFull-1)*0.12 : 0;
+    html+=`<button type="button" data-cup="${i}" class="${full?'full':''}" aria-label="${i*250} ml">
+      <svg viewBox="0 0 24 30" preserveAspectRatio="xMidYMid meet">
+        <path class="cup-bg" d="M4.6 4 L19.4 4 L17.7 25.4 Q17.5 27.4 15.6 27.4 L8.4 27.4 Q6.5 27.4 6.3 25.4 Z"/>
+        <g clip-path="url(#cupClip)">
+          <g class="water-lift" style="animation-delay:${delay}s">
+            <g class="wave-back"><path d="M0 6 Q6 3.5 12 6 T24 6 T36 6 T48 6 V34 H0 Z"/></g>
+            <g class="wave-front"><path d="M0 6 Q6 8.5 12 6 T24 6 T36 6 T48 6 V34 H0 Z"/></g>
+          </g>
+        </g>
+        <path class="cup-rim" d="M4.6 4 L19.4 4 L17.7 25.4 Q17.5 27.4 15.6 27.4 L8.4 27.4 Q6.5 27.4 6.3 25.4 Z"/>
+        ${justFilled?`<circle class="drop" cx="12" cy="1" r="1.3" style="animation-delay:${delay}s"/>`:''}
+      </svg>
+    </button>`;
   }
   row.innerHTML=html;
+  row.dataset.full=n;
 }
 function onCupTap(cup){
   const cur=WATER[viewDate]||0;
