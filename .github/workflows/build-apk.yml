@@ -58,7 +58,12 @@ jobs:
           if ! grep -q 'android.permission.CAMERA' "$MANIFEST"; then
             sed -i 's#</manifest>#    <uses-permission android:name="android.permission.CAMERA" />\n</manifest>#' "$MANIFEST"
           fi
-          grep -n "CAMERA" "$MANIFEST" || echo "WARNING: camera permission not injected"
+          # Камера НЕ обязательна: иначе Google Play исключит устройства без камеры (планшеты и др.)
+          if ! grep -q 'android.hardware.camera' "$MANIFEST"; then
+            sed -i 's#<uses-permission android:name="android.permission.CAMERA" */>#&\n    <uses-feature android:name="android.hardware.camera" android:required="false" />\n    <uses-feature android:name="android.hardware.camera.any" android:required="false" />\n    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />#' "$MANIFEST"
+          fi
+          echo "=== manifest camera lines ==="
+          grep -n "CAMERA\|hardware.camera" "$MANIFEST" || echo "WARNING: camera entries not injected"
       - name: Harden network security (no cleartext HTTP)
         run: |
           MANIFEST=android/app/src/main/AndroidManifest.xml
