@@ -842,7 +842,6 @@ body[data-theme="light"] .tool-btn,body[data-theme="cream"] .tool-btn,body[data-
         <span class="wv"><span id="waterMl">0</span> / 2000 мл</span>
       </div>
       <div class="water-row" id="waterRow">
-        <svg width="0" height="0" style="position:absolute"><defs><linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#46e0ff"/><stop offset="1" stop-color="#5b8bff"/></linearGradient></defs></svg>
       </div>
     </div>
   </section>
@@ -1685,7 +1684,7 @@ function renderWater(){
   const prevFull=+row.dataset.full||0; // сколько было заполнено до перерисовки — для анимации долива
   // общие defs: градиент воды + форма стакана как clip
   let html=`<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-    
+    <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#46e0ff"/><stop offset="1" stop-color="#5b8bff"/></linearGradient>
     <clipPath id="cupClip"><path d="M4.6 4 L19.4 4 L17.7 25.4 Q17.5 27.4 15.6 27.4 L8.4 27.4 Q6.5 27.4 6.3 25.4 Z"/></clipPath>
   </defs></svg>`;
   for(let i=1;i<=8;i++){
