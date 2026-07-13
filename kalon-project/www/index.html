@@ -363,6 +363,13 @@ body.admob-on .app{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 .scan-status{position:absolute;left:0;right:0;bottom:10px;text-align:center;font-size:12.5px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.8);padding:0 12px;pointer-events:none}
 .scan-status.err{color:#ff9db0;white-space:pre-line;position:static;padding:26px 16px;text-shadow:none}
 .scan-note{font-size:12px;color:var(--ink-faint);text-align:center;margin:14px 0;line-height:1.6}
+.privacy-doc{font-size:13.5px;line-height:1.62;color:var(--ink-soft);padding:2px 2px 8px}
+.privacy-doc h3{font-size:19px;font-weight:800;color:var(--ink);margin:4px 0 2px;letter-spacing:-.3px}
+.privacy-doc h4{font-size:14.5px;font-weight:800;color:var(--ink);margin:20px 0 6px}
+.privacy-doc p{margin:0 0 11px}
+.privacy-doc b{color:var(--ink);font-weight:700}
+.privacy-doc .pp-upd{font-size:12px;color:var(--ink-faint);margin-bottom:16px}
+.privacy-doc .pp-foot{margin-top:20px;padding-top:14px;border-top:1px solid var(--line-soft);font-size:12.5px;color:var(--ink-faint);font-style:italic}
 .manual-code{display:flex;gap:8px;margin-top:10px}
 .manual-code input{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--ink);font-family:inherit;font-size:14px}
 .manual-code button{background:var(--panel-2);border:1px solid var(--line);color:var(--blade);border-radius:12px;padding:0 18px;font-weight:700;font-family:inherit;cursor:pointer}
@@ -955,6 +962,8 @@ body[data-theme="light"] .tool-btn,body[data-theme="cream"] .tool-btn,body[data-
     <div class="card" style="margin-top:14px">
       <div class="set-row"><div class="sl" data-i18n="reset_all">Сбросить все данные<small>дневник, вес, продукты, настройки</small></div>
         <button id="resetBtn" style="background:transparent;border:1px solid var(--hot);color:var(--hot);border-radius:11px;padding:8px 13px;font-family:inherit;font-weight:700;cursor:pointer;font-size:12px" data-i18n="reset">Сброс</button></div>
+      <div class="set-row" style="border-top:1px solid var(--line-soft);padding-top:13px;margin-top:2px"><div class="sl" data-i18n="privacy_row">Политика конфиденциальности<small data-i18n="privacy_sub">как мы обращаемся с данными</small></div>
+        <button id="privacyBtn" style="background:var(--panel-2);border:1px solid var(--line);color:var(--blade);border-radius:11px;padding:8px 15px;font-family:inherit;font-weight:700;cursor:pointer;font-size:12px" data-i18n="privacy_open">Открыть</button></div>
     </div>
     <p style="text-align:center;font-size:11px;color:var(--ink-faint);margin-top:20px;line-height:1.6">
       Kalon · Synax Sword · <span id="buildTag"></span><br><span data-i18n="data_src">Данные продуктов — Open Food Facts.</span><br><span data-i18n="med_note">Не является медицинской рекомендацией.</span>
@@ -1026,7 +1035,7 @@ const I18N={
   activity:"Активность",act_low:"Низкая",act_light:"Лёгкая",act_mid:"Средняя",act_high:"Высокая",
   calc_apply:"Рассчитать и применить",ob_title:"Добро пожаловать в Kalon!",ob_sub:"Настроим твою дневную норму за минуту",ob_goal:"Твоя цель",goal_lose:"Похудеть",goal_keep:"Держать вес",goal_gain:"Набрать массу",ob_about:"О тебе",ob_next:"Далее",ob_back:"Назад",ob_result:"Твоя норма",ob_start:"Начать!",ob_skip:"Пропустить",ob_hint:"Всё можно изменить в настройках",water:"Вода",norm_result:"Норма: {n} ккал/день",
   fill_awh:"Заполни возраст, рост, вес",check_age:"Проверь возраст",check_height:"Проверь рост (см)",
-  saved:"Сохранено",reset:"Сброс",reset_all:"Сбросить все данные",
+  saved:"Сохранено",reset:"Сброс",reset_all:"Сбросить все данные",privacy_row:"Политика конфиденциальности",privacy_sub:"как мы обращаемся с данными",privacy_open:"Открыть",
   reset_confirm:"Удалить все данные? Необратимо.",reset_done:"Данные сброшены",
   premium_active:"Premium активен",ad_disabled:"Реклама отключена. Спасибо за поддержку!",
   manage_sub:"Управление подпиской",remove_ads:"Убери рекламу с Premium",
@@ -1070,7 +1079,7 @@ const I18N={
   activity:"Activity",act_low:"Low",act_light:"Light",act_mid:"Medium",act_high:"High",
   calc_apply:"Calculate and apply",ob_title:"Welcome to Kalon!",ob_sub:"Set up your daily goal in a minute",ob_goal:"Your goal",goal_lose:"Lose weight",goal_keep:"Maintain",goal_gain:"Gain muscle",ob_about:"About you",ob_next:"Next",ob_back:"Back",ob_result:"Your daily goal",ob_start:"Start!",ob_skip:"Skip",ob_hint:"You can change everything in settings",water:"Water",norm_result:"Goal: {n} kcal/day",
   fill_awh:"Fill in age, height, weight",check_age:"Check age",check_height:"Check height (cm)",
-  saved:"Saved",reset:"Reset",reset_all:"Reset all data",
+  saved:"Saved",reset:"Reset",reset_all:"Reset all data",privacy_row:"Privacy Policy",privacy_sub:"how we handle your data",privacy_open:"Open",
   reset_confirm:"Delete all data? This cannot be undone.",reset_done:"Data reset",
   premium_active:"Premium active",ad_disabled:"Ads disabled. Thanks for your support!",
   manage_sub:"Manage subscription",remove_ads:"Remove ads with Premium",
@@ -1114,7 +1123,7 @@ const I18N={
   activity:"Actividad",act_low:"Baja",act_light:"Ligera",act_mid:"Media",act_high:"Alta",
   calc_apply:"Calcular y aplicar",ob_title:"¡Bienvenido a Kalon!",ob_sub:"Configura tu meta diaria en un minuto",ob_goal:"Tu objetivo",goal_lose:"Perder peso",goal_keep:"Mantener",goal_gain:"Ganar masa",ob_about:"Sobre ti",ob_next:"Siguiente",ob_back:"Atrás",ob_result:"Tu meta diaria",ob_start:"¡Empezar!",ob_skip:"Omitir",ob_hint:"Puedes cambiar todo en ajustes",water:"Agua",norm_result:"Meta: {n} kcal/día",
   fill_awh:"Rellena edad, altura, peso",check_age:"Revisa la edad",check_height:"Revisa la altura (cm)",
-  saved:"Guardado",reset:"Reiniciar",reset_all:"Borrar todos los datos",
+  saved:"Guardado",reset:"Reiniciar",reset_all:"Borrar todos los datos",privacy_row:"Política de privacidad",privacy_sub:"cómo tratamos tus datos",privacy_open:"Abrir",
   reset_confirm:"¿Borrar todos los datos? No se puede deshacer.",reset_done:"Datos borrados",
   premium_active:"Premium activo",ad_disabled:"Anuncios desactivados. ¡Gracias!",
   manage_sub:"Gestionar suscripción",remove_ads:"Quita anuncios con Premium",
@@ -1158,7 +1167,7 @@ const I18N={
   activity:"Aktivität",act_low:"Niedrig",act_light:"Leicht",act_mid:"Mittel",act_high:"Hoch",
   calc_apply:"Berechnen und anwenden",ob_title:"Willkommen bei Kalon!",ob_sub:"Richte dein Tagesziel in einer Minute ein",ob_goal:"Dein Ziel",goal_lose:"Abnehmen",goal_keep:"Halten",goal_gain:"Zunehmen",ob_about:"Über dich",ob_next:"Weiter",ob_back:"Zurück",ob_result:"Dein Tagesziel",ob_start:"Los geht’s!",ob_skip:"Überspringen",ob_hint:"Alles später in den Einstellungen änderbar",water:"Wasser",norm_result:"Ziel: {n} kcal/Tag",
   fill_awh:"Alter, Größe, Gewicht eingeben",check_age:"Alter prüfen",check_height:"Größe prüfen (cm)",
-  saved:"Gespeichert",reset:"Zurücksetzen",reset_all:"Alle Daten löschen",
+  saved:"Gespeichert",reset:"Zurücksetzen",reset_all:"Alle Daten löschen",privacy_row:"Datenschutzerklärung",privacy_sub:"wie wir mit Daten umgehen",privacy_open:"Öffnen",
   reset_confirm:"Alle Daten löschen? Nicht umkehrbar.",reset_done:"Daten zurückgesetzt",
   premium_active:"Premium aktiv",ad_disabled:"Werbung deaktiviert. Danke!",
   manage_sub:"Abo verwalten",remove_ads:"Werbung mit Premium entfernen",
@@ -1202,7 +1211,7 @@ const I18N={
   activity:"Activité",act_low:"Faible",act_light:"Légère",act_mid:"Moyenne",act_high:"Élevée",
   calc_apply:"Calculer et appliquer",ob_title:"Bienvenue dans Kalon !",ob_sub:"Configure ton objectif quotidien en une minute",ob_goal:"Ton objectif",goal_lose:"Perdre du poids",goal_keep:"Maintenir",goal_gain:"Prendre de la masse",ob_about:"À propos de toi",ob_next:"Suivant",ob_back:"Retour",ob_result:"Ton objectif",ob_start:"C’est parti !",ob_skip:"Passer",ob_hint:"Tout est modifiable dans les réglages",water:"Eau",norm_result:"Objectif : {n} kcal/jour",
   fill_awh:"Remplis âge, taille, poids",check_age:"Vérifie l'âge",check_height:"Vérifie la taille (cm)",
-  saved:"Enregistré",reset:"Réinit.",reset_all:"Effacer toutes les données",
+  saved:"Enregistré",reset:"Réinit.",reset_all:"Effacer toutes les données",privacy_row:"Politique de confidentialité",privacy_sub:"comment nous traitons vos données",privacy_open:"Ouvrir",
   reset_confirm:"Effacer toutes les données ? Irréversible.",reset_done:"Données effacées",
   premium_active:"Premium actif",ad_disabled:"Pubs désactivées. Merci !",
   manage_sub:"Gérer l'abonnement",remove_ads:"Retire les pubs avec Premium",
@@ -1246,7 +1255,7 @@ const I18N={
   activity:"活動量",act_low:"低い",act_light:"軽い",act_mid:"普通",act_high:"高い",
   calc_apply:"計算して適用",ob_title:"Kalonへようこそ!",ob_sub:"1分で1日の目標を設定",ob_goal:"あなたの目標",goal_lose:"減量する",goal_keep:"維持する",goal_gain:"増量する",ob_about:"あなたについて",ob_next:"次へ",ob_back:"戻る",ob_result:"あなたの目標値",ob_start:"始める!",ob_skip:"スキップ",ob_hint:"設定でいつでも変更できます",water:"水",norm_result:"目標: {n} kcal/日",
   fill_awh:"年齢・身長・体重を入力",check_age:"年齢を確認",check_height:"身長を確認 (cm)",
-  saved:"保存しました",reset:"リセット",reset_all:"全データを削除",
+  saved:"保存しました",reset:"リセット",reset_all:"全データを削除",privacy_row:"プライバシーポリシー",privacy_sub:"データの取り扱いについて",privacy_open:"開く",
   reset_confirm:"全データを削除しますか？元に戻せません。",reset_done:"データをリセット",
   premium_active:"プレミアム有効",ad_disabled:"広告を無効化。ご支援ありがとうございます！",
   manage_sub:"サブスク管理",remove_ads:"プレミアムで広告を削除",
@@ -1290,7 +1299,7 @@ const I18N={
   activity:"活动量",act_low:"低",act_light:"轻度",act_mid:"中等",act_high:"高",
   calc_apply:"计算并应用",ob_title:"欢迎使用 Kalon!",ob_sub:"一分钟设置每日目标",ob_goal:"你的目标",goal_lose:"减重",goal_keep:"保持",goal_gain:"增肌",ob_about:"关于你",ob_next:"下一步",ob_back:"返回",ob_result:"你的每日目标",ob_start:"开始!",ob_skip:"跳过",ob_hint:"一切都可以在设置中更改",water:"水",norm_result:"目标: {n} 千卡/天",
   fill_awh:"请填写年龄、身高、体重",check_age:"检查年龄",check_height:"检查身高 (厘米)",
-  saved:"已保存",reset:"重置",reset_all:"清除所有数据",
+  saved:"已保存",reset:"重置",reset_all:"清除所有数据",privacy_row:"隐私政策",privacy_sub:"我们如何处理数据",privacy_open:"打开",
   reset_confirm:"删除所有数据？无法恢复。",reset_done:"数据已重置",
   premium_active:"高级版已激活",ad_disabled:"广告已关闭。感谢支持！",
   manage_sub:"管理订阅",remove_ads:"用高级版去除广告",
@@ -1334,7 +1343,7 @@ const I18N={
   activity:"गतिविधि",act_low:"कम",act_light:"हल्की",act_mid:"मध्यम",act_high:"अधिक",
   calc_apply:"गणना करें और लागू करें",ob_title:"Kalon में आपका स्वागत है!",ob_sub:"एक मिनट में अपना दैनिक लक्ष्य सेट करें",ob_goal:"आपका लक्ष्य",goal_lose:"वजन घटाना",goal_keep:"वजन बनाए रखें",goal_gain:"मांसपेशी बढ़ाएं",ob_about:"आपके बारे में",ob_next:"आगे",ob_back:"वापस",ob_result:"आपका दैनिक लक्ष्य",ob_start:"शुरू करें!",ob_skip:"छोड़ें",ob_hint:"सब कुछ सेटिंग्स में बदला जा सकता है",water:"पानी",norm_result:"लक्ष्य: {n} kcal/दिन",
   fill_awh:"उम्र, ऊँचाई, वज़न भरें",check_age:"उम्र जाँचें",check_height:"ऊँचाई जाँचें (cm)",
-  saved:"सहेजा गया",reset:"रीसेट",reset_all:"सभी डेटा मिटाएं",
+  saved:"सहेजा गया",reset:"रीसेट",reset_all:"सभी डेटा मिटाएं",privacy_row:"गोपनीयता नीति",privacy_sub:"हम डेटा कैसे संभालते हैं",privacy_open:"खोलें",
   reset_confirm:"सभी डेटा हटाएं? वापस नहीं आएगा।",reset_done:"डेटा रीसेट हुआ",
   premium_active:"प्रीमियम सक्रिय",ad_disabled:"विज्ञापन बंद। समर्थन के लिए धन्यवाद!",
   manage_sub:"सदस्यता प्रबंधित करें",remove_ads:"प्रीमियम से विज्ञापन हटाएं",
@@ -1378,7 +1387,7 @@ const I18N={
   activity:"Aktywność",act_low:"Niska",act_light:"Lekka",act_mid:"Średnia",act_high:"Wysoka",
   calc_apply:"Oblicz i zastosuj",ob_title:"Witaj w Kalon!",ob_sub:"Ustaw dzienny cel w minutę",ob_goal:"Twój cel",goal_lose:"Schudnąć",goal_keep:"Utrzymać",goal_gain:"Nabrać masy",ob_about:"O Tobie",ob_next:"Dalej",ob_back:"Wstecz",ob_result:"Twój dzienny cel",ob_start:"Zaczynamy!",ob_skip:"Pomiń",ob_hint:"Wszystko można zmienić w ustawieniach",water:"Woda",norm_result:"Cel: {n} kcal/dzień",
   fill_awh:"Podaj wiek, wzrost, wagę",check_age:"Sprawdź wiek",check_height:"Sprawdź wzrost (cm)",
-  saved:"Zapisano",reset:"Reset",reset_all:"Usuń wszystkie dane",
+  saved:"Zapisano",reset:"Reset",reset_all:"Usuń wszystkie dane",privacy_row:"Polityka prywatności",privacy_sub:"jak przetwarzamy dane",privacy_open:"Otwórz",
   reset_confirm:"Usunąć wszystkie dane? Nieodwracalne.",reset_done:"Dane zresetowane",
   premium_active:"Premium aktywne",ad_disabled:"Reklamy wyłączone. Dziękujemy!",
   manage_sub:"Zarządzaj subskrypcją",remove_ads:"Usuń reklamy z Premium",
@@ -1422,7 +1431,7 @@ const I18N={
   activity:"Atividade",act_low:"Baixa",act_light:"Leve",act_mid:"Média",act_high:"Alta",
   calc_apply:"Calcular e aplicar",ob_title:"Bem-vindo ao Kalon!",ob_sub:"Configure sua meta diária em um minuto",ob_goal:"Sua meta",goal_lose:"Perder peso",goal_keep:"Manter",goal_gain:"Ganhar massa",ob_about:"Sobre você",ob_next:"Avançar",ob_back:"Voltar",ob_result:"Sua meta diária",ob_start:"Começar!",ob_skip:"Pular",ob_hint:"Tudo pode ser alterado nas configurações",water:"Água",norm_result:"Meta: {n} kcal/dia",
   fill_awh:"Preencha idade, altura, peso",check_age:"Verifique a idade",check_height:"Verifique a altura (cm)",
-  saved:"Salvo",reset:"Redefinir",reset_all:"Apagar todos os dados",
+  saved:"Salvo",reset:"Redefinir",reset_all:"Apagar todos os dados",privacy_row:"Política de Privacidade",privacy_sub:"como tratamos seus dados",privacy_open:"Abrir",
   reset_confirm:"Apagar todos os dados? Irreversível.",reset_done:"Dados apagados",
   premium_active:"Premium ativo",ad_disabled:"Anúncios desativados. Obrigado!",
   manage_sub:"Gerenciar assinatura",remove_ads:"Remova anúncios com Premium",
@@ -3022,7 +3031,18 @@ function applyAdState(){
   document.body.classList.add('has-ad');
 }
 $('#adRemove').onclick=()=>{showView('settings');openPaywall();};
+
+function openPrivacy(){
+  const txt=(rl()==='ru')?PP_RU:PP_EN;
+  $('#sheetTitle').textContent=t('privacy_row');
+  $('#sheetBody').innerHTML='<div class="privacy-doc">'+txt+'</div>';
+  openSheet();
+}
+const PP_RU="<h3>Политика конфиденциальности Kalon</h3>\n<p class=\"pp-upd\">Последнее обновление: 2026</p>\n\n<p>Приложение Kalon («приложение», «мы») создано, чтобы помогать вести дневник питания. Мы уважаем вашу конфиденциальность и стремимся собирать как можно меньше данных. Эта политика объясняет, какие данные обрабатываются и как.</p>\n\n<h4>1. Данные хранятся на вашем устройстве</h4>\n<p>Все ваши записи — дневник питания, вес, продукты, настройки, вода, рецепты — сохраняются <b>локально на вашем устройстве</b>. Мы не создаём для вас аккаунт, не запрашиваем email, имя или телефон и не передаём эти данные на наши серверы. У нас их попросту нет.</p>\n\n<h4>2. Удаление данных</h4>\n<p>Вы в любой момент можете удалить все свои данные кнопкой «Сбросить все данные» в разделе «Ещё». Удаление приложения также стирает все локальные данные безвозвратно.</p>\n\n<h4>3. Сторонние сервисы</h4>\n<p>Для части функций приложение обращается к сторонним сервисам:</p>\n<p><b>Google AdMob</b> — показ рекламы. AdMob может собирать технические и рекламные идентификаторы устройства для показа объявлений. Реклама отключается при оформлении подписки Premium. Подробнее — в политике конфиденциальности Google.</p>\n<p><b>Open Food Facts</b> — открытая база продуктов. При поиске продукта или сканировании штрих-кода запрос отправляется к этому сервису (нужен интернет). Мы передаём только текст запроса или номер штрих-кода, без ваших личных данных.</p>\n<p><b>Google Play Billing</b> — обработка подписки Premium (99 ₽/месяц). Оплата проходит через Google; мы не получаем и не храним данные вашей банковской карты.</p>\n\n<h4>4. Разрешения</h4>\n<p><b>Камера</b> — используется только для сканирования штрих-кодов и только когда вы сами открываете сканер. Изображения с камеры не сохраняются и никуда не передаются. Разрешение необязательно: код можно ввести вручную.</p>\n\n<h4>5. Дети</h4>\n<p>Приложение не предназначено для детей младше требуемого в вашей стране возраста и не собирает намеренно их данные.</p>\n\n<h4>6. Медицинская оговорка</h4>\n<p>Kalon предоставляет справочные подсчёты калорий и не является медицинской рекомендацией. Приложение не заменяет консультацию врача или диетолога. Перед изменением рациона проконсультируйтесь со специалистом.</p>\n\n<h4>7. Изменения политики</h4>\n<p>Мы можем обновлять эту политику. Актуальная версия всегда доступна в приложении и по адресу, указанному на странице приложения в Google Play.</p>\n\n<h4>8. Контакты</h4>\n<p>По вопросам о конфиденциальности: <b>synaxswordgroup@gmail.com</b></p>\n\n<p class=\"pp-foot\">Продолжая пользоваться приложением, вы соглашаетесь с этой политикой.</p>";
+const PP_EN="<h3>Kalon Privacy Policy</h3>\n<p class=\"pp-upd\">Last updated: 2026</p>\n\n<p>Kalon (the \"app\", \"we\") is built to help you keep a food diary. We respect your privacy and aim to collect as little data as possible. This policy explains what data is processed and how.</p>\n\n<h4>1. Your data stays on your device</h4>\n<p>All your entries — food diary, weight, products, settings, water, recipes — are stored <b>locally on your device</b>. We do not create an account for you, do not ask for your email, name or phone number, and do not send this data to our servers. We simply don't have it.</p>\n\n<h4>2. Deleting your data</h4>\n<p>You can delete all your data at any time using \"Reset all data\" in the \"More\" section. Uninstalling the app also erases all local data permanently.</p>\n\n<h4>3. Third-party services</h4>\n<p>For some features the app connects to third-party services:</p>\n<p><b>Google AdMob</b> — serves ads. AdMob may collect technical and advertising device identifiers to display ads. Ads are removed with a Premium subscription. See Google's privacy policy for details.</p>\n<p><b>Open Food Facts</b> — an open food database. When you search for a product or scan a barcode, the request is sent to this service (internet required). We send only the query text or the barcode number, without your personal data.</p>\n<p><b>Google Play Billing</b> — processes the Premium subscription. Payment is handled by Google; we do not receive or store your card details.</p>\n\n<h4>4. Permissions</h4>\n<p><b>Camera</b> — used only for scanning barcodes and only when you open the scanner yourself. Camera images are not saved or transmitted anywhere. The permission is optional: you can enter the code manually.</p>\n\n<h4>5. Children</h4>\n<p>The app is not intended for children below the age required in your country and does not knowingly collect their data.</p>\n\n<h4>6. Medical disclaimer</h4>\n<p>Kalon provides reference calorie estimates and is not medical advice. It does not replace consultation with a doctor or dietitian. Consult a professional before changing your diet.</p>\n\n<h4>7. Changes to this policy</h4>\n<p>We may update this policy. The current version is always available in the app and at the address listed on the app's Google Play page.</p>\n\n<h4>8. Contact</h4>\n<p>For privacy questions: <b>synaxswordgroup@gmail.com</b></p>\n\n<p class=\"pp-foot\">By continuing to use the app, you agree to this policy.</p>";
+
 $('#resetBtn').onclick=async()=>{if(!confirm(t('reset_confirm')))return;DIARY={};WEIGHTS={};MYFOODS=[];WATER={};RECENT=[];FAVS=[];MYRECIPES=[];RFAVS=[];S={...DEFAULTS,onboarded:true};saveDiary();saveWeights();saveMyFoods();saveWater();saveRecent();saveFavs();saveMyRecipes();saveRFavs();saveSettings();fillSettings();renderDiary();renderWeightLast();renderStats();renderMyFoods();renderAch();renderForecast();if(chart)renderChart();toast(t('reset_done'));};
+$('#privacyBtn')&&($('#privacyBtn').onclick=()=>openPrivacy());
 /* Переключатель языка (кастомный дропдаун) */
 (function(){
   const dd=$('#langDD'); if(!dd)return;
