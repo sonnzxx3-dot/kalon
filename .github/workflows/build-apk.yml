@@ -7,7 +7,7 @@ defaults:
   run:
     working-directory: kalon-project
 env:
-  APP_VERSION_NAME: "1.6.2.3"
+  APP_VERSION_NAME: "1.6.3.0"
   VERSION_CODE_OFFSET: "100"
 jobs:
   build:
@@ -35,7 +35,6 @@ jobs:
           if [ -f android/variables.gradle ]; then
             sed -i 's/compileSdkVersion = 34/compileSdkVersion = 35/g' android/variables.gradle
             sed -i 's/targetSdkVersion = 34/targetSdkVersion = 35/g' android/variables.gradle
-            # фиксируем minSdk = 24 (Android 7.0) — покрывает ~98% устройств, возвращает старые
             sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 24/g' android/variables.gradle
             cat android/variables.gradle
           fi
@@ -64,12 +63,79 @@ jobs:
           if ! grep -q 'android.permission.CAMERA' "$MANIFEST"; then
             sed -i 's#</manifest>#    <uses-permission android:name="android.permission.CAMERA" />\n</manifest>#' "$MANIFEST"
           fi
-          # Камера НЕ обязательна: иначе Google Play исключит устройства без камеры (планшеты и др.)
           if ! grep -q 'android.hardware.camera' "$MANIFEST"; then
             sed -i 's#<uses-permission android:name="android.permission.CAMERA" */>#&\n    <uses-feature android:name="android.hardware.camera" android:required="false" />\n    <uses-feature android:name="android.hardware.camera.any" android:required="false" />\n    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />#' "$MANIFEST"
           fi
           echo "=== manifest camera lines ==="
           grep -n "CAMERA\|hardware.camera" "$MANIFEST" || echo "WARNING: camera entries not injected"
+      - name: Add microphone permission (voice input)
+        run: |
+          MANIFEST=android/app/src/main/AndroidManifest.xml
+          if ! grep -q 'android.permission.RECORD_AUDIO' "$MANIFEST"; then
+            sed -i 's#<uses-permission android:name="android.permission.INTERNET" */>#&\n    <uses-permission android:name="android.permission.RECORD_AUDIO" />#' "$MANIFEST"
+          fi
+          if ! grep -q 'android.permission.RECORD_AUDIO' "$MANIFEST"; then
+            sed -i 's#</manifest>#    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n</manifest>#' "$MANIFEST"
+          fi
+          if ! grep -q 'android.hardware.microphone' "$MANIFEST"; then
+            sed -i 's#<uses-permission android:name="android.permission.RECORD_AUDIO" */>#&\n    <uses-feature android:name="android.hardware.microphone" android:required="false" />#' "$MANIFEST"
+          fi
+          if ! grep -q 'android.speech.RecognitionService' "$MANIFEST"; then
+            sed -i 's#</manifest>#    <queries>\n        <intent>\n            <action android:name="android.speech.RecognitionService" />\n        </intent>\n    </queries>\n</manifest>#' "$MANIFEST"
+          fi
+          echo "=== manifest microphone lines ==="
+          grep -n "RECORD_AUDIO\|hardware.microphone\|RecognitionService" "$MANIFEST" || echo "ERROR: microphone entries NOT injected"
+      - name: Grant WebView microphone access (MainActivity)
+        run: |
+          ACT=$(find android/app/src/main/java -name "MainActivity.java" | head -1)
+          if [ -z "$ACT" ]; then echo "ERROR: MainActivity.java not found"; exit 1; fi
+          echo "Patching: $ACT"
+          PKG=$(grep -m1 '^package ' "$ACT" | sed 's/package //;s/;//')
+          printf '%s\n' \
+            "package $PKG;" \
+            "" \
+            "import android.Manifest;" \
+            "import android.content.pm.PackageManager;" \
+            "import android.os.Bundle;" \
+            "import android.webkit.PermissionRequest;" \
+            "import android.webkit.WebChromeClient;" \
+            "import androidx.core.app.ActivityCompat;" \
+            "import androidx.core.content.ContextCompat;" \
+            "import com.getcapacitor.BridgeActivity;" \
+            "" \
+            "public class MainActivity extends BridgeActivity {" \
+            "  private static final int MIC_REQ = 7331;" \
+            "" \
+            "  @Override" \
+            "  public void onCreate(Bundle savedInstanceState) {" \
+            "    super.onCreate(savedInstanceState);" \
+            "    if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)" \
+            "        != PackageManager.PERMISSION_GRANTED) {" \
+            "      ActivityCompat.requestPermissions(this," \
+            "          new String[]{Manifest.permission.RECORD_AUDIO}, MIC_REQ);" \
+            "    }" \
+            "    this.bridge.getWebView().setWebChromeClient(new WebChromeClient() {" \
+            "      @Override" \
+            "      public void onPermissionRequest(final PermissionRequest request) {" \
+            "        runOnUiThread(new Runnable() {" \
+            "          @Override" \
+            "          public void run() {" \
+            "            for (String r : request.getResources()) {" \
+            "              if (PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(r)) {" \
+            "                request.grant(new String[]{PermissionRequest.RESOURCE_AUDIO_CAPTURE});" \
+            "                return;" \
+            "              }" \
+            "            }" \
+            "            request.deny();" \
+            "          }" \
+            "        });" \
+            "      }" \
+            "    });" \
+            "  }" \
+            "}" \
+            > "$ACT"
+          echo "=== MainActivity.java ==="
+          cat "$ACT"
       - name: Harden network security (no cleartext HTTP)
         run: |
           MANIFEST=android/app/src/main/AndroidManifest.xml
@@ -82,6 +148,10 @@ jobs:
           MANIFEST=android/app/src/main/AndroidManifest.xml
           sed -i 's/android:allowBackup="false"/android:allowBackup="true"/' "$MANIFEST"
           grep -n "allowBackup" "$MANIFEST" || echo "allowBackup attr not present (default true)"
+      - name: Show final manifest
+        run: |
+          echo "=== FINAL AndroidManifest.xml ==="
+          cat android/app/src/main/AndroidManifest.xml
       - name: Prepare icon
         run: |
           mkdir -p resources
