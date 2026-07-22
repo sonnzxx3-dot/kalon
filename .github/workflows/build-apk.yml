@@ -7,7 +7,7 @@ defaults:
   run:
     working-directory: kalon-project
 env:
-  APP_VERSION_NAME: "1.6.3.0"
+  APP_VERSION_NAME: "1.6.4.0"
   VERSION_CODE_OFFSET: "100"
 jobs:
   build:
@@ -33,8 +33,9 @@ jobs:
       - name: Fix targetSdk, minSdk and bump versionCode
         run: |
           if [ -f android/variables.gradle ]; then
-            sed -i 's/compileSdkVersion = 34/compileSdkVersion = 35/g' android/variables.gradle
-            sed -i 's/targetSdkVersion = 34/targetSdkVersion = 35/g' android/variables.gradle
+            # Android 16 (API 36) — требование Google Play c 31.08.2026
+            sed -i 's/compileSdkVersion = [0-9]*/compileSdkVersion = 36/g' android/variables.gradle
+            sed -i 's/targetSdkVersion = [0-9]*/targetSdkVersion = 36/g' android/variables.gradle
             sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 24/g' android/variables.gradle
             cat android/variables.gradle
           fi
@@ -136,6 +137,40 @@ jobs:
             > "$ACT"
           echo "=== MainActivity.java ==="
           cat "$ACT"
+      - name: Force Google Play Billing 8.0.0+
+        run: |
+          # Плагин @squareetlabs/capacitor-subscriptions тянет billing:7.1.1,
+          # а Google Play c 31.08.2026 требует 8.0.0+. Поднимаем принудительно.
+          GRADLE=android/app/build.gradle
+          if grep -q "billingclient:billing:8" "$GRADLE"; then
+            echo "Billing 8 already forced, skipping."
+          else
+            printf '%s\n' \
+              "" \
+              "// Google Play requires Billing Library 8.0.0+ from 2026-08-31" \
+              "configurations.configureEach {" \
+              "    resolutionStrategy {" \
+              "        force 'com.android.billingclient:billing:8.0.0'" \
+              "        eachDependency { details ->" \
+              "            if (details.requested.group == 'com.android.billingclient') {" \
+              "                details.useVersion '8.0.0'" \
+              "            }" \
+              "        }" \
+              "    }" \
+              "}" \
+              >> "$GRADLE"
+            echo "=== Billing 8.0.0 forced ==="
+          fi
+          tail -16 "$GRADLE"
+
+      - name: Verify Billing version in dependency tree
+        run: |
+          cd android
+          chmod +x ./gradlew
+          echo "=== billingclient in dependency tree ==="
+          ./gradlew :app:dependencies --configuration releaseRuntimeClasspath 2>/dev/null | grep -i "billingclient" | sort -u || echo "billingclient not found"
+          echo "(если видно 7.x -> 8.0.0, принуждение сработало)"
+
       - name: Harden network security (no cleartext HTTP)
         run: |
           MANIFEST=android/app/src/main/AndroidManifest.xml
