@@ -7,7 +7,7 @@ defaults:
   run:
     working-directory: kalon-project
 env:
-  APP_VERSION_NAME: "1.6.4.0"
+  APP_VERSION_NAME: "1.7.0.0"
   VERSION_CODE_OFFSET: "100"
 jobs:
   build:
@@ -28,6 +28,12 @@ jobs:
         uses: android-actions/setup-android@v3
       - name: Install dependencies
         run: npm install
+      - name: Install R2 plugins (notifications)
+        run: |
+          npm install @capacitor/local-notifications --save
+          npm install @capacitor/preferences --save || echo "preferences already present"
+          npm ls @capacitor/local-notifications || true
+
       - name: Add Android platform
         run: npx cap add android || echo "android platform already exists"
       - name: Fix targetSdk, minSdk and bump versionCode
@@ -170,6 +176,218 @@ jobs:
           echo "=== billingclient in dependency tree ==="
           ./gradlew :app:dependencies --configuration releaseRuntimeClasspath 2>/dev/null | grep -i "billingclient" | sort -u || echo "billingclient not found"
           echo "(если видно 7.x -> 8.0.0, принуждение сработало)"
+
+      - name: Add notification permissions and deep link
+        run: |
+          MANIFEST=android/app/src/main/AndroidManifest.xml
+          if ! grep -q 'POST_NOTIFICATIONS' "$MANIFEST"; then
+            sed -i 's#</manifest>#    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n</manifest>#' "$MANIFEST"
+          fi
+          if ! grep -q 'SCHEDULE_EXACT_ALARM' "$MANIFEST"; then
+            sed -i 's#</manifest>#    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />\n    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />\n</manifest>#' "$MANIFEST"
+          fi
+          printf '%s\n' \
+            "import sys" \
+            "p=sys.argv[1]" \
+            "s=open(p,encoding='utf-8').read()" \
+            "if 'android:scheme=\"kalon\"' not in s:" \
+            "    intent='<intent-filter><action android:name=\"android.intent.action.VIEW\"/><category android:name=\"android.intent.category.DEFAULT\"/><category android:name=\"android.intent.category.BROWSABLE\"/><data android:scheme=\"kalon\"/></intent-filter>'" \
+            "    i=s.find('</activity>')" \
+            "    if i>0:" \
+            "        s=s[:i]+intent+s[i:]" \
+            "        open(p,'w',encoding='utf-8').write(s)" \
+            "        print('deep link injected')" \
+            > /tmp/deeplink.py
+          python3 /tmp/deeplink.py "$MANIFEST"
+          echo "=== notification / deeplink ==="
+          grep -c "POST_NOTIFICATIONS" "$MANIFEST" || echo "WARN: no POST_NOTIFICATIONS"
+          grep -c 'scheme="kalon"' "$MANIFEST" || echo "WARN: no deep link"
+
+      - name: Create home screen widget
+        run: |
+          ACT=$(find android/app/src/main/java -name "MainActivity.java" | head -1)
+          PKG=$(grep -m1 '^package ' "$ACT" | sed 's/package //;s/;//')
+          PKGDIR="android/app/src/main/java/$(echo $PKG | tr '.' '/')"
+          echo "Package: $PKG"
+          mkdir -p "$PKGDIR" android/app/src/main/res/layout android/app/src/main/res/xml android/app/src/main/res/drawable
+
+          printf '%s\n' \
+            "package $PKG;" \
+            "" \
+            "import android.app.PendingIntent;" \
+            "import android.appwidget.AppWidgetManager;" \
+            "import android.appwidget.AppWidgetProvider;" \
+            "import android.content.ComponentName;" \
+            "import android.content.Context;" \
+            "import android.content.Intent;" \
+            "import android.content.SharedPreferences;" \
+            "import android.net.Uri;" \
+            "import android.widget.RemoteViews;" \
+            "import org.json.JSONObject;" \
+            "" \
+            "public class KalonWidget extends AppWidgetProvider {" \
+            "  @Override" \
+            "  public void onUpdate(Context ctx, AppWidgetManager mgr, int[] ids) {" \
+            "    for (int id : ids) render(ctx, mgr, id);" \
+            "  }" \
+            "  public static void refreshAll(Context ctx) {" \
+            "    try {" \
+            "      AppWidgetManager mgr = AppWidgetManager.getInstance(ctx);" \
+            "      int[] ids = mgr.getAppWidgetIds(new ComponentName(ctx, KalonWidget.class));" \
+            "      for (int id : ids) render(ctx, mgr, id);" \
+            "    } catch (Throwable t) {}" \
+            "  }" \
+            "  static void render(Context ctx, AppWidgetManager mgr, int id) {" \
+            "    RemoteViews v = new RemoteViews(ctx.getPackageName(), R.layout.kalon_widget);" \
+            "    int eaten = 0, goal = 2000, water = 0, streak = 0;" \
+            "    try {" \
+            "      SharedPreferences p = ctx.getSharedPreferences(\"CapacitorStorage\", Context.MODE_PRIVATE);" \
+            "      String raw = p.getString(\"kalon_widget\", null);" \
+            "      if (raw != null) {" \
+            "        JSONObject j = new JSONObject(raw);" \
+            "        eaten = j.optInt(\"eaten\", 0);" \
+            "        goal = j.optInt(\"goal\", 2000);" \
+            "        water = j.optInt(\"water\", 0);" \
+            "        streak = j.optInt(\"streak\", 0);" \
+            "      }" \
+            "    } catch (Throwable t) {}" \
+            "    int left = goal > eaten ? goal - eaten : 0;" \
+            "    v.setTextViewText(R.id.w_eaten, String.valueOf(eaten));" \
+            "    v.setTextViewText(R.id.w_goal, \"/ \" + goal);" \
+            "    v.setTextViewText(R.id.w_left, String.valueOf(left));" \
+            "    v.setTextViewText(R.id.w_water, water + \"/8\");" \
+            "    v.setTextViewText(R.id.w_streak, streak >= 2 ? String.valueOf(streak) : \"\");" \
+            "    int pct = goal > 0 ? eaten * 100 / goal : 0;" \
+            "    v.setProgressBar(R.id.w_bar, 100, pct > 100 ? 100 : pct, false);" \
+            "    v.setOnClickPendingIntent(R.id.w_root, deep(ctx, \"kalon://open\", 1));" \
+            "    v.setOnClickPendingIntent(R.id.w_add, deep(ctx, \"kalon://add\", 2));" \
+            "    v.setOnClickPendingIntent(R.id.w_mic, deep(ctx, \"kalon://voice\", 3));" \
+            "    mgr.updateAppWidget(id, v);" \
+            "  }" \
+            "  static PendingIntent deep(Context ctx, String url, int rc) {" \
+            "    Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));" \
+            "    i.setPackage(ctx.getPackageName());" \
+            "    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);" \
+            "    return PendingIntent.getActivity(ctx, rc, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);" \
+            "  }" \
+            "}" \
+            > "$PKGDIR/KalonWidget.java"
+
+          printf '%s\n' \
+            '<?xml version="1.0" encoding="utf-8"?>' \
+            '<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">' \
+            '    <solid android:color="#0E1019" />' \
+            '    <corners android:radius="22dp" />' \
+            '</shape>' \
+            > android/app/src/main/res/drawable/kalon_widget_bg.xml
+
+          printf '%s\n' \
+            '<?xml version="1.0" encoding="utf-8"?>' \
+            '<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">' \
+            '    <solid android:color="#6D5EFC" />' \
+            '    <corners android:radius="14dp" />' \
+            '</shape>' \
+            > android/app/src/main/res/drawable/kalon_widget_btn.xml
+
+          printf '%s\n' \
+            '<?xml version="1.0" encoding="utf-8"?>' \
+            '<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"' \
+            '    android:id="@+id/w_root"' \
+            '    android:layout_width="match_parent"' \
+            '    android:layout_height="match_parent"' \
+            '    android:orientation="vertical"' \
+            '    android:background="@drawable/kalon_widget_bg"' \
+            '    android:padding="14dp">' \
+            '    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"' \
+            '        android:orientation="horizontal" android:gravity="center_vertical">' \
+            '        <TextView android:id="@+id/w_eaten" android:layout_width="wrap_content"' \
+            '            android:layout_height="wrap_content" android:text="0"' \
+            '            android:textColor="#F4F6FC" android:textSize="30sp" android:textStyle="bold" />' \
+            '        <TextView android:id="@+id/w_goal" android:layout_width="0dp" android:layout_weight="1"' \
+            '            android:layout_height="wrap_content" android:text="/ 2000"' \
+            '            android:textColor="#8A94AD" android:textSize="14sp"' \
+            '            android:layout_marginStart="6dp" android:paddingTop="8dp" />' \
+            '        <TextView android:id="@+id/w_streak" android:layout_width="wrap_content"' \
+            '            android:layout_height="wrap_content" android:text=""' \
+            '            android:textColor="#FFB24D" android:textSize="15sp" android:textStyle="bold"' \
+            '            android:drawableStart="@android:drawable/btn_star_big_on" android:drawablePadding="4dp" />' \
+            '    </LinearLayout>' \
+            '    <ProgressBar android:id="@+id/w_bar" style="?android:attr/progressBarStyleHorizontal"' \
+            '        android:layout_width="match_parent" android:layout_height="8dp"' \
+            '        android:layout_marginTop="8dp" android:max="100" android:progress="0" />' \
+            '    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"' \
+            '        android:orientation="horizontal" android:gravity="center_vertical"' \
+            '        android:layout_marginTop="10dp">' \
+            '        <TextView android:id="@+id/w_left" android:layout_width="0dp" android:layout_weight="1"' \
+            '            android:layout_height="wrap_content" android:text="0"' \
+            '            android:textColor="#38E1FF" android:textSize="13sp" />' \
+            '        <TextView android:id="@+id/w_water" android:layout_width="wrap_content"' \
+            '            android:layout_height="wrap_content" android:text="0/8"' \
+            '            android:textColor="#8A94AD" android:textSize="13sp" />' \
+            '    </LinearLayout>' \
+            '    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"' \
+            '        android:orientation="horizontal" android:layout_marginTop="12dp">' \
+            '        <TextView android:id="@+id/w_add" android:layout_width="0dp" android:layout_weight="1"' \
+            '            android:layout_height="42dp" android:gravity="center" android:text="+"' \
+            '            android:textColor="#FFFFFF" android:textSize="20sp" android:textStyle="bold"' \
+            '            android:background="@drawable/kalon_widget_btn" />' \
+            '        <TextView android:id="@+id/w_mic" android:layout_width="52dp"' \
+            '            android:layout_height="42dp" android:gravity="center" android:text="MIC"' \
+            '            android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold"' \
+            '            android:layout_marginStart="8dp"' \
+            '            android:background="@drawable/kalon_widget_btn" />' \
+            '    </LinearLayout>' \
+            '</LinearLayout>' \
+            > android/app/src/main/res/layout/kalon_widget.xml
+
+          printf '%s\n' \
+            '<?xml version="1.0" encoding="utf-8"?>' \
+            '<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"' \
+            '    android:minWidth="250dp"' \
+            '    android:minHeight="110dp"' \
+            '    android:updatePeriodMillis="1800000"' \
+            '    android:initialLayout="@layout/kalon_widget"' \
+            '    android:resizeMode="horizontal|vertical"' \
+            '    android:widgetCategory="home_screen" />' \
+            > android/app/src/main/res/xml/kalon_widget_info.xml
+
+          printf '%s\n' \
+            "import sys" \
+            "p=sys.argv[1]" \
+            "s=open(p,encoding='utf-8').read()" \
+            "if 'KalonWidget' not in s:" \
+            "    rec='<receiver android:name=\".KalonWidget\" android:exported=\"false\"><intent-filter><action android:name=\"android.appwidget.action.APPWIDGET_UPDATE\"/></intent-filter><meta-data android:name=\"android.appwidget.provider\" android:resource=\"@xml/kalon_widget_info\"/></receiver>'" \
+            "    i=s.rfind('</application>')" \
+            "    if i>0:" \
+            "        s=s[:i]+rec+s[i:]" \
+            "        open(p,'w',encoding='utf-8').write(s)" \
+            "        print('widget receiver injected')" \
+            > /tmp/widget.py
+          python3 /tmp/widget.py android/app/src/main/AndroidManifest.xml
+
+          echo "=== widget files ==="
+          ls -la "$PKGDIR/KalonWidget.java" android/app/src/main/res/layout/kalon_widget.xml
+          grep -c "KalonWidget" android/app/src/main/AndroidManifest.xml || echo "WARN: receiver missing"
+
+      - name: Refresh widget on app pause
+        run: |
+          ACT=$(find android/app/src/main/java -name "MainActivity.java" | head -1)
+          if grep -q "KalonWidget" "$ACT"; then
+            echo "already patched"
+          else
+            printf '%s\n' \
+              "import sys" \
+              "p=sys.argv[1]" \
+              "s=open(p,encoding='utf-8').read()" \
+              "add='\\n  @Override\\n  protected void onPause() {\\n    super.onPause();\\n    try { KalonWidget.refreshAll(this); } catch (Throwable t) {}\\n  }\\n'" \
+              "i=s.rfind('}')" \
+              "s=s[:i]+add+s[i:]" \
+              "open(p,'w',encoding='utf-8').write(s)" \
+              "print('onPause added')" \
+              > /tmp/pause.py
+            python3 /tmp/pause.py "$ACT"
+          fi
+          cat "$ACT"
 
       - name: Harden network security (no cleartext HTTP)
         run: |
