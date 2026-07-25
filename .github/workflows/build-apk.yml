@@ -30,9 +30,19 @@ jobs:
         run: npm install
       - name: Install R2 plugins (notifications)
         run: |
-          npm install @capacitor/local-notifications --save
-          npm install @capacitor/preferences --save || echo "preferences already present"
-          npm ls @capacitor/local-notifications || true
+          # Версия плагина ДОЛЖНА совпадать с мажорной версией @capacitor/core,
+          # иначе npm падает с ERESOLVE (у core@6 плагин@8 требует core>=8).
+          CAPVER=$(node -p "require('./node_modules/@capacitor/core/package.json').version" 2>/dev/null || echo "")
+          if [ -z "$CAPVER" ]; then
+            CAPVER=$(node -p "((require('./package.json').dependencies||{})['@capacitor/core']||'6.0.0').replace(/^[^0-9]*/,'')" 2>/dev/null || echo "6.0.0")
+          fi
+          MAJ=$(echo "$CAPVER" | cut -d. -f1)
+          if [ -z "$MAJ" ] || [ "$MAJ" -lt 5 ] 2>/dev/null; then MAJ=6; fi
+          echo "Capacitor core: $CAPVER  ->  ставим плагины ^${MAJ}.0.0"
+          npm install "@capacitor/local-notifications@^${MAJ}.0.0" --save
+          npm install "@capacitor/preferences@^${MAJ}.0.0" --save || echo "preferences already present"
+          echo "=== установленные версии ==="
+          node -p "JSON.stringify({core:require('./node_modules/@capacitor/core/package.json').version, ln:require('./node_modules/@capacitor/local-notifications/package.json').version, prefs:(()=>{try{return require('./node_modules/@capacitor/preferences/package.json').version}catch(e){return 'нет'}})()},null,1)"
 
       - name: Add Android platform
         run: npx cap add android || echo "android platform already exists"
