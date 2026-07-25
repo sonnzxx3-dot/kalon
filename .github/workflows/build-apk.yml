@@ -153,6 +153,15 @@ jobs:
             > "$ACT"
           echo "=== MainActivity.java ==="
           cat "$ACT"
+      - name: Suppress compileSdk 36 warning
+        run: |
+          GP=android/gradle.properties
+          touch "$GP"
+          if ! grep -q "suppressUnsupportedCompileSdk" "$GP"; then
+            echo "android.suppressUnsupportedCompileSdk=36" >> "$GP"
+          fi
+          tail -3 "$GP"
+
       - name: Force Google Play Billing 8.0.0+
         run: |
           # Плагин @squareetlabs/capacitor-subscriptions тянет billing:7.1.1,
@@ -389,7 +398,7 @@ jobs:
               "import sys" \
               "p=sys.argv[1]" \
               "s=open(p,encoding='utf-8').read()" \
-              "add='\\n  @Override\\n  protected void onPause() {\\n    super.onPause();\\n    try { KalonWidget.refreshAll(this); } catch (Throwable t) {}\\n  }\\n'" \
+              "add='\\n  @Override\\n  public void onPause() {\\n    super.onPause();\\n    try { KalonWidget.refreshAll(this); } catch (Throwable t) {}\\n  }\\n'" \
               "i=s.rfind('}')" \
               "s=s[:i]+add+s[i:]" \
               "open(p,'w',encoding='utf-8').write(s)" \
