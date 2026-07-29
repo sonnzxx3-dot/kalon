@@ -9,9 +9,12 @@ defaults:
 env:
   APP_VERSION_NAME: "1.7.0.0"
   VERSION_CODE_OFFSET: "100"
-  # minSdk: 24 = Android 7.0. Понизить до 22 (Android 5.1, минимум для Capacitor 6),
-  # если Play сообщает о потере поддерживаемых устройств.
-  MIN_SDK: "24"
+  # minSdk 22 = Android 5.1 — значение по умолчанию для Capacitor 6.
+  # ВАЖНО: с ним собирался прежний релиз. Подъём до 24 отрезает Android 5.1 и 6.0
+  # (~19 000 моделей) и вызывает предупреждение Play о потере устройств.
+  # Приложение защищено проверкой WebView: на слишком старом движке
+  # вместо белого экрана показывается просьба обновить WebView.
+  MIN_SDK: "22"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -206,9 +209,13 @@ jobs:
           if ! grep -q 'POST_NOTIFICATIONS' "$MANIFEST"; then
             sed -i 's#</manifest>#    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n</manifest>#' "$MANIFEST"
           fi
-          if ! grep -q 'SCHEDULE_EXACT_ALARM' "$MANIFEST"; then
-            sed -i 's#</manifest>#    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />\n    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />\n</manifest>#' "$MANIFEST"
-          fi
+          # ТОЧНЫЕ БУДИЛЬНИКИ НЕ ИСПОЛЬЗУЕМ СОЗНАТЕЛЬНО:
+          # USE_EXACT_ALARM — ограниченное разрешение Google Play (только будильники/календари),
+          # SCHEDULE_EXACT_ALARM требует обоснования при проверке.
+          # Плагин local-notifications сам откатывается на setAndAllowWhileIdle —
+          # напоминание может сместиться на несколько минут, для «запиши обед» это неважно.
+          # Если разрешения остались от прошлых сборок — удаляем.
+          sed -i '/SCHEDULE_EXACT_ALARM/d;/USE_EXACT_ALARM/d' "$MANIFEST"
           printf '%s\n' \
             "import sys" \
             "p=sys.argv[1]" \
