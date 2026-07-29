@@ -9,6 +9,9 @@ defaults:
 env:
   APP_VERSION_NAME: "1.7.0.0"
   VERSION_CODE_OFFSET: "100"
+  # minSdk: 24 = Android 7.0. Понизить до 22 (Android 5.1, минимум для Capacitor 6),
+  # если Play сообщает о потере поддерживаемых устройств.
+  MIN_SDK: "24"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -52,8 +55,9 @@ jobs:
             # Android 16 (API 36) — требование Google Play c 31.08.2026
             sed -i 's/compileSdkVersion = [0-9]*/compileSdkVersion = 36/g' android/variables.gradle
             sed -i 's/targetSdkVersion = [0-9]*/targetSdkVersion = 36/g' android/variables.gradle
-            sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 24/g' android/variables.gradle
-            cat android/variables.gradle
+            sed -i "s/minSdkVersion = [0-9]*/minSdkVersion = ${{ env.MIN_SDK }}/g" android/variables.gradle
+            echo "=== ИТОГОВЫЕ SDK ==="
+            grep -E "minSdkVersion|targetSdkVersion|compileSdkVersion" android/variables.gradle
           fi
           VC=$(( ${{ github.run_number }} + ${{ env.VERSION_CODE_OFFSET }} ))
           echo "Computed versionCode = $VC"
@@ -424,6 +428,23 @@ jobs:
         run: |
           echo "=== FINAL AndroidManifest.xml ==="
           cat android/app/src/main/AndroidManifest.xml
+      - name: Device compatibility report
+        run: |
+          MANIFEST=android/app/src/main/AndroidManifest.xml
+          echo "═══ ЧТО ВЛИЯЕТ НА СПИСОК УСТРОЙСТВ ═══"
+          echo "--- minSdk / targetSdk ---"
+          grep -E "minSdkVersion|targetSdkVersion" android/variables.gradle || true
+          echo "--- uses-feature (required=true отсекает устройства!) ---"
+          grep -o '<uses-feature[^>]*>' "$MANIFEST" || echo "нет uses-feature"
+          echo "--- ВНИМАНИЕ: обязательные фичи ---"
+          if grep -o '<uses-feature[^>]*>' "$MANIFEST" | grep -v 'required="false"'; then
+            echo ">>> ЭТИ ФИЧИ ОБЯЗАТЕЛЬНЫ И СУЖАЮТ СПИСОК УСТРОЙСТВ <<<"
+          else
+            echo "все uses-feature помечены required=false — ок"
+          fi
+          echo "--- разрешения, которые Play трактует как требование железа ---"
+          grep -oE 'android.permission.(CAMERA|RECORD_AUDIO|NFC|BLUETOOTH[A-Z_]*)' "$MANIFEST" | sort -u || echo "нет"
+
       - name: Prepare icon
         run: |
           mkdir -p resources
