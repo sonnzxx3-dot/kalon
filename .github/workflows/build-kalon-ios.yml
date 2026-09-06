@@ -238,7 +238,7 @@ jobs:
             "  strip_signing(pods.build_configurations)" \
             "  pods.targets.each { |t| strip_signing(t.build_configurations) }" \
             "  pods.save" \
-            "  puts 'библиотек обработано: ' + pods.targets.size.to_s" \\
+            "  puts 'библиотек обработано: ' + pods.targets.size.to_s" \
             "else" \
             "  puts 'Pods.xcodeproj не найден'" \
             "end" \
