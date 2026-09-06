@@ -20,7 +20,9 @@ env:
   # Bundle ID должен совпадать с тем, что заведён в App Store Connect
   BUNDLE_ID: "ai.synaxsword.kalon"
   # Минимальная версия iOS. Capacitor 6 требует 13.0+.
-  IOS_DEPLOYMENT_TARGET: "14.0"
+  # iOS 15.0 — StoreKit 2 в плагине подписок помечен @available(iOS 15).
+  # С 14.0 компиляция падает на несовпадении версий. iOS 14 в 2026 — доли процента.
+  IOS_DEPLOYMENT_TARGET: "15.0"
 
 jobs:
   build:
@@ -278,37 +280,52 @@ jobs:
       - name: Build archive
         run: |
           cd ios/App
-          LOG=$RUNNER_TEMP/xcodebuild.log
+          LOG="$RUNNER_TEMP/xcodebuild.log"
+          # пишем в файл БЕЗ конвейера: так код возврата берётся напрямую,
+          # без PIPESTATUS, который в прошлый раз повёл себя непредсказуемо
           set +e
           if [ "$SIGNED" = "true" ]; then
-            # РУЧНАЯ подпись: автоматическая (-allowProvisioningUpdates) потребовала бы
-            # интерактивного входа в Apple ID, которого на раннере нет.
-            # настройки подписи уже в проекте (шаг выше) — здесь их НЕ передаём
             xcodebuild -workspace App.xcworkspace -scheme App \
               -configuration Release -sdk iphoneos \
-              -archivePath $RUNNER_TEMP/Kalon.xcarchive \
+              -archivePath "$RUNNER_TEMP/Kalon.xcarchive" \
               -destination 'generic/platform=iOS' \
-              archive 2>&1 | tee $LOG
+              archive > "$LOG" 2>&1
           else
-            # без секретов: только проверка компиляции, архив не подписываем
             xcodebuild -workspace App.xcworkspace -scheme App \
               -configuration Release -sdk iphoneos \
               -destination 'generic/platform=iOS' \
               CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
               CODE_SIGN_IDENTITY="" CODE_SIGN_ENTITLEMENTS="" \
-              build 2>&1 | tee $LOG
+              build > "$LOG" 2>&1
           fi
-          RC=${PIPESTATUS[0]}
+          RC=$?
           set -e
+
+          echo "код возврата xcodebuild: $RC"
+          echo ""
+          echo "═════════ ОШИБКИ КОМПИЛЯЦИИ ═════════"
+          grep -E "(error|fatal error|warning: .*will never be executed):" "$LOG" \
+            | grep -v "^warning:" | sort -u | head -40 || echo "(строк с error: не найдено)"
+          echo ""
+          echo "═════════ ЧТО НЕ СОБРАЛОСЬ ═════════"
+          grep -A6 "The following build commands failed" "$LOG" | head -20 || true
+          echo ""
           if [ "$RC" != "0" ]; then
+            echo "═════════ ПОСЛЕДНИЕ 60 СТРОК ═════════"
+            tail -60 "$LOG"
             echo ""
-            echo "═══════════ НАСТОЯЩИЕ ОШИБКИ ═══════════"
-            grep -E "^(.*: )?(error|fatal error):" $LOG | sort -u | head -40 || true
-            echo "═══════════ последние строки ═══════════"
-            tail -40 $LOG
+            echo "Полный лог сохранён в артефакт xcodebuild-log — скачай его со страницы сборки"
             exit $RC
           fi
-          echo "Сборка прошла"
+          echo "Сборка прошла успешно"
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild-log
+          path: ${{ runner.temp }}/xcodebuild.log
+          if-no-files-found: ignore
 
       - name: Export IPA
         if: env.SIGNED == 'true'
