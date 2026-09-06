@@ -206,6 +206,75 @@ jobs:
             *) echo "::warning::Bundle ID профиля ($PROF_APPID) не совпадает с ${{ env.BUNDLE_ID }}" ;;
           esac
 
+      - name: Configure signing for App target only
+        if: env.SIGNED == 'true'
+        run: |
+          # Настройки подписи нельзя передавать в командной строке xcodebuild —
+          # они применятся ко ВСЕМ целям, включая библиотеки плагинов,
+          # а те профили не поддерживают и валят сборку.
+          # Прописываем подпись в проект точечно: приложению — да, библиотекам — нет.
+          # ВАЖНО: у библиотек настройку не УДАЛЯЕМ, а обнуляем пустой строкой —
+          # удаление позволяет ей унаследоваться с уровня проекта.
+          printf '%s\n' \
+            "require 'xcodeproj'" \
+            "" \
+            "def strip_signing(configs)" \
+            "  configs.each do |c|" \
+            "    c.build_settings['PROVISIONING_PROFILE_SPECIFIER'] = ''" \
+            "    c.build_settings['PROVISIONING_PROFILE'] = ''" \
+            "    c.build_settings['CODE_SIGN_IDENTITY'] = ''" \
+            "    c.build_settings['CODE_SIGN_IDENTITY[sdk=iphoneos*]'] = ''" \
+            "    c.build_settings['CODE_SIGN_STYLE'] = 'Automatic'" \
+            "    c.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'" \
+            "    c.build_settings['CODE_SIGNING_REQUIRED'] = 'NO'" \
+            "    c.build_settings['DEVELOPMENT_TEAM'] = ''" \
+            "  end" \
+            "end" \
+            "" \
+            "# ── библиотеки: подпись снимаем полностью ──" \
+            "pods_path = File.join('Pods','Pods.xcodeproj')" \
+            "if File.exist?(pods_path)" \
+            "  pods = Xcodeproj::Project.open(pods_path)" \
+            "  strip_signing(pods.build_configurations)" \
+            "  pods.targets.each { |t| strip_signing(t.build_configurations) }" \
+            "  pods.save" \
+            "  puts 'библиотек обработано: ' + pods.targets.size.to_s" \\
+            "else" \
+            "  puts 'Pods.xcodeproj не найден'" \
+            "end" \
+            "" \
+            "# ── приложение: ставим ручную подпись ──" \
+            "proj = Xcodeproj::Project.open('App.xcodeproj')" \
+            "strip_signing(proj.build_configurations)" \
+            "app = proj.targets.find { |t| t.name == 'App' }" \
+            "abort('ОШИБКА: цель App не найдена') if app.nil?" \
+            "app.build_configurations.each do |c|" \
+            "  c.build_settings['CODE_SIGN_STYLE'] = 'Manual'" \
+            "  c.build_settings['CODE_SIGNING_ALLOWED'] = 'YES'" \
+            "  c.build_settings['CODE_SIGNING_REQUIRED'] = 'YES'" \
+            "  c.build_settings['DEVELOPMENT_TEAM'] = ENV['TEAM_ID']" \
+            "  c.build_settings['PROVISIONING_PROFILE_SPECIFIER'] = ENV['PROF_NAME']" \
+            "  c.build_settings['CODE_SIGN_IDENTITY'] = ENV['SIGN_IDENTITY']" \
+            "  c.build_settings['CODE_SIGN_IDENTITY[sdk=iphoneos*]'] = ENV['SIGN_IDENTITY']" \
+            "end" \
+            "proj.save" \
+            "puts 'App: ручная подпись установлена'" \
+            > /tmp/sign.rb
+          cd ios/App
+          ruby /tmp/sign.rb
+
+          echo ""
+          echo "═══ ПРОВЕРКА: у библиотек не должно остаться профиля ═══"
+          if grep -q 'PROVISIONING_PROFILE_SPECIFIER = "Kalon' Pods/Pods.xcodeproj/project.pbxproj 2>/dev/null; then
+            echo "::error::у библиотек всё ещё прописан профиль — сборка упадёт"
+            grep -n 'PROVISIONING_PROFILE_SPECIFIER' Pods/Pods.xcodeproj/project.pbxproj | head -5
+            exit 1
+          fi
+          echo "чисто"
+          echo ""
+          echo "═══ настройки приложения ═══"
+          grep -E 'PROVISIONING_PROFILE_SPECIFIER|DEVELOPMENT_TEAM|CODE_SIGN_STYLE' App.xcodeproj/project.pbxproj | sort -u | head -8
+
       - name: Build archive
         run: |
           cd ios/App
@@ -214,14 +283,11 @@ jobs:
           if [ "$SIGNED" = "true" ]; then
             # РУЧНАЯ подпись: автоматическая (-allowProvisioningUpdates) потребовала бы
             # интерактивного входа в Apple ID, которого на раннере нет.
+            # настройки подписи уже в проекте (шаг выше) — здесь их НЕ передаём
             xcodebuild -workspace App.xcworkspace -scheme App \
               -configuration Release -sdk iphoneos \
               -archivePath $RUNNER_TEMP/Kalon.xcarchive \
               -destination 'generic/platform=iOS' \
-              CODE_SIGN_STYLE=Manual \
-              DEVELOPMENT_TEAM="$TEAM_ID" \
-              PROVISIONING_PROFILE_SPECIFIER="$PROF_NAME" \
-              CODE_SIGN_IDENTITY="$SIGN_IDENTITY" \
               archive 2>&1 | tee $LOG
           else
             # без секретов: только проверка компиляции, архив не подписываем
