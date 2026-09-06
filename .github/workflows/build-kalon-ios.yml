@@ -210,6 +210,8 @@ jobs:
 
       - name: Configure signing for App target only
         if: env.SIGNED == 'true'
+        env:
+          IOS_MIN: ${{ env.IOS_DEPLOYMENT_TARGET }}
         run: |
           # Настройки подписи нельзя передавать в командной строке xcodebuild —
           # они применятся ко ВСЕМ целям, включая библиотеки плагинов,
@@ -230,6 +232,10 @@ jobs:
             "    c.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'" \
             "    c.build_settings['CODE_SIGNING_REQUIRED'] = 'NO'" \
             "    c.build_settings['DEVELOPMENT_TEAM'] = ''" \
+            "    # CocoaPods берёт минимальную версию из podspec каждого плагина" \
+            "    # (у подписок там 12.0). Из-за этого @available(iOS 15) не сходится" \
+            "    # и StoreKit 2 не компилируется. Поднимаем всем принудительно." \
+            "    c.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = ENV['IOS_MIN'] || '15.0'" \
             "  end" \
             "end" \
             "" \
@@ -273,6 +279,9 @@ jobs:
             exit 1
           fi
           echo "чисто"
+          echo ""
+          echo "═══ минимальная версия iOS у библиотек ═══"
+          grep -o 'IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*' Pods/Pods.xcodeproj/project.pbxproj | sort -u
           echo ""
           echo "═══ настройки приложения ═══"
           grep -E 'PROVISIONING_PROFILE_SPECIFIER|DEVELOPMENT_TEAM|CODE_SIGN_STYLE' App.xcodeproj/project.pbxproj | sort -u | head -8
