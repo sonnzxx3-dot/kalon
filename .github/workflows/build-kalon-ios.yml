@@ -15,7 +15,9 @@ defaults:
     working-directory: kalon-project
 
 env:
-  APP_VERSION_NAME: "1.7.0.0"
+  # Apple: CFBundleShortVersionString — максимум ТРИ числа через точку.
+  # "1.7.0.0" отклоняется, у Android такого ограничения нет.
+  APP_VERSION_NAME: "1.7.0"
   BUILD_NUMBER_OFFSET: "100"
   # Bundle ID должен совпадать с тем, что заведён в App Store Connect
   BUNDLE_ID: "ai.synaxsword.kalon"
@@ -26,7 +28,7 @@ env:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,10 +40,23 @@ jobs:
 
       - name: Select Xcode
         run: |
-          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          echo "═══ УСТАНОВЛЕННЫЕ ВЕРСИИ XCODE ═══"
+          ls -d /Applications/Xcode*.app 2>/dev/null || echo "(ничего не найдено)"
+          # Берём самый новый: Apple требует сборку на актуальном SDK,
+          # старые Xcode дают отказ "SDK version issue" при загрузке.
+          NEWEST=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)
+          if [ -z "$NEWEST" ]; then echo "::error::Xcode не найден"; exit 1; fi
+          echo "Выбран: $NEWEST"
+          sudo xcode-select -s "$NEWEST/Contents/Developer"
           xcodebuild -version
-          echo "=== доступные SDK ==="
-          xcodebuild -showsdks | grep -i ios || true
+          echo ""
+          echo "═══ ДОСТУПНЫЕ iOS SDK ═══"
+          xcodebuild -showsdks | grep -i "iphoneos" || true
+          SDKVER=$(xcodebuild -showsdks | grep -oE 'iphoneos[0-9]+' | grep -oE '[0-9]+' | sort -n | tail -1)
+          echo "максимальный iOS SDK: $SDKVER"
+          if [ -n "$SDKVER" ] && [ "$SDKVER" -lt 26 ] 2>/dev/null; then
+            echo "::warning::iOS SDK $SDKVER — Apple требует 26+. Загрузка в App Store Connect будет отклонена."
+          fi
 
       - name: Install dependencies
         run: npm install
@@ -131,11 +146,21 @@ jobs:
       - name: Prepare icon
         run: |
           mkdir -p resources
-          if [ -f ../resources/icon.png ]; then cp ../resources/icon.png resources/icon.png
-          elif [ -f ../icon.png ]; then cp ../icon.png resources/icon.png
-          elif [ -f resources/icon.png ]; then echo "using existing"
-          else echo "ERROR: icon.png not found"; exit 1; fi
+          # ОТДЕЛЬНАЯ ИКОНКА ДЛЯ iOS.
+          # Если положить icon-ios.png — она пойдёт только в iOS-сборку,
+          # а Android продолжит собираться со своей icon.png.
+          # Если файла нет — берётся общая иконка, как раньше.
+          if   [ -f resources/icon-ios.png ]; then cp resources/icon-ios.png resources/icon.png; echo "iOS-иконка: resources/icon-ios.png"
+          elif [ -f ../resources/icon-ios.png ]; then cp ../resources/icon-ios.png resources/icon.png; echo "iOS-иконка: ../resources/icon-ios.png"
+          elif [ -f ../icon-ios.png ]; then cp ../icon-ios.png resources/icon.png; echo "iOS-иконка: ../icon-ios.png"
+          elif [ -f ../resources/icon.png ]; then cp ../resources/icon.png resources/icon.png; echo "общая иконка: ../resources/icon.png"
+          elif [ -f ../icon.png ]; then cp ../icon.png resources/icon.png; echo "общая иконка: ../icon.png"
+          elif [ -f resources/icon.png ]; then echo "общая иконка: resources/icon.png (уже на месте)"
+          else echo "ERROR: иконка не найдена (искал icon-ios.png и icon.png)"; exit 1; fi
           ls -la resources/icon.png
+          # печатаем размер — Apple требует квадрат не меньше 1024×1024
+          python3 -c "from PIL import Image; im=Image.open('resources/icon.png'); print('размер иконки:', im.size)" 2>/dev/null || \
+            sips -g pixelWidth -g pixelHeight resources/icon.png
 
       - name: Generate app icons
         run: npx @capacitor/assets generate --ios
