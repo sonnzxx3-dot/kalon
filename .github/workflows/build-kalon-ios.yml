@@ -143,6 +143,39 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync ios
 
+      - name: Pin ad consent SDK (Podfile)
+        run: |
+          # GoogleUserMessagingPlatform 3.0 (24.03.2025) переименовал ВСЕ классы:
+          # UMPConsentInformation -> ConsentInformation, sharedInstance -> shared и т.д.
+          # Плагин admob написан под версию 2 и с новой не компилируется.
+          # В его podspec закреплён только Google-Mobile-Ads-SDK, а UMP тянется
+          # транзитивно без ограничения — CocoaPods берёт свежую. Закрепляем сами.
+          printf '%s\n' \
+            "import sys, re" \
+            "p = sys.argv[1]" \
+            "s = open(p, encoding='utf-8').read()" \
+            "changed = []" \
+            "new_platform = \"platform :ios, '\" + sys.argv[2] + \"'\"" \
+            "if re.search(r\"platform :ios, '[0-9.]+'\", s):" \
+            "    s = re.sub(r\"platform :ios, '[0-9.]+'\", new_platform, s)" \
+            "    changed.append('platform')" \
+            "pin = \"  pod 'GoogleUserMessagingPlatform', '~> 2.7'\\n\"" \
+            "if 'GoogleUserMessagingPlatform' not in s:" \
+            "    if '# Add your Pods here' in s:" \
+            "        s = s.replace('# Add your Pods here', pin.strip() + '\\n  # Add your Pods here', 1)" \
+            "        changed.append('pin')" \
+            "    else:" \
+            "        m = re.search(r\"(target 'App' do\\n)\", s)" \
+            "        if m:" \
+            "            s = s[:m.end()] + pin + s[m.end():]" \
+            "            changed.append('pin')" \
+            "open(p, 'w', encoding='utf-8').write(s)" \
+            "print('изменено:', ', '.join(changed) if changed else 'ничего')" \
+            > /tmp/podfile_patch.py
+          python3 /tmp/podfile_patch.py ios/App/Podfile "${{ env.IOS_DEPLOYMENT_TARGET }}"
+          echo "=== Podfile ==="
+          cat ios/App/Podfile
+
       - name: Install CocoaPods
         run: |
           cd ios/App
