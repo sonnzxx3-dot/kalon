@@ -21,6 +21,11 @@ env:
   BUILD_NUMBER_OFFSET: "100"
   # Bundle ID должен совпадать с тем, что заведён в App Store Connect
   BUNDLE_ID: "ai.synaxsword.kalon"
+  # AdMob для iOS. У каждой платформы СВОЙ идентификатор приложения —
+  # android-овский здесь не работает. Пока стоит официальный ТЕСТОВЫЙ ID Google:
+  # приложение запускается и показывает тестовую рекламу, дохода нет.
+  # Заведи приложение iOS в консоли AdMob и подставь сюда свой ca-app-pub-XXXX~YYYY.
+  ADMOB_IOS_APP_ID: "ca-app-pub-1788139495634661~5356552816"
   # Минимальная версия iOS. Capacitor 6 требует 13.0+.
   # iOS 15.0 — StoreKit 2 в плагине подписок помечен @available(iOS 15).
   # С 14.0 компиляция падает на несовпадении версий. iOS 14 в 2026 — доли процента.
@@ -125,6 +130,20 @@ jobs:
           /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" "$PLIST"
           echo "=== privacy keys ==="
           /usr/libexec/PlistBuddy -c "Print" "$PLIST" | grep -A0 "UsageDescription" || true
+
+      - name: Inject AdMob App ID (Info.plist)
+        run: |
+          # БЕЗ ЭТОГО КЛЮЧА ПРИЛОЖЕНИЕ ПАДАЕТ ПРЯМО НА ЗАПУСКЕ.
+          # Google Mobile Ads SDK проверяет GADApplicationIdentifier при старте
+          # и аварийно завершает процесс, если ключа нет. Это штатное поведение SDK.
+          PLIST=ios/App/App/Info.plist
+          /usr/libexec/PlistBuddy -c "Delete :GADApplicationIdentifier" "$PLIST" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :GADApplicationIdentifier string ${{ env.ADMOB_IOS_APP_ID }}" "$PLIST"
+          echo "GADApplicationIdentifier = $(/usr/libexec/PlistBuddy -c 'Print :GADApplicationIdentifier' "$PLIST")"
+          case "${{ env.ADMOB_IOS_APP_ID }}" in
+            ca-app-pub-3940256099942544*)
+              echo "::warning::Используется ТЕСТОВЫЙ идентификатор AdMob — реклама тестовая, дохода нет. Замени ADMOB_IOS_APP_ID на свой." ;;
+          esac
 
       - name: Configure App Transport Security and orientation
         run: |
