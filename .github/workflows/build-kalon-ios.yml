@@ -59,6 +59,17 @@ jobs:
           npm install "@capacitor-community/speech-recognition@^${MAJ}.0.0" --save
           npm install "@capacitor/local-notifications@^${MAJ}.0.0" --save || true
           npm install "@capacitor/preferences@^${MAJ}.0.0" --save || true
+          # ── плагин подписок: закрепляем 1.0.21 ТОЛЬКО для iOS ──
+          # В 1.0.25 в Subscriptions.swift:280 обращение к UIApplication.shared
+          # идёт без await из async-контекста — Xcode 15+ это не компилирует
+          # (error: expression is 'async' but is not marked with 'await').
+          # В 1.0.21 тот же код написан корректно, а все нужные приложению методы
+          # (purchaseProduct, getCurrentEntitlements, addListener) на месте.
+          # Android продолжает собираться со своей версией — здесь ephemeral-раннер.
+          if [ -d node_modules/@squareetlabs/capacitor-subscriptions ]; then
+            npm install "@squareetlabs/capacitor-subscriptions@1.0.21" --save
+            echo "подписки закреплены: $(node -p "require('./node_modules/@squareetlabs/capacitor-subscriptions/package.json').version")"
+          fi
           echo "=== версии ==="
           node -p "JSON.stringify({core:require('./node_modules/@capacitor/core/package.json').version,ios:require('./node_modules/@capacitor/ios/package.json').version,speech:require('./node_modules/@capacitor-community/speech-recognition/package.json').version},null,1)"
 
