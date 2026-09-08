@@ -90,6 +90,23 @@ jobs:
             npm install "@squareetlabs/capacitor-subscriptions@1.0.21" --save
             echo "подписки закреплены: $(node -p "require('./node_modules/@squareetlabs/capacitor-subscriptions/package.json').version")"
           fi
+          # Эти три плагина приезжали только из package.json. Если оттуда что-то
+          # выпадет, реклама на iOS тихо исчезнет и в логе не будет ни одной ошибки —
+          # поэтому ставим явно, как речь и уведомления.
+          npm install "@capacitor/app@^${MAJ}.0.0" --save || true
+          npm install "@capacitor-community/admob@^${MAJ}.0.0" --save || true
+          npm install "@capawesome/capacitor-app-update" --save || true
+          echo "=== плагины, попавшие в сборку ==="
+          for m in @capacitor/core @capacitor/ios @capacitor/app @capacitor/preferences \
+                   @capacitor/local-notifications @capacitor-community/admob \
+                   @capacitor-community/speech-recognition @squareetlabs/capacitor-subscriptions \
+                   @capawesome/capacitor-app-update; do
+            V=$(node -p "try{require('./node_modules/$m/package.json').version}catch(e){'НЕТ'}")
+            echo "  $m: $V"
+            if [ "$V" = "НЕТ" ] && [ "$m" = "@capacitor-community/admob" ]; then
+              echo "::warning::плагин admob не установлен — рекламы на iOS не будет"
+            fi
+          done
           echo "=== версии ==="
           node -p "JSON.stringify({core:require('./node_modules/@capacitor/core/package.json').version,ios:require('./node_modules/@capacitor/ios/package.json').version,speech:require('./node_modules/@capacitor-community/speech-recognition/package.json').version},null,1)"
 
@@ -120,7 +137,8 @@ jobs:
           add NSMicrophoneUsageDescription "Микрофон нужен, чтобы записывать приёмы пищи голосом."
           add NSSpeechRecognitionUsageDescription "Распознавание речи превращает сказанное в запись о еде."
           add NSCameraUsageDescription "Камера нужна для сканирования штрих-кодов на упаковке."
-          add NSPhotoLibraryUsageDescription "Доступ к фото нужен, чтобы добавлять снимки блюд."
+          # NSPhotoLibraryUsageDescription не добавляем: код нигде не открывает галерею.
+          # Лишнее разрешение пришлось бы объяснять в анкете о сборе данных.
           # Реклама: Apple требует запрос на отслеживание (ATT)
           add NSUserTrackingUsageDescription "Разрешение позволяет показывать более подходящую рекламу."
           # Экспортное шифрование: своего шифрования нет, только системный HTTPS.
@@ -144,6 +162,22 @@ jobs:
             ca-app-pub-3940256099942544*)
               echo "::warning::Используется ТЕСТОВЫЙ идентификатор AdMob — реклама тестовая, дохода нет. Замени ADMOB_IOS_APP_ID на свой." ;;
           esac
+
+      - name: SKAdNetwork identifiers (Info.plist)
+        run: |
+          # Без SKAdNetworkItems показ рекламы работает, но атрибуция установок теряется.
+          # Здесь только идентификатор самой Google — полный список рекламных сетей
+          # берётся со страницы Google «SKAdNetwork identifiers» и дописывается сюда.
+          PLIST=ios/App/App/Info.plist
+          /usr/libexec/PlistBuddy -c "Delete :SKAdNetworkItems" "$PLIST" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :SKAdNetworkItems array" "$PLIST"
+          i=0
+          for ID in cstr6suwn9.skadnetwork; do
+            /usr/libexec/PlistBuddy -c "Add :SKAdNetworkItems:$i dict" "$PLIST"
+            /usr/libexec/PlistBuddy -c "Add :SKAdNetworkItems:$i:SKAdNetworkIdentifier string $ID" "$PLIST"
+            i=$((i+1))
+          done
+          echo "SKAdNetwork записей: $i"
 
       - name: Configure App Transport Security and orientation
         run: |
@@ -191,6 +225,31 @@ jobs:
 
       - name: Sync Capacitor
         run: npx cap sync ios
+
+      - name: Verify bundled HTML
+        run: |
+          # Без этого шага невозможно отличить «код не работает»
+          # от «в сборку уехал старый index.html».
+          WEB=ios/App/App/public/index.html
+          if [ ! -f "$WEB" ]; then
+            echo "::error::$WEB не найден — cap sync не скопировал webDir"
+            ls -la ios/App/App/public 2>/dev/null || true
+            exit 1
+          fi
+          echo "размер: $(( $(wc -c < "$WEB") / 1024 )) КБ"
+          echo "метка BUILD: $(grep -o "BUILD='[^']*'" "$WEB" | head -1)"
+          echo "фото рецептов (jpeg): $(grep -o 'data:image/jpeg;base64' "$WEB" | wc -l | tr -d ' ')"
+          echo "иконки (webp): $(grep -o 'data:image/webp;base64' "$WEB" | wc -l | tr -d ' ')"
+          if grep -q 'ajax/libs/Chart.js' "$WEB"; then
+            echo "::warning::Chart.js всё ещё грузится с CDN — офлайн аналитика не построится"
+          else
+            echo "Chart.js вшит в файл"
+          fi
+          if grep -q 'fonts.googleapis.com' "$WEB"; then
+            echo "::warning::шрифты всё ещё грузятся с Google Fonts"
+          else
+            echo "шрифты вшиты в файл"
+          fi
 
       - name: Pin ad consent SDK (Podfile)
         run: |
