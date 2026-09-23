@@ -186,6 +186,8 @@ jobs:
           /usr/libexec/PlistBuddy -c "Delete :UISupportedInterfaceOrientations" "$PLIST" 2>/dev/null || true
           /usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations array" "$PLIST"
           /usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations:0 string UIInterfaceOrientationPortrait" "$PLIST"
+          # ориентации iPad не нужны: сборка только для iPhone (см. следующий шаг)
+          /usr/libexec/PlistBuddy -c "Delete :UISupportedInterfaceOrientations~ipad" "$PLIST" 2>/dev/null || true
           # запрещаем незашифрованный HTTP (как и на Android)
           /usr/libexec/PlistBuddy -c "Delete :NSAppTransportSecurity" "$PLIST" 2>/dev/null || true
           /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity dict" "$PLIST"
@@ -198,8 +200,18 @@ jobs:
           sed -i '' "s/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*/IPHONEOS_DEPLOYMENT_TARGET = ${{ env.IOS_DEPLOYMENT_TARGET }}/g" App.xcodeproj/project.pbxproj
           # bundle id
           sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = [^;]*/PRODUCT_BUNDLE_IDENTIFIER = ${{ env.BUNDLE_ID }}/g" App.xcodeproj/project.pbxproj
+          # Только iPhone. В шаблоне Capacitor стоит "1,2" (iPhone + iPad), и тогда
+          # App Store Connect требует скриншоты iPad 13". Вёрстка приложения — телефонная
+          # колонка, на iPad оно запустится в режиме совместимости с iPhone.
+          # Добавить iPad в будущей версии можно, убрать после публикации — нельзя.
+          sed -i '' 's/TARGETED_DEVICE_FAMILY = "[^"]*";/TARGETED_DEVICE_FAMILY = 1;/g' App.xcodeproj/project.pbxproj
           echo "=== проверка ==="
           grep -m3 "IPHONEOS_DEPLOYMENT_TARGET\|PRODUCT_BUNDLE_IDENTIFIER" App.xcodeproj/project.pbxproj
+          grep "TARGETED_DEVICE_FAMILY" App.xcodeproj/project.pbxproj | sort -u
+          if grep -q 'TARGETED_DEVICE_FAMILY = "' App.xcodeproj/project.pbxproj; then
+            echo "::error::в проекте осталась поддержка iPad — App Store Connect потребует скриншоты iPad"
+            exit 1
+          fi
 
       - name: Prepare icon
         run: |
@@ -249,6 +261,16 @@ jobs:
             echo "::warning::шрифты всё ещё грузятся с Google Fonts"
           else
             echo "шрифты вшиты в файл"
+          fi
+          # NSUserTrackingUsageDescription в Info.plist = приложение заявляет отслеживание.
+          # Тогда оно обязано показать системный запрос ATT, иначе Apple отклонит сборку.
+          if /usr/libexec/PlistBuddy -c "Print :NSUserTrackingUsageDescription" ios/App/App/Info.plist >/dev/null 2>&1; then
+            if grep -q 'requestTrackingAuthorization' "$WEB"; then
+              echo "запрос ATT в коде есть — сходится с NSUserTrackingUsageDescription"
+            else
+              echo "::error::В Info.plist есть NSUserTrackingUsageDescription, а index.html не вызывает requestTrackingAuthorization. Apple отклонит такую сборку — загрузи свежий index.html."
+              exit 1
+            fi
           fi
 
       - name: Pin ad consent SDK (Podfile)
